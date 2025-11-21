@@ -1,12 +1,11 @@
- // File: src/App.js
 import React from 'react';
-import ProfileScreen from './components/profile/ProfileScreen';
+import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <ProfileScreen />
+      <ProfilePage />
     </div>
   );
 }
