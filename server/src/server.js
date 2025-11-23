@@ -6,6 +6,7 @@ const { connectDB, sequelize } = require('./config/database');
 
 // Import file routes (Lưu ý tên file là authRoutes.js)
 const authRoutes = require('./routes/authRoutes'); 
+const profileRoutes = require('./routes/profileRoutes');
 
 // SỬA LẠI: Load biến môi trường
 dotenv.config();
@@ -26,6 +27,7 @@ sequelize.sync({ alter: true }).then(() => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;
