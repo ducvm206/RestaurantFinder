@@ -1,18 +1,28 @@
 // src/App.js
-import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // Thêm Routes, Route
-import './App.css'; 
+import "./App.css";
+import Home from "./pages/Home";
+import Avatar from "./pages/Avatar";
+import StoreDetail from "./pages/StoreDetail";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/ProfilePage";
+import Favorites from "./pages/FavoritesPage";
 
-import Login from './pages/Login';
-import Register from './pages/Register'; // Import trang mới
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<Login />} /> {/* Tạm thời để Login là trang chủ */}
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/avatar" element={<Avatar />} />
+        <Route path="/store/:id" element={<StoreDetail />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/favorites" element={<Favorites  />} />
+
       </Routes>
     </div>
   );
