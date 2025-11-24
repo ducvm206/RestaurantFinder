@@ -1,4 +1,4 @@
-restaurant-finder/
+ITSSJapanese/
 ├── client/                          # 🖥️ FRONTEND: React.js application
 │   ├── public/
 │   │   ├── index.html              # 📄 Main HTML template
