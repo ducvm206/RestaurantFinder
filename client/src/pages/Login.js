@@ -30,7 +30,7 @@ const Login = () => {
         alert(`Đăng nhập ${authType} thành công!`);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/');
+        navigate('/Home');
       } else {
         setError(data.message);
       }
