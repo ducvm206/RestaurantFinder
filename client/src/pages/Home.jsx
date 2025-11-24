@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { foodlist, stores, user } from "../data/HomeData";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
+ 
 
 export default function Home() {
   const navigate = useNavigate();
@@ -123,6 +124,8 @@ export default function Home() {
         <input
           type="text"
           placeholder="料理名を入力..."
+          onClick={() => navigate('/search')}
+          readOnly
           className="search-box"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
