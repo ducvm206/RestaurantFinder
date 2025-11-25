@@ -1,4 +1,3 @@
-
 const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -11,6 +10,13 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: 'postgres',
     logging: false,
+    port: process.env.DB_PORT || 5432, // Thêm port cho chắc chắn
+    dialectOptions: {
+      ssl: {
+        require: true, // Bắt buộc dùng SSL
+        rejectUnauthorized: false // Chấp nhận chứng chỉ của Supabase
+      }
+    }
   }
 );
 
