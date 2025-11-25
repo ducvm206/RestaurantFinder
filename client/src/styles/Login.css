@@ -95,7 +95,7 @@
 
 .btn-primary {
   width: 100%;
-  background-color: var(--primary-color);
+  background-color: #ef4444;
   color: white;
   font-weight: 700;
   padding: 0.875rem;
@@ -115,22 +115,26 @@
   opacity: 0.9;
 }
 
+/* Divider (Đường kẻ ngang) */
 .divider-container {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin: 1.5rem 0;
+  width: 100%;
 }
 
 .divider-line {
-  flex-grow: 1;
-  height: 1px;
-  background-color: var(--border-color);
+  flex-grow: 1;          /* Tự động giãn ra */
+  height: 1px;           /* Độ dày 1px */
+  background-color: #e5e7eb; /* Màu xám nhạt (Gray-200) */
 }
 
 .divider-text {
-  padding: 0 1rem;
-  color: var(--text-muted);
+  padding: 0 1rem;       /* Khoảng cách 2 bên chữ Or */
+  color: #9ca3af;        /* Màu chữ xám (Gray-400) */
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .social-login {
@@ -169,7 +173,7 @@
 }
 
 .link-register {
-  color: var(--primary-color);
+  color: #ef4444;
   font-weight: 600;
   text-decoration: none;
   margin-left: 0.25rem;

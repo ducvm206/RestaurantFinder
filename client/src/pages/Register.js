@@ -110,11 +110,11 @@ const Register = () => {
           {/* ... Các ô input giữ nguyên ... */}
           <div className="input-group">
             <span className="material-icons-outlined input-icon">person_outline</span>
-            <input className="form-input" type="text" placeholder="ファーストネーム (Tên)" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+            <input className="form-input" type="text" placeholder="ファーストネーム" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
           </div>
           <div className="input-group">
             <span className="material-icons-outlined input-icon">person_outline</span>
-            <input className="form-input" type="text" placeholder="苗字 (Họ)" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+            <input className="form-input" type="text" placeholder="苗字" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
           </div>
           <div className="input-group">
             <span className="material-icons-outlined input-icon">mail_outline</span>

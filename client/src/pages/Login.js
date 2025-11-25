@@ -2,20 +2,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google'; 
-import FacebookLogin from '@greatsumini/react-facebook-login'; // 1. Đã import
+import FacebookLogin from '@greatsumini/react-facebook-login'; 
 import axios from 'axios'; 
 import '../styles/Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const FACEBOOK_APP_ID = process.env.REACT_APP_FACEBOOK_APP_ID;
+  
+  // CẤU HÌNH FACEBOOK APP ID (Giữ nguyên của bạn)
+  const FACEBOOK_APP_ID = process.env.REACT_APP_FACEBOOK_APP_ID; 
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // HÀM CHUNG GỌI BACKEND
+  // --- 1. HÀM CHUNG GỌI BACKEND (Google & Facebook) ---
   const handleSocialAuth = async (email, name, avatar, authId, authType) => {
     setIsLoading(true);
     try {
@@ -30,7 +33,9 @@ const Login = () => {
         alert(`Đăng nhập ${authType} thành công!`);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/Home');
+        
+        // --- SỬA Ở ĐÂY: Chuyển sang /home ---
+        navigate('/home'); 
       } else {
         setError(data.message);
       }
@@ -41,7 +46,7 @@ const Login = () => {
     }
   };
 
-  // ĐĂNG NHẬP THƯỜNG
+  // --- 2. ĐĂNG NHẬP THƯỜNG (Email/Pass) ---
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -53,12 +58,16 @@ const Login = () => {
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
+      
       if (!res.ok) throw new Error(data.message || 'Đăng nhập thất bại');
 
       alert('Đăng nhập thành công!');
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/'); 
+      
+      // --- SỬA Ở ĐÂY: Chuyển sang /home ---
+      navigate('/home'); 
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -66,7 +75,7 @@ const Login = () => {
     }
   };
 
-  // GOOGLE LOGIN
+  // --- 3. GOOGLE LOGIN ---
   const loginGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -105,6 +114,8 @@ const Login = () => {
               <span className="material-icons-outlined">{showPassword ? 'visibility' : 'visibility_off'}</span>
             </button>
           </div>
+          
+          {/* NÚT LOGIN Ở ĐÂY */}
           <button type="submit" className="btn-primary" disabled={isLoading}>
             <span className="material-icons-outlined">login</span>
             {isLoading ? <span>処理中...</span> : <span>ログイン</span>}
@@ -113,7 +124,7 @@ const Login = () => {
 
         <div className="divider-container">
           <div className="divider-line"></div>
-          <span className="divider-text">Or Login with</span>
+          <span className="divider-text">Or</span>
           <div className="divider-line"></div>
         </div>
 
@@ -128,31 +139,16 @@ const Login = () => {
             </svg>
           </button>
 
-          {/* NÚT FACEBOOK THẬT (Đã thay thế nút giả) */}
+          {/* NÚT FACEBOOK */}
           <FacebookLogin
             appId={FACEBOOK_APP_ID}
             fields="name,email,picture"
             onProfileSuccess={(response) => {
-              // Khi login thành công -> Gửi về Backend
-              handleSocialAuth(
-                response.email, 
-                response.name, 
-                response.picture?.data?.url, 
-                response.id, 
-                'facebook'
-              );
+              handleSocialAuth(response.email, response.name, response.picture?.data?.url, response.id, 'facebook');
             }}
-            onFail={(error) => {
-              console.log('Facebook Login Failed!', error);
-              setError("Đăng nhập Facebook thất bại (Kiểm tra App ID)");
-            }}
+            onFail={(error) => console.log('Login Failed!', error)}
             render={({ onClick }) => (
-              <button 
-                className="btn-social" 
-                type="button" 
-                onClick={onClick} 
-                title="Đăng nhập bằng Facebook"
-              >
+              <button className="btn-social" type="button" onClick={onClick} title="Đăng nhập bằng Facebook">
                  <svg className="social-icon" style={{color: '#1877F2'}} fill="currentColor" viewBox="0 0 24 24">
                   <path clipRule="evenodd" fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
                 </svg>
@@ -163,7 +159,8 @@ const Login = () => {
 
         <div className="login-footer">
           まだアカウントをお持ちではありませんか? 
-          <a href="/register" className="link-register">レジスター</a>
+          <a href="/register" className="link-register">レジスター
+          </a>
         </div>
       </div>
     </div>
