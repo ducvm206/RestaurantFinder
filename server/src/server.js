@@ -7,6 +7,7 @@ const { connectDB, sequelize } = require('./config/database');
 // Import file routes (Lưu ý tên file là authRoutes.js)
 const authRoutes = require('./routes/authRoutes'); 
 const profileRoutes = require('./routes/profileRoutes');
+const userRoutes = require("./routes/userRoutes");
 
 // SỬA LẠI: Load biến môi trường
 dotenv.config();
@@ -16,6 +17,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
 
 // Kết nối Database
 connectDB();
@@ -28,6 +30,7 @@ sequelize.sync({ alter: true }).then(() => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use("/api/users", userRoutes);
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;
