@@ -1,9 +1,9 @@
-// server/src/models/Review.js
+// server/src/models/RestaurantReview.js
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
-const Review = sequelize.define(
-  "Review",
+const RestaurantReview = sequelize.define(
+  "RestaurantReview",
   {
     review_id: {
       type: DataTypes.INTEGER,
@@ -34,23 +34,11 @@ const Review = sequelize.define(
         max: 5,
       },
     },
-    // Tiêu đề bằng tiếng Nhật
-    title_ja: {
+    title: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    // Tiêu đề bằng tiếng Việt
-    title_vi: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    // Nội dung đánh giá bằng tiếng Nhật
-    comment_ja: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    // Nội dung đánh giá bằng tiếng Việt
-    comment_vi: {
+    comment: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
@@ -90,21 +78,21 @@ const Review = sequelize.define(
         max: 5,
       },
     },
-    is_verified_visit: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    helpful_count: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
+    cleanliness_rating: {
+      type: DataTypes.DECIMAL(3, 2),
+      allowNull: true,
+      validate: {
+        min: 0,
+        max: 5,
+      },
     },
   },
   {
     timestamps: true,
-    tableName: "reviews",
+    tableName: "restaurant_reviews",
     createdAt: "created_at",
     updatedAt: "updated_at",
   }
 );
 
-module.exports = Review;
+module.exports = RestaurantReview;

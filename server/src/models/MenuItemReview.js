@@ -1,21 +1,21 @@
-// server/src/models/Review.js
+// server/src/models/MenuItemReview.js
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
-const Review = sequelize.define(
-  "Review",
+const MenuItemReview = sequelize.define(
+  "MenuItemReview",
   {
     review_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    restaurant_id: {
+    item_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "restaurants",
-        key: "restaurant_id",
+        model: "menu_items",
+        key: "item_id",
       },
     },
     user_id: {
@@ -26,6 +26,14 @@ const Review = sequelize.define(
         key: "user_id",
       },
     },
+    restaurant_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "restaurants",
+        key: "restaurant_id",
+      },
+    },
     rating: {
       type: DataTypes.DECIMAL(3, 2),
       allowNull: false,
@@ -34,31 +42,15 @@ const Review = sequelize.define(
         max: 5,
       },
     },
-    // Tiêu đề bằng tiếng Nhật
-    title_ja: {
+    title: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    // Tiêu đề bằng tiếng Việt
-    title_vi: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    // Nội dung đánh giá bằng tiếng Nhật
-    comment_ja: {
+    comment: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    // Nội dung đánh giá bằng tiếng Việt
-    comment_vi: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    visit_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    food_rating: {
+    taste_rating: {
       type: DataTypes.DECIMAL(3, 2),
       allowNull: true,
       validate: {
@@ -66,7 +58,7 @@ const Review = sequelize.define(
         max: 5,
       },
     },
-    service_rating: {
+    presentation_rating: {
       type: DataTypes.DECIMAL(3, 2),
       allowNull: true,
       validate: {
@@ -74,7 +66,7 @@ const Review = sequelize.define(
         max: 5,
       },
     },
-    atmosphere_rating: {
+    portion_rating: {
       type: DataTypes.DECIMAL(3, 2),
       allowNull: true,
       validate: {
@@ -90,21 +82,13 @@ const Review = sequelize.define(
         max: 5,
       },
     },
-    is_verified_visit: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    helpful_count: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-    },
   },
   {
     timestamps: true,
-    tableName: "reviews",
+    tableName: "menu_item_reviews",
     createdAt: "created_at",
     updatedAt: "updated_at",
   }
 );
 
-module.exports = Review;
+module.exports = MenuItemReview;

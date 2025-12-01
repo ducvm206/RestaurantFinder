@@ -1,11 +1,11 @@
-// server/src/models/Favorite.js
+// server/src/models/Recommendation.js
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
-const Favorite = sequelize.define(
-  "Favorite",
+const Recommendation = sequelize.define(
+  "Recommendation",
   {
-    favorite_id: {
+    recommendation_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -26,17 +26,28 @@ const Favorite = sequelize.define(
         key: "restaurant_id",
       },
     },
-    notes: {
+    recommendation_type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    score: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: true,
+    },
+    reason: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
   },
   {
     timestamps: true,
-    tableName: "favorites",
+    tableName: "recommendations",
     createdAt: "created_at",
     updatedAt: false,
   }
 );
 
-module.exports = Favorite;
+// Thêm field expires_at nếu cần
+Recommendation.prototype.expires_at = null;
+
+module.exports = Recommendation;
