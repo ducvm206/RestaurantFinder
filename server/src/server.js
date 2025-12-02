@@ -1,12 +1,13 @@
 // server/src/server.js
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const { connectDB, sequelize } = require('./config/database');
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const { connectDB, sequelize } = require("./config/database");
 
 // Import file routes (Lưu ý tên file là authRoutes.js)
-const authRoutes = require('./routes/authRoutes'); 
-const profileRoutes = require('./routes/profileRoutes');
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const recommendationRouters = require("./routes/recommendationRoutes ");
 
 // SỬA LẠI: Load biến môi trường
 dotenv.config();
@@ -26,8 +27,9 @@ sequelize.sync({ alter: true }).then(() => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profile', profileRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/recommendations", recommendationRouters);
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;
