@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { foodlist, stores, user } from "../data/HomeData";
+import { foodlist, stores } from "../data/HomeData";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
- 
 
 export default function Home() {
   const navigate = useNavigate();
@@ -18,8 +17,39 @@ export default function Home() {
   const [langOpen, setLangOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // REAL USER STATE
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const toggleLangMenu = () => setLangOpen(prev => !prev);
   const selectLang = (value) => { setLang(value); setLangOpen(false); };
+
+  // Load real user data on component mount
+  useEffect(() => {
+    const loadUserData = () => {
+      try {
+        const token = localStorage.getItem('token');
+        const savedUser = localStorage.getItem('user');
+        
+        if (token && savedUser) {
+          const userData = JSON.parse(savedUser);
+          // If userData has id but not user_id, convert it
+          if (userData.id && !userData.user_id) {
+            userData.user_id = userData.id;
+          }
+          setUser(userData);
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [navigate]);
 
   // Close dropdown if click outside
   useEffect(() => {
@@ -45,21 +75,17 @@ export default function Home() {
     return () => window.removeEventListener("resize", updateVisibleCount);
   }, []);
 
-  // -----------------------------
-  // SEARCH LOGIC
-  // -----------------------------
-
   // Filter dishes from foodlist directly
   const filteredDishes = foodlist.filter(dish =>
     dish.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Filter categories for the slider (optional: show categories that have dishes matching search)
+  // Filter categories for the slider
   const filteredCategories = filteredDishes.length > 0
-    ? Array.from(new Set(filteredDishes.map(d => d.name))) // if you want just the dishes names
+    ? Array.from(new Set(filteredDishes.map(d => d.name)))
     : foodlist;
 
-  // Filter stores by name (optional: direct search)
+  // Filter stores by name
   const filteredStores = stores.filter(store =>
     store.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -77,47 +103,66 @@ export default function Home() {
     else alert("この料理を提供している店が見つかりません。");
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>読み込み中...</p>
+      </div>
+    );
+  }
+
+  // If no user found, show nothing (will redirect in useEffect)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="home-container">
       {/* Top bar */}
       <div className="top-bar">
-  {/* Language Dropdown */}
-  <div className="lang-dropdown" ref={dropdownRef}>
-    <button className="lang-btn" onClick={toggleLangMenu}>
-      {lang === "jp" ? "日本語" : "Tiếng Việt"} ▾
-    </button>
-    {langOpen && (
-      <div className="lang-menu">
-        <div className="lang-item" onClick={() => selectLang("jp")}>日本語</div>
-        <div className="lang-item" onClick={() => selectLang("vi")}>Tiếng Việt</div>
+        {/* Language Dropdown */}
+        <div className="lang-dropdown" ref={dropdownRef}>
+          <button className="lang-btn" onClick={toggleLangMenu}>
+            {lang === "jp" ? "日本語" : "Tiếng Việt"} ▾
+          </button>
+          {langOpen && (
+            <div className="lang-menu">
+              <div className="lang-item" onClick={() => selectLang("jp")}>日本語</div>
+              <div className="lang-item" onClick={() => selectLang("vi")}>Tiếng Việt</div>
+            </div>
+          )}
+        </div>
+
+        {/* Favorites Button */}
+        <button
+          className="favorites-btn"
+          onClick={() => navigate("/favorites")}
+        >
+          お気に入り
+        </button>
+
+        {/* Avatar with REAL USER DATA */}
+        <div
+          className="avatar-container"
+          onClick={() => navigate("/profile")}
+        >
+          {user.avatar ? (
+            <img src={user.avatar} alt={user.fullName} className="avatar-img" />
+          ) : (
+            <div className="avatar-default">
+              {user.fullName?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          )}
+          <span className="avatar-name">{user.fullName}</span>
+        </div>
       </div>
-    )}
-  </div>
-
-{/* Favorites Button */}
-    <button
-      className="favorites-btn"
-      onClick={() => navigate("/favorites")}
-    >
-      お気に入り
-    </button>
-
-
-  {/* Avatar */}
-  <div
-      className="avatar-container"
-      onClick={() => navigate("/profile")}
-    >
-      <img src={user.avatar} alt={user.name} className="avatar-img" />
-      <span className="avatar-name">{user.name}</span>
-    </div>
-
-    
-  </div>
-
 
       <p className="location">📍 {location}</p>
-      <h2 className="greeting">こんにちは、{user.name}さん！午後もがんばりましょう！</h2>
+      <h2 className="greeting">
+        こんにちは、{user.fullName}さん！午後もがんばりましょう！
+      </h2>
 
       {/* Search box */}
       <div className="search-container">
@@ -145,7 +190,6 @@ export default function Home() {
                 <img src={dish.image} alt={dish.name} className="dish-img" />
               </div>
               <p className="dish-name">{dish.name}</p>
-              
             </div>
           ))}
         </div>

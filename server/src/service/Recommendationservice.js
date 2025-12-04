@@ -1,13 +1,9 @@
-// server/src/services/recommendationService.js
+// server/src/service/recommendationService.js
 const { Op } = require("sequelize");
-const {
-  User,
-  Restaurant,
-  Review,
-  SearchHistory,
-  Favorite,
-  Recommendation,
-} = require("../models");
+
+// Don't import models at the top - this causes circular dependency
+// Instead, we'll use a getter function
+const getModels = () => require("../models");
 
 class RecommendationService {
   /**
@@ -19,6 +15,8 @@ class RecommendationService {
    */
   async generateRecommendations(userId, limit = 10) {
     try {
+      const { User, Restaurant, Review } = getModels();
+      
       // 1. Lấy thông tin user
       const user = await User.findByPk(userId);
       if (!user) {
@@ -109,6 +107,7 @@ class RecommendationService {
    * Lấy lịch sử tìm kiếm gần đây của user (5 gần nhất)
    */
   async getUserSearchHistory(userId) {
+    const { SearchHistory } = getModels();
     return await SearchHistory.findAll({
       where: { user_id: userId },
       order: [["created_at", "DESC"]],
@@ -120,6 +119,7 @@ class RecommendationService {
    * Lấy reviews của user (chỉ lấy rating >= 4)
    */
   async getUserReviews(userId) {
+    const { Review, Restaurant } = getModels();
     return await Review.findAll({
       where: {
         user_id: userId,
@@ -141,6 +141,7 @@ class RecommendationService {
    * Lấy danh sách yêu thích của user
    */
   async getUserFavorites(userId) {
+    const { Favorite, Restaurant } = getModels();
     return await Favorite.findAll({
       where: { user_id: userId },
       include: [
@@ -315,6 +316,8 @@ class RecommendationService {
    */
   async saveRecommendations(userId, topRecommendations) {
     try {
+      const { Recommendation } = getModels();
+      
       // Xóa recommendations cũ của user (giữ lại trong 7 ngày)
       await Recommendation.destroy({
         where: {
@@ -347,6 +350,8 @@ class RecommendationService {
    */
   async getSavedRecommendations(userId, limit = 10) {
     try {
+      const { Recommendation, Restaurant } = getModels();
+      
       const recommendations = await Recommendation.findAll({
         where: { user_id: userId },
         include: [
@@ -396,6 +401,8 @@ class RecommendationService {
    */
   async getTrendingRestaurants(limit = 10) {
     try {
+      const { Restaurant } = getModels();
+      
       const restaurants = await Restaurant.findAll({
         where: {
           average_rating: { [Op.gte]: 4.0 },

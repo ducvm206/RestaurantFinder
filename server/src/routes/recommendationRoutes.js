@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const recommendationController = require("../controllers/recommendationController");
-const authMiddleware = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 
 /**
  * @route   GET /api/recommendations/generate
@@ -11,7 +11,7 @@ const authMiddleware = require("../middleware/authMiddleware");
  */
 router.get(
   "/generate",
-  authMiddleware,
+  protect,
   recommendationController.generateRecommendations
 );
 
@@ -20,7 +20,7 @@ router.get(
  * @desc    Lấy gợi ý đã lưu của user (yêu cầu đăng nhập)
  * @access  Private
  */
-router.get("/", authMiddleware, recommendationController.getRecommendations);
+router.get("/", protect, recommendationController.getRecommendations);
 
 /**
  * @route   GET /api/recommendations/trending

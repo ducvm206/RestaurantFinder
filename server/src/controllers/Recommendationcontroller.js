@@ -1,5 +1,5 @@
 // server/src/controllers/recommendationController.js
-const recommendationService = require("../services/recommendationService");
+const recommendationService = require("../service/recommendationService");
 
 class RecommendationController {
   /**
@@ -105,4 +105,12 @@ class RecommendationController {
   }
 }
 
-module.exports = new RecommendationController();
+// Create instance and bind methods
+const controller = new RecommendationController();
+
+module.exports = {
+  generateRecommendations: controller.generateRecommendations.bind(controller),
+  getRecommendations: controller.getRecommendations.bind(controller),
+  getTrendingRestaurants: controller.getTrendingRestaurants.bind(controller),
+  getRecommendationsForGuest: controller.getRecommendationsForGuest.bind(controller),
+};

@@ -38,6 +38,10 @@ const Recommendation = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    expires_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
@@ -46,8 +50,5 @@ const Recommendation = sequelize.define(
     updatedAt: false,
   }
 );
-
-// Thêm field expires_at nếu cần
-Recommendation.prototype.expires_at = null;
 
 module.exports = Recommendation;
