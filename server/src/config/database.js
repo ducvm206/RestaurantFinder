@@ -33,7 +33,7 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
   host: DB_HOST,
   port: DB_PORT,
   dialect: 'postgres',
-  logging: console.log, // Enable logging for debugging
+  logging: false, // Enable logging for debugging
   dialectOptions: {
     ssl: DB_HOST.includes('supabase') ? {
       require: true,
