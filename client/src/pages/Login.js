@@ -17,11 +17,11 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Nếu đã đăng nhập rồi thì đá về Home luôn (UX tốt hơn)
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) navigate('/home');
-  }, [navigate]);
+  // // Nếu đã đăng nhập rồi thì đá về Home luôn (UX tốt hơn)
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) navigate('/home');
+  // }, [navigate]);
 
   // --- XỬ LÝ CHUNG: Lưu Token và Chuyển trang ---
   const handleAuthSuccess = (data, method) => {

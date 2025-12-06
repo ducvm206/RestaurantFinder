@@ -34,9 +34,9 @@ exports.register = async (req, res) => {
 
     res.json({
       message: 'Đăng ký thành công',
-      token: generateToken(newUser.id),
+      token: generateToken(newUser.user_id),
       user: {
-        id: newUser.id,
+        id: newUser.user_id,
         fullName: newUser.fullName,
         email: newUser.email,
         avatar: newUser.avatar
@@ -69,9 +69,9 @@ exports.login = async (req, res) => {
 
     res.json({
       message: 'Đăng nhập thành công',
-      token: generateToken(user.id),
+      token: generateToken(user.user_id),
       user: {
-        id: user.id,
+        id: user.user_id,
         fullName: user.fullName,
         email: user.email,
         avatar: user.avatar
@@ -102,9 +102,9 @@ exports.socialLogin = async (req, res) => {
 
       res.json({
         message: `Đăng nhập ${authType} thành công`,
-        token: generateToken(user.id),
+        token: generateToken(user.user_id),
         user: {
-          id: user.id,
+          id: user.user_id,
           fullName: user.fullName,
           email: user.email,
           avatar: user.avatar
@@ -123,9 +123,9 @@ exports.socialLogin = async (req, res) => {
 
       res.json({
         message: `Đăng ký mới bằng ${authType} thành công`,
-        token: generateToken(user.id),
+        token: generateToken(user.user_id),
         user: {
-          id: user.id,
+          id: user.user_id,
           fullName: user.fullName,
           email: user.email,
           avatar: user.avatar

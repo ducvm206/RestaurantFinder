@@ -1,8 +1,7 @@
 // src/App.js
 import "./App.css";
 import Home from "./pages/Home";
-import Avatar from "./pages/Avatar";
-import StoreDetail from "./pages/StoreDetail";
+import RestaurantDetail from "./pages/RestaurantDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/ProfilePage";
@@ -18,8 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/avatar" element={<Avatar />} />
-        <Route path="/store/:id" element={<StoreDetail />} />
+        <Route path="/restaurants/:id" element={<RestaurantDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/favorites" element={<Favorites  />} />
 
