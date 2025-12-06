@@ -36,9 +36,9 @@ export default function RestaurantList({ restaurants = [], userCoords }) {
           className="rest-item"
           onClick={() => handleClick(restaurant.restaurant_id)}
         >
-          {restaurant.logo && (
+          {restaurant.image_url && (
             <img
-              src={restaurant.logo}
+              src={restaurant.image_url}
               alt={restaurant.name}
               className="rest-img"
             />

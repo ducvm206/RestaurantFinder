@@ -48,7 +48,7 @@ export default function RestaurantInfo({ restaurant }) {
 
         {/* Address */}
         <p>
-          <FiMapPin className="icon" /> {restaurant.address}, {restaurant.district}, {restaurant.city}
+          <FiMapPin className="icon" /> {restaurant.address_ja}
         </p>
 
         {/* Distance */}

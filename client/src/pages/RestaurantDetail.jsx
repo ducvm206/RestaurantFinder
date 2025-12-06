@@ -1,4 +1,3 @@
-// client/src/pages/RestaurantDetail.jsx
 import "../styles/RestaurantDetail.css";
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
@@ -12,8 +11,9 @@ import ReviewList from "../components/restaurant/ReviewList";
 import RestaurantImages from "../components/restaurant/RestaurantImages";
 
 export default function RestaurantDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); // <-- this is the restaurant ID
   const [restaurant, setRestaurant] = useState(null);
+  const [reviews, setReviews] = useState([]); // separate state for reviews
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [favorites, setFavorites] = useState([]);
@@ -38,16 +38,29 @@ export default function RestaurantDetail() {
         setLoading(false);
       }
     };
-
     fetchRestaurant();
   }, [id]);
 
-  const isFavorite =
-    restaurant && favorites.some(f => f.id === restaurant.id);
+  // Fetch reviews separately
+  useEffect(() => {
+  if (!id) return;
+
+  const fetchReviews = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/restaurant-reviews/restaurant/${id}`);
+      setReviews(res.data);
+    } catch (err) {
+      console.error("Cannot fetch reviews:", err);
+    }
+  };
+
+  fetchReviews();
+}, [id]); // <-- use "id" here, not restaurantId
+
+  const isFavorite = restaurant && favorites.some(f => f.id === restaurant.id);
 
   const toggleFavorite = () => {
     if (!restaurant) return;
-
     if (isFavorite) {
       setFavorites(favorites.filter(f => f.id !== restaurant.id));
     } else {
@@ -77,8 +90,12 @@ export default function RestaurantDetail() {
       </div>
 
       {/* Logo */}
-      {restaurant.logo && (
-        <img src={restaurant.logo} alt={restaurant.name} className="restaurant-logo-full" />
+      {restaurant.image_url && (
+        <img
+          src={restaurant.image_url}
+          alt={restaurant.name}
+          className="restaurant-logo-full"
+        />
       )}
 
       {/* Restaurant Info */}
@@ -94,7 +111,7 @@ export default function RestaurantDetail() {
       {/* MENU */}
       <section ref={menuRef} className="restaurant-section">
         <h2 className="section-title">Menu</h2>
-        <MenuList menu={restaurant.menu_items || []} />
+        <MenuList menu={restaurant.menuItems || []} />
       </section>
 
       {/* IMAGES */}
@@ -106,7 +123,7 @@ export default function RestaurantDetail() {
       {/* REVIEWS */}
       <section ref={reviewsRef} className="restaurant-section">
         <h2 className="section-title">Reviews</h2>
-        <ReviewList reviews={restaurant.reviews || []} />
+        <ReviewList reviews={reviews} />
       </section>
     </div>
   );
