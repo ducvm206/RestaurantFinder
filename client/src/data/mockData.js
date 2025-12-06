@@ -469,8 +469,8 @@ export const filterOptions = {
     { value: "オンライン決済可", label: "オンライン決済可" }
   ],
   cuisines: [
-    { value: "japanese", label: "日本料理" },
-    { value: "vietnamese", label: "ベトナム料理" }
+    { value: "日本料理", label: "日本料理" },
+    { value: "ベトナム料理", label: "ベトナム料理" }
   ],
   distances: [
     { value: "< 2", label: "< 2 km" },
@@ -483,9 +483,9 @@ export const filterOptions = {
     { value: "$$$", label: "$$$" }
   ],
   styles: [
-    { value: "formal", label: "フォーマル" },
-    { value: "drinking_party", label: "飲み会" },
-    { value: "family_friendly", label: "家族向け" },
-    { value: "casual", label: "カジュアル" }
+    { value: "フォーマル", label: "フォーマル" },
+    { value: "飲み会", label: "飲み会" },
+    { value: "家族向け", label: "家族向け" },
+    { value: "カジュアル", label: "カジュアル" }
   ]
 };
