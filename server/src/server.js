@@ -5,10 +5,13 @@ const dotenv = require("dotenv");
 const path = require("path");
 const { connectDB, sequelize } = require("./config/database");
 
+
 // Import file routes
+const restaurantRouter = require("./routes/restaurantRoutes");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const recommendationRouters = require("./routes/recommendationRoutes");
+
 
 // Load environment variables
 dotenv.config();
@@ -19,6 +22,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For form-data
+
 
 // ⭐ CRITICAL: Serve static files from uploads directory
 // This allows uploaded avatars to be accessible via URL
@@ -39,6 +43,7 @@ sequelize.sync({ alter: true }).then(() => {
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/recommendations", recommendationRouters);
+app.use("/api/restaurants", restaurantRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

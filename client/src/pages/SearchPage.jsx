@@ -1,11 +1,10 @@
-// client/src/pages/SearchPage.jsx (UPDATED - Funnel Icon)
+// client/src/pages/SearchPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FilterModal from '../components/search/FilterModal';
-import { 
-  mockRestaurants, 
-  mockDishes, 
-  mockRecentKeywords 
+import {
+  mockDishes,
+  mockRecentKeywords
 } from '../data/mockData';
 import './SearchPage.css';
 
@@ -13,6 +12,8 @@ const SearchPage = () => {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [showFilter, setShowFilter] = useState(false);
+  
+  // State filters giữ giá trị mặc định (rỗng)
   const [filters, setFilters] = useState({
     services: [],
     cuisines: [],
@@ -21,8 +22,10 @@ const SearchPage = () => {
     styles: [],
     minRating: 0
   });
+  
   const [recentKeywords, setRecentKeywords] = useState(mockRecentKeywords);
   const [searchResults, setSearchResults] = useState(null);
+  const [restaurants, setRestaurants] = useState([]);
 
   // Load recent keywords
   useEffect(() => {
@@ -32,18 +35,47 @@ const SearchPage = () => {
     }
   }, []);
 
+  // Fetch restaurants từ API
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/restaurants');
+        const data = await res.json();
+        setRestaurants(data);
+      } catch (err) {
+        console.error('Error fetching restaurants:', err);
+      }
+    };
+    fetchRestaurants();
+  }, []);
+
   // Save recent keyword
   const saveRecentKeyword = (kw) => {
     if (!kw.trim()) return;
-    
     const updated = [kw, ...recentKeywords.filter(k => k !== kw)].slice(0, 10);
     setRecentKeywords(updated);
     localStorage.setItem('recentKeywords', JSON.stringify(updated));
   };
 
+  // --- SỬA ĐỔI CHÍNH TẠI ĐÂY ---
   // Handle search
-  const handleSearch = (searchKeyword = keyword) => {
-    if (!searchKeyword.trim() && filters.services.length === 0) {
+  // Thêm tham số passedFilters (để nhận bộ lọc từ modal ngay lập tức)
+  const handleSearch = (searchKeyword = keyword, passedFilters = null) => {
+    
+    // Ưu tiên dùng passedFilters nếu có, nếu không thì dùng state filters hiện tại
+    const activeFilters = passedFilters || filters;
+
+    // Kiểm tra xem có bất kỳ bộ lọc nào được chọn không
+    const hasActiveFilters = 
+      activeFilters.services.length > 0 ||
+      activeFilters.cuisines.length > 0 ||
+      activeFilters.distance ||
+      activeFilters.priceRange ||
+      activeFilters.styles.length > 0 ||
+      activeFilters.minRating > 0;
+
+    // Nếu không có từ khóa VÀ không có bộ lọc nào -> Clear kết quả
+    if (!searchKeyword.trim() && !hasActiveFilters) {
       setSearchResults(null);
       return;
     }
@@ -52,62 +84,66 @@ const SearchPage = () => {
       saveRecentKeyword(searchKeyword.trim());
     }
 
-    let filtered = mockRestaurants;
+    let filtered = restaurants;
 
-    // Filter by keyword
+    // 1. Filter by keyword
     if (searchKeyword.trim()) {
-      filtered = filtered.filter(r => 
-        r.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        r.nameEn.toLowerCase().includes(searchKeyword.toLowerCase())
+      filtered = filtered.filter(r =>
+        r.name.toLowerCase().includes(searchKeyword.toLowerCase())
       );
     }
 
-    // Filter by services
-    if (filters.services.length > 0) {
-      filtered = filtered.filter(r => 
-        filters.services.some(s => r.services.includes(s))
+    // --- DÙNG activeFilters ĐỂ LỌC ---
+
+    // 2. Filter by services
+    if (activeFilters.services.length > 0) {
+      filtered = filtered.filter(r => {
+        // Parse dữ liệu services của nhà hàng cho an toàn
+        const servicesArray = Array.isArray(r.services) ? r.services : JSON.parse(r.services || "[]");
+        // Kiểm tra xem nhà hàng có chứa service nào trong bộ lọc không
+        return activeFilters.services.some(s => servicesArray.includes(s));
+      });
+    }
+
+    // 3. Filter by cuisines
+    if (activeFilters.cuisines.length > 0) {
+      filtered = filtered.filter(r =>
+        activeFilters.cuisines.includes(r.cuisine)
       );
     }
 
-    // Filter by cuisines
-    if (filters.cuisines.length > 0) {
-      filtered = filtered.filter(r => 
-        filters.cuisines.includes(r.cuisine)
-      );
-    }
-
-    // Filter by distance
-    if (filters.distance) {
-      if (filters.distance === '< 2') {
+    // 4. Filter by distance
+    if (activeFilters.distance) {
+      if (activeFilters.distance === '< 2') {
         filtered = filtered.filter(r => r.distance < 2);
-      } else if (filters.distance === '2-6') {
+      } else if (activeFilters.distance === '2-6') {
         filtered = filtered.filter(r => r.distance >= 2 && r.distance <= 6);
-      } else if (filters.distance === '> 6') {
+      } else if (activeFilters.distance === '> 6') {
         filtered = filtered.filter(r => r.distance > 6);
       }
     }
 
-    // Filter by price range
-    if (filters.priceRange) {
-      filtered = filtered.filter(r => r.priceRange === filters.priceRange);
+    // 5. Filter by price range
+    if (activeFilters.priceRange) {
+      filtered = filtered.filter(r => r.price_range === activeFilters.priceRange);
     }
 
-    // Filter by styles
-    if (filters.styles.length > 0) {
-      filtered = filtered.filter(r => 
-        filters.styles.some(s => r.style.includes(s))
+    // 6. Filter by styles
+    if (activeFilters.styles.length > 0) {
+      filtered = filtered.filter(r =>
+        activeFilters.styles.some(s => r.style.includes(s))
       );
     }
 
-    // Filter by rating
-    if (filters.minRating > 0) {
-      filtered = filtered.filter(r => r.rating >= filters.minRating);
+    // 7. Filter by rating
+    if (activeFilters.minRating > 0) {
+      filtered = filtered.filter(r => r.average_rating >= activeFilters.minRating);
     }
 
-    // Filter dishes by keyword
-    let filteredDishes = mockDishes;
+    // Filter dishes by keyword (mock giữ nguyên)
+    let filteredDishes = [];
     if (searchKeyword.trim()) {
-      filteredDishes = filteredDishes.filter(d => 
+      filteredDishes = filteredDishes.filter(d =>
         d.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
         d.nameEn.toLowerCase().includes(searchKeyword.toLowerCase())
       );
@@ -119,12 +155,26 @@ const SearchPage = () => {
     });
   };
 
+  // --- SỬA ĐỔI CHÍNH TẠI ĐÂY ---
   // Handle filter apply
   const handleApplyFilter = (newFilters) => {
-    setFilters(newFilters);
+    // 1. Gọi search NGAY LẬP TỨC với bộ lọc mới
+    handleSearch(keyword, newFilters);
+
+    // 2. Reset state filters về rỗng để lần mở sau modal sẽ sạch sẽ
+    setFilters({
+      services: [],
+      cuisines: [],
+      distance: '',
+      priceRange: '',
+      styles: [],
+      minRating: 0
+    });
+
+    // 3. Đóng modal
     setShowFilter(false);
-    setTimeout(() => handleSearch(keyword), 100);
   };
+
 
   // Handle recent keyword click
   const handleKeywordClick = (kw) => {
@@ -132,10 +182,10 @@ const SearchPage = () => {
     handleSearch(kw);
   };
 
-  // Get recommendations
-  const recommendations = mockRestaurants
+  // Get recommendations (chỉ lấy nhà hàng đang mở)
+  const recommendations = restaurants
     .filter(r => r.isOpen)
-    .sort((a, b) => b.rating - a.rating)
+    .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, 3);
 
   const popularDishes = mockDishes
@@ -162,25 +212,25 @@ const SearchPage = () => {
             placeholder="ラーメン"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
+            // Khi nhấn Enter, gọi search không tham số (dùng filters rỗng mặc định)
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
-        <button 
+        <button
           className="filter-button"
           onClick={() => setShowFilter(true)}
           title="絞り込み検索"
         >
-          {/* Funnel/Filter SVG Icon */}
-          <svg 
-            className="filter-icon" 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
+          <svg
+            className="filter-icon"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path 
-              d="M3 4.5H21V6.75L14.25 13.5V19.5L9.75 21.75V13.5L3 6.75V4.5Z" 
+            <path
+              d="M3 4.5H21V6.75L14.25 13.5V19.5L9.75 21.75V13.5L3 6.75V4.5Z"
               fill="currentColor"
               stroke="currentColor"
               strokeWidth="1.5"
@@ -194,7 +244,6 @@ const SearchPage = () => {
       {/* Content */}
       <div className="search-content">
         {searchResults ? (
-          // Search results
           <div className="search-results">
             {searchResults.dishes.length > 0 && (
               <div className="results-section">
@@ -202,8 +251,8 @@ const SearchPage = () => {
                 <div className="dishes-grid">
                   {searchResults.dishes.map(dish => (
                     <div key={dish.id} className="dish-card">
-                      <img 
-                        src={dish.image} 
+                      <img
+                        src={dish.image}
                         alt={dish.name}
                         className="dish-image"
                         loading="lazy"
@@ -223,24 +272,23 @@ const SearchPage = () => {
                 <h2 className="section-title">営業中のレストラン</h2>
                 <div className="restaurants-list">
                   {searchResults.restaurants.map(restaurant => (
-                    <div 
-                      key={restaurant.id} 
+                    <div
+                      key={restaurant.restaurant_id}
                       className="restaurant-card"
-                      onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                      onClick={() => navigate(`/restaurant/${restaurant.restaurant_id}`)}
                     >
-                      <img 
-                        src={restaurant.image} 
+                      <img
+                        src={restaurant.image_url}
                         alt={restaurant.name}
                         className="restaurant-image"
                         loading="lazy"
                       />
                       <div className="restaurant-info">
                         <h3 className="restaurant-name">{restaurant.name}</h3>
-                        <p className="restaurant-address">{restaurant.address}</p>
+                        <p className="restaurant-address">{restaurant.address_ja}</p>
                         <div className="restaurant-meta">
-                          <span className="rating">⭐ {restaurant.rating}</span>
-                          <span className="distance">{restaurant.distance} km</span>
-                          <span className="price">{restaurant.priceRange}</span>
+                          <span className="rating">⭐ {restaurant.average_rating}</span>
+                          <span className="price">{restaurant.price_range}</span>
                         </div>
                       </div>
                     </div>
@@ -248,7 +296,6 @@ const SearchPage = () => {
                 </div>
               </div>
             )}
-
             {searchResults.restaurants.length === 0 && searchResults.dishes.length === 0 && (
               <div className="no-results">
                 <div className="no-results-icon">🔍</div>
@@ -281,23 +328,23 @@ const SearchPage = () => {
               <h2 className="section-title">おすすめのレストラン</h2>
               <div className="restaurants-list">
                 {recommendations.map(restaurant => (
-                  <div 
-                    key={restaurant.id} 
+                  <div
+                    key={restaurant.restaurant_id}
                     className="restaurant-card"
-                    onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                    onClick={() => navigate(`/restaurant/${restaurant.restaurant_id}`)}
                   >
-                    <img 
-                      src={restaurant.image} 
+                    <img
+                      src={restaurant.image_url}
                       alt={restaurant.name}
                       className="restaurant-image"
                       loading="lazy"
                     />
                     <div className="restaurant-info">
                       <h3 className="restaurant-name">{restaurant.name}</h3>
-                      <p className="restaurant-address">{restaurant.address}</p>
+                      <p className="restaurant-address">{restaurant.address_ja}</p>
                       <div className="restaurant-meta">
-                        <span className="rating">⭐ {restaurant.rating}</span>
-                        <span className="distance">{restaurant.distance} km</span>
+                        <span className="rating">⭐ {restaurant.average_rating}</span>
+                        <span className="price">{restaurant.price_range}</span>
                       </div>
                     </div>
                   </div>
@@ -310,8 +357,8 @@ const SearchPage = () => {
               <div className="dishes-scroll">
                 {popularDishes.map(dish => (
                   <div key={dish.id} className="dish-card-small">
-                    <img 
-                      src={dish.image} 
+                    <img
+                      src={dish.image}
                       alt={dish.name}
                       className="dish-image-small"
                       loading="lazy"

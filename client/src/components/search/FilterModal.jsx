@@ -41,9 +41,11 @@ const FilterModal = ({ filters, onApply, onClose }) => {
   };
 
   // Apply filters
+  
   const handleApply = () => {
-    onApply(localFilters);
-  };
+  onApply(localFilters);   // gửi filter đã chọn ra SearchPage để lọc              
+  onClose();               // đóng modal
+};
 
   // Reset all filters
   const handleReset = () => {

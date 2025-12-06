@@ -71,6 +71,23 @@ const Restaurant = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    // --- CÁC TRƯỜNG MỚI ĐỂ KHỚP VỚI BỘ LỌC FRONTEND ---
+    cuisine: {
+      type: DataTypes.STRING, // Ví dụ: 'japanese', 'vietnamese'
+      allowNull: true,
+    },
+    services: {
+      type: DataTypes.JSON, // Lưu mảng: ["dine_in", "takeout"]
+      defaultValue: [],
+    },
+    style: {
+      type: DataTypes.JSON, // Lưu mảng: ["casual", "family_friendly"]
+      defaultValue: [],
+    },
+    isOpen:{
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    }
   },
   {
     timestamps: false,

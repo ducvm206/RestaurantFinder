@@ -463,10 +463,10 @@ export const mockRecentKeywords = [
 // Filter options
 export const filterOptions = {
   services: [
-    { value: "dine_in", label: "店内飲食" },
-    { value: "takeout", label: "持ち帰り" },
-    { value: "has_deals", label: "特典あり" },
-    { value: "online_payment", label: "オンライン決済可" }
+    { value: "店内飲食", label: "店内飲食" },
+    { value: "持ち帰り", label: "持ち帰り" },
+    { value: "特典あり", label: "特典あり" },
+    { value: "オンライン決済可", label: "オンライン決済可" }
   ],
   cuisines: [
     { value: "japanese", label: "日本料理" },
