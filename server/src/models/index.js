@@ -1,7 +1,7 @@
-// server/src/models/index.js
+// server/src/models/index.js - FIXED VERSION
 const { sequelize } = require("../config/database");
 
-// Load model files
+// First, load all models
 const User = require("./User");
 const Restaurant = require("./Restaurant");
 const Review = require("./Review");
@@ -12,102 +12,8 @@ const Favorite = require("./Favorite");
 const SearchHistory = require("./SearchHistory");
 const Recommendation = require("./Recommendation");
 
-// Validate models
-const allModels = [
-  User, Restaurant, Review, MenuItem, MenuItemReview,
-  RestaurantReview, Favorite, SearchHistory, Recommendation
-];
-
-// Debug: Check if each model is valid
-allModels.forEach((m, i) => {
-  if (!m || !m.prototype || !m.prototype instanceof Object) {
-    console.error("❌ Model at index", i, "is invalid:", m);
-  }
-  if (!m.getTableName) {
-    console.error("❌ Model missing .getTableName():", m);
-  }
-});
-
-// Setup associations AFTER models are defined
-function setupAssociations() {
-  // User ↔ Reviews
-  User.hasMany(Review, { foreignKey: "user_id", as: "reviews" });
-  Review.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-  Restaurant.hasMany(Review, { foreignKey: "restaurant_id", as: "reviews" });
-  Review.belongsTo(Restaurant, { foreignKey: "restaurant_id", as: "restaurant" });
-
-  // User ↔ RestaurantReviews
-  User.hasMany(RestaurantReview, { foreignKey: "user_id", as: "restaurantReviews" });
-  RestaurantReview.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-  Restaurant.hasMany(RestaurantReview, {
-    foreignKey: "restaurant_id",
-    as: "restaurantReviews"
-  });
-  RestaurantReview.belongsTo(Restaurant, {
-    foreignKey: "restaurant_id",
-    as: "restaurant"
-  });
-
-  // Restaurant ↔ MenuItem
-  Restaurant.hasMany(MenuItem, { foreignKey: "restaurant_id", as: "menuItems" });
-  MenuItem.belongsTo(Restaurant, { foreignKey: "restaurant_id", as: "restaurant" });
-
-  // User ↔ MenuItemReview
-  User.hasMany(MenuItemReview, { foreignKey: "user_id", as: "menuItemReviews" });
-  MenuItemReview.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-  MenuItem.hasMany(MenuItemReview, { foreignKey: "item_id", as: "reviews" });
-  MenuItemReview.belongsTo(MenuItem, { foreignKey: "item_id", as: "menuItem" });
-
-  Restaurant.hasMany(MenuItemReview, {
-    foreignKey: "restaurant_id",
-    as: "menuItemReviews"
-  });
-  MenuItemReview.belongsTo(Restaurant, {
-    foreignKey: "restaurant_id",
-    as: "restaurant"
-  });
-
-  // Favorites (many-to-many)
-  User.belongsToMany(Restaurant, {
-    through: Favorite,
-    foreignKey: "user_id",
-    otherKey: "restaurant_id",
-    as: "favoriteRestaurants"
-  });
-  Restaurant.belongsToMany(User, {
-    through: Favorite,
-    foreignKey: "restaurant_id",
-    otherKey: "user_id",
-    as: "favoritedByUsers"
-  });
-
-  // Search history
-  User.hasMany(SearchHistory, { foreignKey: "user_id", as: "searchHistory" });
-  SearchHistory.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-  // Recommendations
-  User.hasMany(Recommendation, { foreignKey: "user_id", as: "recommendations" });
-  Recommendation.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-  Restaurant.hasMany(Recommendation, {
-    foreignKey: "restaurant_id",
-    as: "recommendedTo"
-  });
-  Recommendation.belongsTo(Restaurant, {
-    foreignKey: "restaurant_id",
-    as: "restaurant"
-  });
-}
-
-// Run association setup
-setupAssociations();
-
-// Export models
-module.exports = {
-  sequelize,
+// Store all models
+const models = {
   User,
   Restaurant,
   Review,
@@ -116,5 +22,105 @@ module.exports = {
   RestaurantReview,
   Favorite,
   SearchHistory,
-  Recommendation
+  Recommendation,
+  sequelize
 };
+
+// IMPORTANT: Set up associations in a function that's called AFTER all models are loaded
+function setupAssociations() {
+  // User <-> Restaurant (through Review)
+  User.hasMany(Review, { foreignKey: "user_id", as: "reviews" });
+  Review.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  Restaurant.hasMany(Review, { foreignKey: "restaurant_id", as: "reviews" });
+  Review.belongsTo(Restaurant, { foreignKey: "restaurant_id", as: "restaurant" });
+
+  // User <-> Restaurant (through RestaurantReview)
+  User.hasMany(RestaurantReview, {
+    foreignKey: "user_id",
+    as: "restaurantReviews",
+  });
+  RestaurantReview.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  Restaurant.hasMany(RestaurantReview, {
+    foreignKey: "restaurant_id",
+    as: "restaurantReviews",
+  });
+  RestaurantReview.belongsTo(Restaurant, {
+    foreignKey: "restaurant_id",
+    as: "restaurant",
+  });
+
+  // Restaurant <-> MenuItem
+  Restaurant.hasMany(MenuItem, { foreignKey: "restaurant_id", as: "menuItems" });
+  MenuItem.belongsTo(Restaurant, {
+    foreignKey: "restaurant_id",
+    as: "restaurant",
+  });
+
+  // User <-> MenuItem (through MenuItemReview)
+  User.hasMany(MenuItemReview, { foreignKey: "user_id", as: "menuItemReviews" });
+  MenuItemReview.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  MenuItem.hasMany(MenuItemReview, { foreignKey: "item_id", as: "reviews" });
+  MenuItemReview.belongsTo(MenuItem, { foreignKey: "item_id", as: "menuItem" });
+
+  Restaurant.hasMany(MenuItemReview, {
+    foreignKey: "restaurant_id",
+    as: "menuItemReviews",
+  });
+  MenuItemReview.belongsTo(Restaurant, {
+    foreignKey: "restaurant_id",
+    as: "restaurant",
+  });
+
+  // User <-> Restaurant (through Favorite)
+  User.hasMany(Favorite, { foreignKey: "user_id", as: "favorites" });
+  Favorite.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  Restaurant.hasMany(Favorite, {
+    foreignKey: "restaurant_id",
+    as: "favoritedBy",
+  });
+  Favorite.belongsTo(Restaurant, {
+    foreignKey: "restaurant_id",
+    as: "restaurant",
+  });
+
+  // Many-to-Many: User <-> Restaurant (through Favorite)
+  User.belongsToMany(Restaurant, {
+    through: Favorite,
+    foreignKey: "user_id",
+    otherKey: "restaurant_id",
+    as: "favoriteRestaurants",
+  });
+  Restaurant.belongsToMany(User, {
+    through: Favorite,
+    foreignKey: "restaurant_id",
+    otherKey: "user_id",
+    as: "favoritedByUsers",
+  });
+
+  // User -> SearchHistory
+  User.hasMany(SearchHistory, { foreignKey: "user_id", as: "searchHistory" });
+  SearchHistory.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  // User <-> Restaurant (through Recommendation)
+  User.hasMany(Recommendation, { foreignKey: "user_id", as: "recommendations" });
+  Recommendation.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  Restaurant.hasMany(Recommendation, {
+    foreignKey: "restaurant_id",
+    as: "recommendedTo",
+  });
+  Recommendation.belongsTo(Restaurant, {
+    foreignKey: "restaurant_id",
+    as: "restaurant",
+  });
+}
+
+// Call the setup function
+setupAssociations();
+
+// Export all models
+module.exports = models;

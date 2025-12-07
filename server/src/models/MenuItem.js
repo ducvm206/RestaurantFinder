@@ -1,22 +1,58 @@
 // server/src/models/MenuItem.js
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const { DataTypes } = require("sequelize");
+const { sequelize } = require("../config/database");
 
 const MenuItem = sequelize.define(
-  'MenuItem',
+  "MenuItem",
   {
-    item_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    restaurant_id: { type: DataTypes.BIGINT, allowNull: false },
-    item_name: { type: DataTypes.STRING(200), allowNull: false },
-    price: { type: DataTypes.DECIMAL(10,2), allowNull: false },
-    description: { type: DataTypes.TEXT },
-    image_url: { type: DataTypes.STRING(500) },
-    category: { type: DataTypes.STRING(100) },
-    is_recommended: { type: DataTypes.BOOLEAN, defaultValue: false },
-    average_rating: { type: DataTypes.DECIMAL(3,2), defaultValue: 0.0 },
-    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    item_id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    restaurant_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "restaurants",
+        key: "restaurant_id",
+      },
+    },
+    item_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    },
+    image_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    is_recommended: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    average_rating: {
+      type: DataTypes.DECIMAL(3, 2),
+      defaultValue: 0,
+    },
   },
-  { tableName: 'menu_items', schema: 'public', timestamps: false }
+  {
+    timestamps: true,
+    tableName: "menu_items",
+    createdAt: "created_at",
+    updatedAt: false,
+  }
 );
 
 module.exports = MenuItem;

@@ -1,6 +1,6 @@
 // ============================================
 // FILE: client/src/pages/ProfilePage.js
-// Updated with full avatar URL support
+// Updated with Edit Mode and Image Upload
 // ============================================
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,37 +17,153 @@ const ProfilePage = () => {
   const [editData, setEditData] = useState({
     fullName: '',
     email: '',
-    avatar: '',
-    avatarUrl: ''
+    avatar: ''
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  const API_BASE_URL = 'http://localhost:5000';
-
   useEffect(() => {
     fetchUserProfile();
   }, []);
 
-  const fetchUserProfile = async () => {
-    try {
-      const token = localStorage.getItem('token');
+  // Update the fetchUserProfile function to add more debugging:
+const fetchUserProfile = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      console.log('No token found, redirecting to login');
+      navigate('/login');
+      return;
+    }
+
+    console.log('Fetching profile with token:', token.substring(0, 20) + '...');
+
+    const response = await fetch('http://localhost:5000/api/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    
+    const data = await response.json();
+    console.log('Response data:', data);
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch profile');
+    }
+
+    setUser(data.user);
+    setEditData({
+      fullName: data.user.fullName,
+      email: data.user.email,
+      avatar: data.user.avatar || ''
+    });
+
+    localStorage.setItem('user', JSON.stringify(data.user));
+    setLoading(false);
+  } catch (err) {
+    console.error('Error details:', err);
+    console.error('Error message:', err.message);
+    setError(err.message);
+    setLoading(false);
+    
+    if (err.message.includes('Token') || err.message.includes('unauthorized')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  }
+};
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('画像ファイルを選択してください');
+        return;
+      }
       
-      if (!token) {
-        console.log('No token found, redirecting to login');
-        navigate('/login');
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('ファイルサイズは5MB以下にしてください');
         return;
       }
 
-      console.log('📡 Fetching profile...');
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-      const response = await fetch(`${API_BASE_URL}/api/profile`, {
-        method: 'GET',
+  const handleEditClick = () => {
+    setIsEditMode(true);
+    setPreviewImage(null);
+    setSelectedFile(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditData({
+      fullName: user.fullName,
+      email: user.email,
+      avatar: user.avatar || ''
+    });
+    setPreviewImage(null);
+    setSelectedFile(null);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('token');
+
+      // First, upload image if selected
+      let avatarUrl = editData.avatar;
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('avatar', selectedFile);
+
+        const uploadResponse = await fetch('http://localhost:5000/api/profile/upload-avatar', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const uploadData = await uploadResponse.json();
+        
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.message || 'Failed to upload avatar');
+        }
+
+        avatarUrl = uploadData.avatarUrl;
+      }
+
+      // Then update profile
+      const response = await fetch('http://localhost:5000/api/profile', {
+        method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          fullName: editData.fullName,
+          email: editData.email,
+          avatar: avatarUrl
+        })
       });
 
       console.log('✅ Response status:', response.status);
@@ -56,37 +172,23 @@ const ProfilePage = () => {
       console.log('📊 Response data:', data);
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch profile');
+        throw new Error(data.message || 'Failed to update profile');
       }
 
-      // Ensure we have full avatar URL
-      const userData = {
-        ...data.user,
-        // Use avatarUrl if provided, otherwise construct from avatar path
-        avatarUrl: data.user.avatarUrl || (data.user.avatar ? `${API_BASE_URL}${data.user.avatar}` : null)
-      };
-
-      setUser(userData);
-      setEditData({
-        fullName: data.user.fullName,
-        email: data.user.email,
-        avatar: data.user.avatar || '',
-        avatarUrl: userData.avatarUrl
-      });
-
-      localStorage.setItem('user', JSON.stringify(userData));
-      setLoading(false);
-    } catch (err) {
-      console.error('❌ Error fetching profile:', err);
-      console.error('📝 Error message:', err.message);
-      setError(err.message);
-      setLoading(false);
+      // Update local state
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
-      if (err.message.includes('Token') || err.message.includes('unauthorized')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/login');
-      }
+      setIsEditMode(false);
+      setPreviewImage(null);
+      setSelectedFile(null);
+      alert('プロフィールを更新しました');
+      
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      alert(`エラー: ${err.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -311,10 +413,10 @@ const ProfilePage = () => {
           onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
           onMouseOut={(e) => e.currentTarget.style.background = 'none'}
         >
-          <span className="material-icons-outlined" style={{ color: '#333' }}>arrow_back</span>
+          <span className="material-icons-outlined">arrow_back</span>
         </button>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#333' }}>個人情報</h1>
-        {!isEditMode ? (
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>個人情報</h1>
+        {!isEditMode && (
           <button 
             onClick={handleEditClick}
             style={{
@@ -330,11 +432,10 @@ const ProfilePage = () => {
             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
           >
-            <span className="material-icons-outlined" style={{ color: '#333' }}>edit</span>
+            <span className="material-icons-outlined">edit</span>
           </button>
-        ) : (
-          <div style={{ width: '40px' }}></div>
         )}
+        {isEditMode && <div style={{ width: '40px' }}></div>}
       </div>
 
       {/* Profile Section */}
@@ -346,10 +447,10 @@ const ProfilePage = () => {
         borderRadius: '1rem',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ margin: '0 auto 1rem', width: '120px', height: '120px', position: 'relative' }}>
-          {displayImage ? (
+        <div style={{ margin: '0 auto 1rem', width: '100px', height: '100px', position: 'relative' }}>
+          {(previewImage || editData.avatar) ? (
             <img 
-              src={displayImage} 
+              src={previewImage || editData.avatar} 
               alt="Profile" 
               style={{
                 width: '100%',
@@ -357,11 +458,6 @@ const ProfilePage = () => {
                 borderRadius: '50%',
                 objectFit: 'cover',
                 border: '3px solid #ef4444'
-              }}
-              onError={(e) => {
-                console.error('❌ Error loading image:', displayImage);
-                e.target.style.display = 'none';
-                e.target.parentNode.querySelector('.fallback-avatar').style.display = 'flex';
               }}
             />
           ) : null}
@@ -378,12 +474,11 @@ const ProfilePage = () => {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '2.5rem',
-              fontWeight: 700,
-              border: '3px solid #ef4444'
-            }}
-          >
-            {editData.fullName?.charAt(0).toUpperCase() || user?.fullName?.charAt(0).toUpperCase() || 'U'}
-          </div>
+              fontWeight: 700
+            }}>
+              {editData.fullName?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          )}
           
           {isEditMode && (
             <>
@@ -393,8 +488,8 @@ const ProfilePage = () => {
                   position: 'absolute',
                   bottom: '0',
                   right: '0',
-                  width: '36px',
-                  height: '36px',
+                  width: '32px',
+                  height: '32px',
                   borderRadius: '50%',
                   backgroundColor: '#ef4444',
                   color: 'white',
@@ -403,9 +498,8 @@ const ProfilePage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                 }}
-                title="写真を変更"
               >
                 <span className="material-icons-outlined" style={{ fontSize: '1.2rem' }}>camera_alt</span>
               </button>
@@ -422,22 +516,20 @@ const ProfilePage = () => {
 
         {!isEditMode ? (
           <>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0.5rem 0', color: '#333' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0.5rem 0' }}>
               {user.fullName}
             </h2>
-            <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: '0.5rem 0' }}>こんにちは！</p>
+            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>こんにちは！</p>
             
             {/* Auth Type Badge */}
             <div style={{
               display: 'inline-block',
               padding: '0.25rem 0.75rem',
-              backgroundColor: user.authType === 'google' ? '#4285F4' : 
-                               user.authType === 'facebook' ? '#1877F2' : '#6B7280',
+              backgroundColor: user.authType === 'google' ? '#4285F4' : user.authType === 'facebook' ? '#1877F2' : '#6B7280',
               color: 'white',
               borderRadius: '1rem',
               fontSize: '0.75rem',
-              marginTop: '0.5rem',
-              fontWeight: 500
+              marginTop: '0.5rem'
             }}>
               {user.authType === 'google' && '🔗 Google'}
               {user.authType === 'facebook' && '🔗 Facebook'}
@@ -446,7 +538,7 @@ const ProfilePage = () => {
           </>
         ) : (
           <p style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-            {selectedFile ? '新しい写真を選択しました' : '写真をクリックして変更'}
+            写真をクリックして変更
           </p>
         )}
       </div>
@@ -528,12 +620,9 @@ const ProfilePage = () => {
                   borderRadius: '0.5rem',
                   fontSize: '1rem',
                   fontFamily: 'inherit',
-                  boxSizing: 'border-box',
-                  transition: 'border 0.2s'
+                  boxSizing: 'border-box'
                 }}
                 placeholder="氏名を入力"
-                onFocus={(e) => e.target.style.borderColor = '#ef4444'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
             </div>
 
@@ -553,12 +642,9 @@ const ProfilePage = () => {
                   borderRadius: '0.5rem',
                   fontSize: '1rem',
                   fontFamily: 'inherit',
-                  boxSizing: 'border-box',
-                  transition: 'border 0.2s'
+                  boxSizing: 'border-box'
                 }}
                 placeholder="メールアドレスを入力"
-                onFocus={(e) => e.target.style.borderColor = '#ef4444'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
             </div>
           </>
@@ -589,13 +675,9 @@ const ProfilePage = () => {
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.backgroundColor = '#fef2f2';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.1)';
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.backgroundColor = 'white';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             <span className="material-icons-outlined">refresh</span>
@@ -623,7 +705,7 @@ const ProfilePage = () => {
             onMouseOver={(e) => {
               e.currentTarget.style.backgroundColor = '#dc2626';
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)';
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.backgroundColor = '#ef4444';
@@ -658,18 +740,10 @@ const ProfilePage = () => {
               transition: 'all 0.2s'
             }}
             onMouseOver={(e) => {
-              if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#059669';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-              }
+              if (!isSaving) e.currentTarget.style.backgroundColor = '#059669';
             }}
             onMouseOut={(e) => {
-              if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#10b981';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }
+              if (!isSaving) e.currentTarget.style.backgroundColor = '#10b981';
             }}
           >
             <span className="material-icons-outlined">
@@ -698,16 +772,10 @@ const ProfilePage = () => {
               transition: 'all 0.2s'
             }}
             onMouseOver={(e) => {
-              if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#f9fafb';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }
+              if (!isSaving) e.currentTarget.style.backgroundColor = '#f9fafb';
             }}
             onMouseOut={(e) => {
-              if (!isSaving) {
-                e.currentTarget.style.backgroundColor = 'white';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }
+              if (!isSaving) e.currentTarget.style.backgroundColor = 'white';
             }}
           >
             <span className="material-icons-outlined">close</span>

@@ -5,10 +5,13 @@ const dotenv = require("dotenv");
 const path = require("path");
 const { connectDB, sequelize } = require("./config/database");
 
-// Load .env file
-dotenv.config({
-  path: path.resolve(__dirname, "../.env"),
-});
+// Import file routes
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const recommendationRouters = require("./routes/recommendationRoutes");
+
+// Load environment variables
+dotenv.config();
 
 // Create Express app
 const app = express();
@@ -24,82 +27,56 @@ const restaurantReviewRoutes = require("./routes/restaurantReviewRoutes");
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); // For form-data
 
-// Static files (uploads)
-const uploadsPath = path.join(__dirname, "../uploads");
-app.use("/uploads", express.static(uploadsPath));
+// ⭐ CRITICAL: Serve static files from uploads directory
+// This allows uploaded avatars to be accessible via URL
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-console.log("📁 Uploads directory:", uploadsPath);
-console.log("📁 Current directory:", __dirname);
+// Log uploads directory for debugging
+console.log('📁 Uploads directory:', path.join(__dirname, '../uploads'));
 
-// Connect to DB
+// Database connection
 connectDB();
 
 // Sync database tables
-sequelize
-  .sync({ alter: true })
-  .then(() => console.log("✅ Database synced!"))
-  .catch((err) => console.error("❌ Sync error:", err.message));
+sequelize.sync({ alter: true }).then(() => {
+  console.log("✅ Database synced!");
+});
 
-// Register routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/restaurants", restaurantRoutes);
-app.use("/api/recommendations", recommendationRoutes);
-app.use("/api/restaurant-reviews", restaurantReviewRoutes);
+app.use("/recommendations", recommendationRouters);
 
-// Health Check
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "OK",
-    message: "Server is running",
-    uploadsPath,
-    uploadsUrl: `http://localhost:${process.env.PORT || 5000}/uploads/`,
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    uploadsPath: path.join(__dirname, '../uploads')
   });
 });
 
-// Debug route
-app.get("/api/debug/user", (req, res) => {
-  if (!req.user) {
-    return res.json({
-      hasUser: false,
-      message: "No user in request (missing auth middleware)",
-    });
-  }
-
-  res.json({
-    hasUser: true,
-    user: req.user,
-    headers: {
-      authorization: req.headers.authorization,
-    },
-  });
-});
-
-// Error Handler
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error("❌ Error:", err);
+  console.error('❌ Error:', err);
   res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });
 
-// 404 Handler
+// 404 handler
 app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
+  res.status(404).json({ message: 'Route not found' });
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📂 Serving static files from: /uploads`);
-  console.log(
-    `🌐 Avatar URL example: http://localhost:${PORT}/uploads/avatars/example.png`
-  );
+  console.log(`📂 Static files served from: /uploads`);
 });
 
 module.exports = app;
