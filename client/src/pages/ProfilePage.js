@@ -175,7 +175,10 @@ const ProfilePage = () => {
         }),
       });
 
+      console.log('✅ Response status:', response.status);
+      
       const data = await response.json();
+      console.log('📊 Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to update profile");
@@ -208,35 +211,146 @@ const ProfilePage = () => {
       credentials: "include",
     });
 
-    localStorage.removeItem("user");
-    alert("ログアウトしました");
-    navigate("/login");
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('画像ファイルを選択してください');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('ファイルサイズは5MB以下にしてください');
+        return;
+      }
+
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditMode(true);
+    setPreviewImage(null);
+    setSelectedFile(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditData({
+      fullName: user.fullName,
+      email: user.email,
+      avatar: user.avatar || '',
+      avatarUrl: user.avatarUrl || ''
+    });
+    setPreviewImage(null);
+    setSelectedFile(null);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('token');
+
+      // First, upload image if selected
+      let avatarUrl = editData.avatarUrl;
+      if (selectedFile) {
+        console.log('📤 Uploading new avatar...');
+        const formData = new FormData();
+        formData.append('avatar', selectedFile);
+
+        const uploadResponse = await fetch(`${API_BASE_URL}/api/profile/upload-avatar`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const uploadData = await uploadResponse.json();
+        console.log('📥 Upload response:', uploadData);
+        
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.message || 'Failed to upload avatar');
+        }
+
+        // Use the avatarUrl from response (full URL)
+        avatarUrl = uploadData.avatarUrl || uploadData.avatar;
+      }
+
+      // Then update profile
+      console.log('✏️ Updating profile...');
+      const response = await fetch(`${API_BASE_URL}/api/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fullName: editData.fullName,
+          email: editData.email
+          // Avatar is updated separately via upload
+        })
+      });
+
+      const data = await response.json();
+      console.log('📥 Update response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
+      // Refresh profile data
+      await fetchUserProfile();
+      
+      setIsEditMode(false);
+      setPreviewImage(null);
+      setSelectedFile(null);
+      alert('✅ プロフィールを更新しました');
+      
+    } catch (err) {
+      console.error('❌ Error updating profile:', err);
+      alert(`❌ エラー: ${err.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    alert('👋 ログアウトしました');
+    navigate('/login');
   };
 
   // Loading state
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          gap: "1rem",
-        }}
-      >
-        <div
-          style={{
-            width: "50px",
-            height: "50px",
-            border: "4px solid #f3f3f3",
-            borderTop: "4px solid #ef4444",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite",
-          }}
-        ></div>
-        <p>読み込み中...</p>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        gap: '1rem'
+      }}>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #ef4444',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <p style={{ color: '#666' }}>読み込み中...</p>
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -274,13 +388,14 @@ const ProfilePage = () => {
         <button
           onClick={() => navigate("/login")}
           style={{
-            padding: "0.75rem 2rem",
-            backgroundColor: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "0.5rem",
-            cursor: "pointer",
-            fontSize: "1rem",
+            padding: '0.75rem 2rem',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: '600'
           }}
         >
           ログインページへ戻る
@@ -289,18 +404,18 @@ const ProfilePage = () => {
     );
   }
 
-  // Main profile display
+  // Determine what to show for profile image
+  const displayImage = previewImage || (isEditMode ? editData.avatarUrl : user?.avatarUrl);
+
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "1rem",
-        fontFamily: "'Noto Sans JP', sans-serif",
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
+    <div style={{
+      maxWidth: '600px',
+      margin: '0 auto',
+      padding: '1rem',
+      fontFamily: "'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif",
+      minHeight: '100vh',
+      backgroundColor: '#f5f5f5'
+    }}>
       {/* Header */}
       <div
         style={{
@@ -388,22 +503,23 @@ const ProfilePage = () => {
                 border: "3px solid #ef4444",
               }}
             />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "2.5rem",
-                fontWeight: 700,
-              }}
-            >
-              {editData.fullName?.charAt(0).toUpperCase() || "U"}
+          ) : null}
+          
+          <div 
+            className="fallback-avatar"
+            style={{
+              display: displayImage ? 'none' : 'flex',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: 'white',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2.5rem',
+              fontWeight: 700
+            }}>
+              {editData.fullName?.charAt(0).toUpperCase() || 'U'}
             </div>
           )}
 
