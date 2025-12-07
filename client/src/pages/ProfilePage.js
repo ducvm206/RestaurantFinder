@@ -4,9 +4,11 @@
 // ============================================
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import useTranslation from "../hooks/useTranslation";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const t = useTranslation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -95,12 +97,12 @@ const ProfilePage = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("画像ファイルを選択してください");
+      alert(t("profile.errors.invalid_image"));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("ファイルサイズは5MB以下にしてください");
+      alert(t("profile.errors.file_too_large"));
       return;
     }
 
@@ -155,7 +157,9 @@ const ProfilePage = () => {
         const uploadData = await uploadResponse.json();
 
         if (!uploadResponse.ok) {
-          throw new Error(uploadData.message || "Failed to upload avatar");
+          throw new Error(
+            uploadData.message || t("profile.errors.upload_failed")
+          );
         }
 
         avatarUrl = uploadData.avatarUrl;
@@ -178,7 +182,7 @@ const ProfilePage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to update profile");
+        throw new Error(data.message || t("profile.errors.update_failed"));
       }
 
       // ----- 3.3 Update FE state -----
@@ -189,10 +193,10 @@ const ProfilePage = () => {
       setPreviewImage(null);
       setSelectedFile(null);
 
-      alert("プロフィールを更新しました");
+      alert(t("profile.success.updated")); // プロフィールを更新しました
     } catch (err) {
       console.error("Error updating profile:", err);
-      alert(`エラー: ${err.message}`);
+      alert(`${t("profile.errors.general")}: ${err.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -209,7 +213,7 @@ const ProfilePage = () => {
     });
 
     localStorage.removeItem("user");
-    alert("ログアウトしました");
+    alert(t("profile.success.logout")); // ログアウトしました
     navigate("/login");
   };
 
@@ -236,13 +240,13 @@ const ProfilePage = () => {
             animation: "spin 1s linear infinite",
           }}
         ></div>
-        <p>読み込み中...</p>
+        <p>{t("profile.loading")}</p> {/* 読み込み中… */}
         <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
       </div>
     );
   }
@@ -268,9 +272,11 @@ const ProfilePage = () => {
           error_outline
         </span>
         <h2 style={{ color: "#1f2937", marginBottom: "0.5rem" }}>
-          エラーが発生しました
+          {t("profile.errors.title")}
         </h2>
+
         <p style={{ color: "#6b7280", marginBottom: "2rem" }}>{error}</p>
+
         <button
           onClick={() => navigate("/login")}
           style={{
@@ -283,12 +289,11 @@ const ProfilePage = () => {
             fontSize: "1rem",
           }}
         >
-          ログインページへ戻る
+          {t("profile.buttons.back_to_login")}
         </button>
       </div>
     );
   }
-
   // Main profile display
   return (
     <div
@@ -330,9 +335,11 @@ const ProfilePage = () => {
         >
           <span className="material-icons-outlined">arrow_back</span>
         </button>
+
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0 }}>
-          個人情報
+          {t("profile.header.title")}
         </h1>
+
         {!isEditMode && (
           <button
             onClick={handleEditClick}
@@ -457,9 +464,11 @@ const ProfilePage = () => {
             >
               {user.fullName}
             </h2>
-            <p style={{ color: "#6b7280", fontSize: "0.9rem" }}>こんにちは！</p>
 
-            {/* Auth Type Badge */}
+            <p style={{ color: "#6b7280", fontSize: "0.9rem" }}>
+              {t("profile.greeting")}
+            </p>
+
             <div
               style={{
                 display: "inline-block",
@@ -489,7 +498,7 @@ const ProfilePage = () => {
               marginTop: "0.5rem",
             }}
           >
-            写真をクリックして変更
+            {t("profile.edit.click_to_change")}
           </p>
         )}
       </div>
@@ -506,7 +515,7 @@ const ProfilePage = () => {
       >
         {!isEditMode ? (
           <>
-            {/* Full Name */}
+            {/* FULL NAME */}
             <div
               style={{
                 display: "flex",
@@ -531,7 +540,7 @@ const ProfilePage = () => {
                     fontWeight: 500,
                   }}
                 >
-                  氏名
+                  {t("profile.fields.full_name")}
                 </label>
                 <p style={{ margin: 0, fontSize: "1rem", color: "#1f2937" }}>
                   {user.fullName}
@@ -539,7 +548,7 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Email */}
+            {/* EMAIL */}
             <div
               style={{
                 display: "flex",
@@ -564,7 +573,7 @@ const ProfilePage = () => {
                     fontWeight: 500,
                   }}
                 >
-                  メール
+                  {t("profile.fields.email")}
                 </label>
                 <p
                   style={{
@@ -579,7 +588,7 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Account Created Date */}
+            {/* CREATED DATE */}
             <div
               style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}
             >
@@ -599,7 +608,7 @@ const ProfilePage = () => {
                     fontWeight: 500,
                   }}
                 >
-                  登録日
+                  {t("profile.fields.created_at")}
                 </label>
                 <p style={{ margin: 0, fontSize: "1rem", color: "#1f2937" }}>
                   {new Date(user.createdAt).toLocaleDateString("ja-JP", {
@@ -613,7 +622,7 @@ const ProfilePage = () => {
           </>
         ) : (
           <>
-            {/* Edit Full Name */}
+            {/* EDIT FULL NAME */}
             <div style={{ marginBottom: "1.5rem" }}>
               <label
                 style={{
@@ -624,7 +633,7 @@ const ProfilePage = () => {
                   fontWeight: 500,
                 }}
               >
-                氏名
+                {t("profile.fields.full_name")}
               </label>
               <input
                 type="text"
@@ -641,11 +650,11 @@ const ProfilePage = () => {
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                 }}
-                placeholder="氏名を入力"
+                placeholder={t("profile.placeholders.full_name")}
               />
             </div>
 
-            {/* Edit Email */}
+            {/* EDIT EMAIL */}
             <div style={{ marginBottom: "1.5rem" }}>
               <label
                 style={{
@@ -656,7 +665,7 @@ const ProfilePage = () => {
                   fontWeight: 500,
                 }}
               >
-                メール
+                {t("profile.fields.email")}
               </label>
               <input
                 type="email"
@@ -673,14 +682,14 @@ const ProfilePage = () => {
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                 }}
-                placeholder="メールアドレスを入力"
+                placeholder={t("profile.placeholders.email")}
               />
             </div>
           </>
         )}
       </div>
 
-      {/* Action Buttons */}
+      {/* ACTION BUTTONS */}
       {!isEditMode ? (
         <>
           <button
@@ -710,7 +719,7 @@ const ProfilePage = () => {
             }}
           >
             <span className="material-icons-outlined">refresh</span>
-            プロフィールを更新
+            {t("profile.buttons.refresh")}
           </button>
 
           <button
@@ -744,7 +753,7 @@ const ProfilePage = () => {
             }}
           >
             <span className="material-icons-outlined">logout</span>
-            ログアウト
+            {t("profile.buttons.logout")}
           </button>
         </>
       ) : (
@@ -779,7 +788,7 @@ const ProfilePage = () => {
             <span className="material-icons-outlined">
               {isSaving ? "hourglass_empty" : "save"}
             </span>
-            {isSaving ? "保存中..." : "変更を保存"}
+            {isSaving ? t("profile.buttons.saving") : t("profile.buttons.save")}
           </button>
 
           <button
@@ -809,12 +818,12 @@ const ProfilePage = () => {
             }}
           >
             <span className="material-icons-outlined">close</span>
-            キャンセル
+            {t("profile.buttons.cancel")}
           </button>
         </>
       )}
     </div>
   );
 };
-
 export default ProfilePage;
+

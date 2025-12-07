@@ -7,27 +7,33 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/ProfilePage";
 import Favorites from "./pages/FavoritesPage";
-import SearchPage from './pages/SearchPage';
+import SearchPage from "./pages/SearchPage";
 import { Routes, Route } from "react-router-dom";
 
-
-
+// IMPORT NGÔN NGỮ
+import LanguageProvider from "./context/LanguageContext";
+import LanguageSelector from "./components/LanguageSelector";
 
 function App() {
   return (
-    <div className="App">
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/avatar" element={<Avatar />} />
-        <Route path="/store/:id" element={<StoreDetail />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/favorites" element={<Favorites  />} />
-        <Route path="/search" element={<SearchPage />} />
-      </Routes>
-    </div>
+    <LanguageProvider>
+      {/* Language Selector luôn xuất hiện trên mọi page */}
+      <LanguageSelector />
+
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/avatar" element={<Avatar />} />
+          <Route path="/store/:id" element={<StoreDetail />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/search" element={<SearchPage />} />
+        </Routes>
+      </div>
+    </LanguageProvider>
   );
 }
 

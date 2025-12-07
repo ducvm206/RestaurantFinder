@@ -5,8 +5,10 @@ import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLogin from "@greatsumini/react-facebook-login";
 import axios from "axios";
 import "../styles/Login.css";
+import useTranslation from "../hooks/useTranslation";
 
 const Login = () => {
+  const t = useTranslation(); // <<--- ADD
   const navigate = useNavigate();
   const FACEBOOK_APP_ID =
     process.env.REACT_APP_FACEBOOK_APP_ID || "1234567890123456";
@@ -37,7 +39,7 @@ const Login = () => {
 
   // --- XỬ LÝ CHUNG ---
   const handleAuthSuccess = (data, method = "") => {
-    alert(`Đăng nhập ${method} thành công!`);
+    alert(`${t("login.success")} ${method}!`);
     localStorage.setItem("user", JSON.stringify(data.user));
     navigate("/home");
   };
@@ -49,15 +51,15 @@ const Login = () => {
       const res = await fetch("http://localhost:5000/api/auth/social", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // <<< bắt buộc để nhận cookie
+        credentials: "include",
         body: JSON.stringify({ email, name, avatar, authId, authType }),
       });
 
       const data = await res.json();
       if (res.ok) handleAuthSuccess(data, authType);
-      else setError(data.message || "Lỗi xác thực mạng xã hội");
+      else setError(data.message || t("login.error_social"));
     } catch (err) {
-      setError("Không thể kết nối đến Server");
+      setError(t("login.server_error"));
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +75,7 @@ const Login = () => {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // <<< bắt buộc
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -82,10 +84,10 @@ const Login = () => {
       if (res.ok) {
         handleAuthSuccess(data);
       } else {
-        setError(data.message || "Email hoặc mật khẩu không đúng");
+        setError(data.message || t("login.error_login"));
       }
     } catch (err) {
-      setError("Không thể kết nối đến Server");
+      setError(t("login.server_error"));
     } finally {
       setIsLoading(false);
     }
@@ -103,20 +105,22 @@ const Login = () => {
         const { email, name, picture, sub } = userInfo.data;
         handleSocialAuth(email, name, picture, sub, "google");
       } catch (err) {
-        setError("Lỗi kết nối Google API");
+        setError(t("login.error_google"));
       }
     },
-    onError: () => setError("Đăng nhập Google thất bại"),
+    onError: () => setError(t("login.error_google")),
   });
 
   return (
     <div className="login-container">
       <div className="login-wrapper">
+        {/* HEADER */}
         <div className="login-header">
-          <p className="welcome-text">今日は!</p>
-          <h1 className="login-title">おかえり</h1>
+          <p className="welcome-text">{t("login.welcome_text")}</p>
+          <h1 className="login-title">{t("login.title")}</h1>
         </div>
 
+        {/* ERROR */}
         {error && (
           <p
             style={{ color: "red", textAlign: "center", marginBottom: "15px" }}
@@ -125,13 +129,15 @@ const Login = () => {
           </p>
         )}
 
+        {/* FORM */}
         <form className="login-form" onSubmit={handleLogin}>
           <div className="input-group">
             <span className="material-icons-outlined input-icon">email</span>
+
             <input
               type="email"
               className="form-input"
-              placeholder="メール"
+              placeholder={t("login.email_placeholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -140,10 +146,11 @@ const Login = () => {
 
           <div className="input-group">
             <span className="material-icons-outlined input-icon">lock</span>
+
             <input
               type={showPassword ? "text" : "password"}
               className="form-input"
-              placeholder="パスワード"
+              placeholder={t("login.password_placeholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -162,16 +169,17 @@ const Login = () => {
 
           <button type="submit" className="btn-primary" disabled={isLoading}>
             <span className="material-icons-outlined">login</span>
-            {isLoading ? "処理中..." : "ログイン"}
+            {isLoading ? t("login.processing") : t("login.button")}
           </button>
         </form>
 
+        {/* OR LOGIN WITH */}
         <div
           style={{ display: "flex", alignItems: "center", margin: "1.5rem 0" }}
         >
           <div style={{ flex: 1, height: "1px", backgroundColor: "#ccc" }} />
           <span style={{ padding: "0 10px", color: "#555" }}>
-            Or Login with
+            {t("login.or_login_with")}
           </span>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#ccc" }} />
         </div>
@@ -179,7 +187,7 @@ const Login = () => {
         <div className="social-login">
           {/* GOOGLE */}
           <button className="btn-social" onClick={loginGoogle}>
-            <span>Google</span>
+            <span>{t("login.google")}</span>
           </button>
 
           {/* FACEBOOK */}
@@ -195,19 +203,20 @@ const Login = () => {
                 "facebook"
               )
             }
-            onFail={() => setError("Đăng nhập Facebook thất bại")}
+            onFail={() => setError(t("login.error_facebook"))}
             render={({ onClick }) => (
               <button className="btn-social" onClick={onClick}>
-                Facebook
+                {t("login.facebook")}
               </button>
             )}
           />
         </div>
 
+        {/* FOOTER */}
         <div className="login-footer">
-          まだアカウントをお持ちではありませんか?
+          {t("login.no_account")}
           <a href="/register" className="link-register">
-            レジスター
+            {t("login.register")}
           </a>
         </div>
       </div>

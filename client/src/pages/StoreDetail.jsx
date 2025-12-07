@@ -9,8 +9,10 @@ import MenuList from "../components/restaurant/MenuList";
 import ReviewList from "../components/restaurant/ReviewList";
 import StoreImages from "../components/restaurant/StoreImages";
 import { stores } from "../data/HomeData";
+import useTranslation from "../hooks/useTranslation";
 
 export default function StoreDetail() {
+  const t = useTranslation();
   const { id } = useParams();
   const [store, setStore] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,13 +50,13 @@ export default function StoreDetail() {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!store) return <p>Store not found</p>;
+  if (loading) return <p>{t("storeDetail.loading")}</p>;
+  if (error)
+    return <p style={{ color: "red" }}>{t("storeDetail.not_found")}</p>;
+  if (!store) return <p>{t("storeDetail.not_found")}</p>;
 
   return (
     <div className="store-detail-container">
-
       {/* Header */}
       <div className="store-header">
         <h1>{store.name}</h1>
@@ -70,36 +72,39 @@ export default function StoreDetail() {
       {store.logo && (
         <img src={store.logo} alt={store.name} className="store-logo-full" />
       )}
-      
+
       <StoreInfo store={store} />
 
       {/* Navigation Tabs */}
       <div className="store-tabs">
-        <button onClick={() => scrollTo(menuRef)}>Menu</button>
-        <button onClick={() => scrollTo(reviewsRef)}>Reviews</button>
-        <button onClick={() => scrollTo(imagesRef)}>Images</button>
+        <button onClick={() => scrollTo(menuRef)}>
+          {t("storeDetail.tabs.menu")}
+        </button>
+        <button onClick={() => scrollTo(reviewsRef)}>
+          {t("storeDetail.tabs.reviews")}
+        </button>
+        <button onClick={() => scrollTo(imagesRef)}>
+          {t("storeDetail.tabs.images")}
+        </button>
       </div>
 
       {/* MENU SECTION */}
       <section ref={menuRef} className="store-section">
-        <h2 className="section-title">Menu</h2>
+        <h2 className="section-title">{t("storeDetail.sections.menu")}</h2>
         <MenuList menu={store.menu} />
       </section>
 
       {/* IMAGES SECTION */}
       <section ref={imagesRef} className="store-section">
-        <h2 className="section-title">Images</h2>
+        <h2 className="section-title">{t("storeDetail.sections.images")}</h2>
         <StoreImages images={store.images} />
       </section>
 
       {/* REVIEWS SECTION */}
       <section ref={reviewsRef} className="store-section">
-        <h2 className="section-title">Reviews</h2>
+        <h2 className="section-title">{t("storeDetail.sections.reviews")}</h2>
         <ReviewList reviews={store.reviews} />
       </section>
-
-      
-
     </div>
   );
 }

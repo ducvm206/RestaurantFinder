@@ -1,0 +1,220 @@
+{
+  "login": {
+    "welcome_text": "Hello!",
+    "title": "Welcome Back",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "processing": "Processing...",
+    "button": "Login",
+    "or_login_with": "Or Login with",
+    "google": "Google",
+    "facebook": "Facebook",
+    "no_account": "Don't have an account?",
+    "register": "Register",
+    "error_facebook": "Facebook login failed",
+    "error_google": "Google login failed"
+  },
+
+  "register": {
+    "welcome_text": "Hello!",
+    "title": "Create an Account",
+
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+
+    "terms_1": "By continuing, you agree to our",
+    "terms_privacy": "Privacy Policy",
+    "terms_and": "and",
+    "terms_service": "Terms of Service",
+    "terms_2": "",
+
+    "processing": "Processing...",
+    "button": "Register",
+
+    "or": "Or",
+
+    "footer_question": "Already have an account?",
+    "footer_login": "Login",
+
+    "error_social": "Social authentication failed",
+    "error_server": "Cannot connect to server",
+    "error_password_mismatch": "Passwords do not match!",
+    "error_register": "Registration failed",
+    "error_google": "Google login failed",
+    "error_facebook": "Facebook login failed"
+  },
+
+  "home": {
+    "favorites": "Favorites",
+    "location": "Hanoi University of Science and Technology",
+    "greeting": "Hello, {name}! Keep up the good work this afternoon!",
+    "search_placeholder": "Enter dish name...",
+    "dish_not_found": "No restaurant found that serves this dish.",
+    "loading": "Loading..."
+  },
+
+  "profile": {
+    "header": {
+      "title": "Profile Information"
+    },
+    "title": "Profile Information",
+    "loading": "Loading...",
+    "error_title": "An error has occurred",
+    "back_to_login": "Back to login",
+
+    "edit_photo_hint": "Click photo to change",
+
+    "field_name": "Full Name",
+    "field_email": "Email",
+    "field_registered": "Registered On",
+
+    "button_edit": "Edit",
+    "button_update_profile": "Refresh Profile",
+    "button_logout": "Logout",
+    "button_save": "Save Changes",
+    "button_cancel": "Cancel",
+
+    "upload_invalid_type": "Please select an image file",
+    "upload_too_large": "File size must be under 5MB",
+
+    "profile_updated": "Profile updated successfully",
+    "logout_success": "Logged out successfully",
+
+    "saving": "Saving...",
+    "errors": {
+      "invalid_image": "Please select a valid image file",
+      "file_too_large": "Image size must be under 5MB",
+      "upload_failed": "Failed to upload avatar",
+      "update_failed": "Failed to update profile",
+      "general": "Error",
+      "title": "An error has occurred",
+      "back_to_login": "Back to Login"
+    },
+    "success": {
+      "updated": "Profile updated successfully",
+      "logout": "Logged out successfully"
+    },
+    "greeting": "Hello!",
+    "edit": {
+      "click_to_change": "Click the photo to change"
+    },
+    "fields": {
+      "full_name": "Full Name",
+      "email": "Email",
+      "created_at": "Created Date"
+    },
+    "placeholders": {
+      "full_name": "Enter your full name",
+      "email": "Enter your email"
+    },
+    "buttons": {
+      "back_to_login": "Back to Login",
+      "refresh": "Refresh Profile",
+      "logout": "Logout",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "avatar": {
+      "invalid_file": "Please select an image file",
+      "too_large": "File size must be under 5MB",
+      "updated": "Profile updated successfully"
+    }
+  },
+  "search": {
+    "title": "Search",
+    "search_placeholder": "Ramen / Noodles...",
+    "filters_button": "Filter",
+
+    "sections": {
+      "popular_dishes": "Popular Dishes",
+      "open_restaurants": "Open Restaurants",
+      "no_results_title": "No results found",
+      "no_results_text": "Try a different keyword",
+      "recent_keywords": "Recent Keywords",
+      "recommended_restaurants": "Recommended Restaurants",
+      "recommended_dishes": "Recommended Dishes"
+    }
+  },
+
+  "filterModal": {
+    "title": "Filter search",
+    "services_title": "Services",
+    "distance_title": "Distance",
+    "price_title": "Price range",
+    "styles_title": "Style",
+    "rating_title": "Rating",
+    "reset_button": "Reset",
+    "apply_button": "Apply",
+    "rating_text": "{stars} stars and above",
+    "options": {
+      "services": {
+        "wifi": "Wi-Fi",
+        "parking": "Parking",
+        "kid_friendly": "Kid-friendly",
+        "delivery": "Delivery",
+        "takeout": "Takeout",
+        "reservation": "Reservation",
+        "outdoor_seating": "Outdoor seating",
+        "wheelchair_accessible": "Wheelchair accessible"
+      },
+      "cuisines": {
+        "japanese": "Japanese",
+        "vietnamese": "Vietnamese",
+        "chinese": "Chinese",
+        "korean": "Korean",
+        "western": "Western",
+        "thai": "Thai",
+        "italian": "Italian",
+        "french": "French",
+        "indian": "Indian",
+        "fusion": "Fusion"
+      },
+      "distances": {
+        "500m": "500m",
+        "1km": "1km",
+        "2km": "2km",
+        "5km": "5km",
+        "10km": "10km"
+      },
+      "priceRanges": {
+        "budget": "Budget",
+        "medium": "Medium",
+        "expensive": "Expensive",
+        "luxury": "Luxury"
+      },
+      "styles": {
+        "casual": "Casual",
+        "formal": "Formal",
+        "traditional": "Traditional",
+        "modern": "Modern",
+        "romantic": "Romantic",
+        "family": "Family",
+        "business": "Business",
+        "cozy": "Cozy"
+      }
+    }
+  },
+  
+  "storeDetail": {
+    "loading": "Loading...",
+    "not_found": "Store not found",
+
+    "tabs": {
+      "menu": "Menu",
+      "reviews": "Reviews",
+      "images": "Images"
+    },
+
+    "sections": {
+      "menu": "Menu",
+      "reviews": "Reviews",
+      "images": "Images"
+    }
+  }
+}
+
+
