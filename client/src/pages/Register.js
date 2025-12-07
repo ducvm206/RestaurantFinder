@@ -1,101 +1,118 @@
 // src/pages/Register.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google'; 
-import FacebookLogin from '@greatsumini/react-facebook-login'; // <--- 1. Import Facebook
-import axios from 'axios'; 
-import '../styles/Register.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import FacebookLogin from "@greatsumini/react-facebook-login";
+import axios from "axios";
+import "../styles/Register.css";
 
 const Register = () => {
   const navigate = useNavigate();
   const FACEBOOK_APP_ID = process.env.REACT_APP_FACEBOOK_APP_ID;
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
+
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- HÀM CHUNG GỌI BACKEND (Dùng cho cả Google & Facebook) ---
+  // --------------------------------------------
+  //   SOCIAL AUTH (Google / Facebook)
+  // --------------------------------------------
   const handleSocialAuth = async (email, name, avatar, authId, authType) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/auth/social', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, avatar, authId, authType })
+      const res = await fetch("http://localhost:5000/api/auth/social", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // <<< QUAN TRỌNG
+        body: JSON.stringify({ email, name, avatar, authId, authType }),
       });
+
       const data = await res.json();
 
-      if (res.ok) {
-        alert(`Đăng nhập bằng ${authType} thành công!`);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/');
-      } else {
-        setError(data.message);
+      if (!res.ok) {
+        return setError(data.message || "Xác thực mạng xã hội thất bại");
       }
+
+      alert(`Đăng nhập bằng ${authType} thành công!`);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/");
     } catch (err) {
-      setError("Lỗi kết nối Server");
+      setError("Không thể kết nối đến server");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- 1. ĐĂNG KÝ THƯỜNG ---
+  // --------------------------------------------
+  //   ĐĂNG KÝ THƯỜNG
+  // --------------------------------------------
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
+
     if (password !== confirmPassword) {
-      setError('Mật khẩu nhập lại không khớp!');
-      return;
+      return setError("Mật khẩu nhập lại không khớp!");
     }
+
     setIsLoading(true);
 
     try {
       const fullName = `${lastName} ${firstName}`.trim();
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName })
+
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // <<< BẮT BUỘC
+        body: JSON.stringify({ email, password, fullName }),
       });
+
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || 'Đăng ký thất bại');
+      if (!res.ok) {
+        return setError(data.message || "Đăng ký thất bại");
+      }
 
-      alert('Đăng ký thành công!');
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/');
+      alert("Đăng ký thành công!");
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/");
     } catch (err) {
-      setError(err.message);
+      setError("Lỗi kết nối server");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- 2. GOOGLE LOGIN ---
+  // --------------------------------------------
+  //   GOOGLE LOGIN
+  // --------------------------------------------
   const loginGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const userInfo = await axios.get(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
+          "https://www.googleapis.com/oauth2/v3/userinfo",
           { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
         );
+
         const { email, name, picture, sub } = userInfo.data;
-        // Gọi hàm chung
-        handleSocialAuth(email, name, picture, sub, 'google');
+        handleSocialAuth(email, name, picture, sub, "google");
       } catch (err) {
-        setError("Lỗi kết nối Google");
+        setError("Không thể lấy thông tin từ Google");
       }
     },
-    onError: () => setError('Đăng nhập Google thất bại'),
+    onError: () => setError("Đăng nhập Google thất bại"),
   });
 
+  // --------------------------------------------
+  //   RETURN UI
+  // --------------------------------------------
   return (
     <div className="register-container">
       <div className="register-wrapper">
@@ -104,47 +121,134 @@ const Register = () => {
           <h1 className="register-title">アカウントを作成する</h1>
         </div>
 
-        {error && <p style={{color: 'red', textAlign: 'center', marginBottom: '15px'}}>{error}</p>}
+        {error && (
+          <p
+            style={{ color: "red", textAlign: "center", marginBottom: "15px" }}
+          >
+            {error}
+          </p>
+        )}
 
         <form className="register-form" onSubmit={handleRegister}>
-          {/* ... Các ô input giữ nguyên ... */}
           <div className="input-group">
-            <span className="material-icons-outlined input-icon">person_outline</span>
-            <input className="form-input" type="text" placeholder="ファーストネーム" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+            <span className="material-icons-outlined input-icon">
+              person_outline
+            </span>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="ファーストネーム"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
           </div>
+
           <div className="input-group">
-            <span className="material-icons-outlined input-icon">person_outline</span>
-            <input className="form-input" type="text" placeholder="苗字" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+            <span className="material-icons-outlined input-icon">
+              person_outline
+            </span>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="苗字"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
           </div>
+
           <div className="input-group">
-            <span className="material-icons-outlined input-icon">mail_outline</span>
-            <input className="form-input" type="email" placeholder="メール" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <span className="material-icons-outlined input-icon">
+              mail_outline
+            </span>
+            <input
+              type="email"
+              className="form-input"
+              placeholder="メール"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
+
+          {/* PASSWORD */}
           <div className="input-group">
-            <span className="material-icons-outlined input-icon">lock_outline</span>
-            <input className="form-input" type={showPassword ? "text" : "password"} placeholder="パスワード" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <button type="button" className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
-              <span className="material-icons-outlined">{showPassword ? 'visibility' : 'visibility_off'}</span>
+            <span className="material-icons-outlined input-icon">
+              lock_outline
+            </span>
+            <input
+              type={showPassword ? "text" : "password"}
+              className="form-input"
+              placeholder="パスワード"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <span className="material-icons-outlined">
+                {showPassword ? "visibility" : "visibility_off"}
+              </span>
             </button>
           </div>
+
+          {/* CONFIRM PASSWORD */}
           <div className="input-group">
-            <span className="material-icons-outlined input-icon">lock_outline</span>
-            <input className="form-input" type={showConfirmPassword ? "text" : "password"} placeholder="パスワードを確認する" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-            <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-              <span className="material-icons-outlined">{showConfirmPassword ? 'visibility' : 'visibility_off'}</span>
+            <span className="material-icons-outlined input-icon">
+              lock_outline
+            </span>
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              className="form-input"
+              placeholder="パスワードを確認する"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <span className="material-icons-outlined">
+                {showConfirmPassword ? "visibility" : "visibility_off"}
+              </span>
             </button>
           </div>
+
+          {/* CHECKBOX */}
           <div className="terms-container">
-            <input id="terms" type="checkbox" className="terms-checkbox" required />
+            <input
+              id="terms"
+              type="checkbox"
+              className="terms-checkbox"
+              required
+            />
             <label htmlFor="terms" className="terms-label">
-              続行すると、当社の<a href="#" className="terms-link">プライバシーポリシー</a>と<a href="#" className="terms-link">利用規約</a>に同意したことになります。
+              続行すると、当社の
+              <a href="#" className="terms-link">
+                プライバシーポリシー
+              </a>
+              と
+              <a href="#" className="terms-link">
+                利用規約
+              </a>
+              に同意したことになります。
             </label>
           </div>
+
           <button type="submit" className="btn-register" disabled={isLoading}>
-            {isLoading ? '処理中...' : 'レジスター (Đăng ký)'}
+            {isLoading ? "処理中..." : "レジスター (Đăng ký)"}
           </button>
         </form>
 
+        {/* SOCIAL LOGIN */}
         <div className="divider-container">
           <div className="divider-line"></div>
           <span className="divider-text">Or</span>
@@ -152,45 +256,38 @@ const Register = () => {
         </div>
 
         <div className="social-login">
-          {/* NÚT GOOGLE */}
-          <button className="btn-social" type="button" onClick={() => loginGoogle()} title="Đăng ký bằng Google">
-            <svg className="social-icon" viewBox="0 0 48 48" width="24px" height="24px">
-              <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-              <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
-              <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
-              <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
-            </svg>
+          {/* Google */}
+          <button className="btn-social" onClick={loginGoogle}>
+            Google
           </button>
 
-          {/* NÚT FACEBOOK THẬT */}
+          {/* Facebook */}
           <FacebookLogin
             appId={FACEBOOK_APP_ID}
             fields="name,email,picture"
-            onProfileSuccess={(response) => {
-              handleSocialAuth(response.email, response.name, response.picture?.data?.url, response.id, 'facebook');
-            }}
-            onFail={(error) => {
-              console.log('Login Failed!', error);
-              setError("Đăng nhập Facebook thất bại");
-            }}
+            onProfileSuccess={(res) =>
+              handleSocialAuth(
+                res.email,
+                res.name,
+                res.picture?.data?.url,
+                res.id,
+                "facebook"
+              )
+            }
+            onFail={() => setError("Đăng nhập Facebook thất bại")}
             render={({ onClick }) => (
-              <button 
-                className="btn-social" 
-                type="button" 
-                onClick={onClick} // <-- Gắn sự kiện ở đây
-                title="Đăng ký bằng Facebook"
-              >
-                 <svg className="social-icon" style={{color: '#1877F2'}} fill="currentColor" viewBox="0 0 24 24">
-                  <path clipRule="evenodd" fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
-                </svg>
+              <button className="btn-social" onClick={onClick}>
+                Facebook
               </button>
             )}
           />
         </div>
 
         <div className="register-footer">
-          すでにアカウントをお持ちですか? 
-          <a href="/login" className="link-login">ログイン</a>
+          すでにアカウントをお持ちですか?
+          <a href="/login" className="link-login">
+            ログイン
+          </a>
         </div>
       </div>
     </div>

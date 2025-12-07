@@ -21,34 +21,41 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const toggleLangMenu = () => setLangOpen(prev => !prev);
-  const selectLang = (value) => { setLang(value); setLangOpen(false); };
+  const toggleLangMenu = () => setLangOpen((prev) => !prev);
+  const selectLang = (value) => {
+    setLang(value);
+    setLangOpen(false);
+  };
 
   // Load real user data on component mount
   useEffect(() => {
-    const loadUserData = () => {
+    const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('user');
-        
-        if (token && savedUser) {
-          const userData = JSON.parse(savedUser);
-          // If userData has id but not user_id, convert it
-          if (userData.id && !userData.user_id) {
-            userData.user_id = userData.id;
-          }
-          setUser(userData);
+        const res = await fetch("http://localhost:5000/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+
+          // ➤ Lưu user vào localStorage
+          localStorage.setItem("user", JSON.stringify(data));
+
+          // ➤ Đặt user vào state
+          setUser(data);
         } else {
-          navigate('/login');
+          // Không có cookie hoặc cookie invalid → đăng nhập lại
+          navigate("/login");
         }
-      } catch (error) {
-        console.error('Error loading user data:', error);
+      } catch (err) {
+        navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
-    loadUserData();
+    fetchUser();
   }, [navigate]);
 
   // Close dropdown if click outside
@@ -76,28 +83,30 @@ export default function Home() {
   }, []);
 
   // Filter dishes from foodlist directly
-  const filteredDishes = foodlist.filter(dish =>
+  const filteredDishes = foodlist.filter((dish) =>
     dish.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Filter categories for the slider
-  const filteredCategories = filteredDishes.length > 0
-    ? Array.from(new Set(filteredDishes.map(d => d.name)))
-    : foodlist;
+  const filteredCategories =
+    filteredDishes.length > 0
+      ? Array.from(new Set(filteredDishes.map((d) => d.name)))
+      : foodlist;
 
   // Filter stores by name
-  const filteredStores = stores.filter(store =>
+  const filteredStores = stores.filter((store) =>
     store.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Slider navigation
-  const next = () => setIndex(i => Math.min(i + 1, filteredCategories.length - visibleCount));
-  const prev = () => setIndex(i => Math.max(i - 1, 0));
+  const next = () =>
+    setIndex((i) => Math.min(i + 1, filteredCategories.length - visibleCount));
+  const prev = () => setIndex((i) => Math.max(i - 1, 0));
 
   // Navigate to restaurant that serves the dish
   const goToDishRestaurant = (dishName) => {
-    const restaurant = stores.find(store =>
-      store.menu.some(item => item.name === dishName)
+    const restaurant = stores.find((store) =>
+      store.menu.some((item) => item.name === dishName)
     );
     if (restaurant) navigate(`/store/${restaurant.id}`);
     else alert("この料理を提供している店が見つかりません。");
@@ -129,8 +138,12 @@ export default function Home() {
           </button>
           {langOpen && (
             <div className="lang-menu">
-              <div className="lang-item" onClick={() => selectLang("jp")}>日本語</div>
-              <div className="lang-item" onClick={() => selectLang("vi")}>Tiếng Việt</div>
+              <div className="lang-item" onClick={() => selectLang("jp")}>
+                日本語
+              </div>
+              <div className="lang-item" onClick={() => selectLang("vi")}>
+                Tiếng Việt
+              </div>
             </div>
           )}
         </div>
@@ -144,15 +157,12 @@ export default function Home() {
         </button>
 
         {/* Avatar with REAL USER DATA */}
-        <div
-          className="avatar-container"
-          onClick={() => navigate("/profile")}
-        >
+        <div className="avatar-container" onClick={() => navigate("/profile")}>
           {user.avatar ? (
             <img src={user.avatar} alt={user.fullName} className="avatar-img" />
           ) : (
             <div className="avatar-default">
-              {user.fullName?.charAt(0).toUpperCase() || 'U'}
+              {user.fullName?.charAt(0).toUpperCase() || "U"}
             </div>
           )}
           <span className="avatar-name">{user.fullName}</span>
@@ -169,7 +179,7 @@ export default function Home() {
         <input
           type="text"
           placeholder="料理名を入力..."
-          onClick={() => navigate('/search')}
+          onClick={() => navigate("/search")}
           readOnly
           className="search-box"
           value={searchQuery}
@@ -180,7 +190,7 @@ export default function Home() {
       {/* Search results: dishes */}
       {searchQuery && filteredDishes.length > 0 && (
         <div className="search-results">
-          {filteredDishes.map(dish => (
+          {filteredDishes.map((dish) => (
             <div
               key={dish.id}
               className="dish-card"
@@ -198,10 +208,20 @@ export default function Home() {
       {/* Categories slider */}
       {foodlist.length > 0 && (
         <div className="cat-slider">
-          {index > 0 && <button className="cat-btn left" onClick={prev}>◀</button>}
+          {index > 0 && (
+            <button className="cat-btn left" onClick={prev}>
+              ◀
+            </button>
+          )}
           <div className="cat-wrapper" ref={wrapperRef}>
-            <div className="cat-list" style={{ transform: `translateX(-${index * (itemWidth + 20)}px)`, transition: "transform 0.3s ease" }}>
-              {foodlist.map(cat => (
+            <div
+              className="cat-list"
+              style={{
+                transform: `translateX(-${index * (itemWidth + 20)}px)`,
+                transition: "transform 0.3s ease",
+              }}
+            >
+              {foodlist.map((cat) => (
                 <div key={cat.id} className="cat-item">
                   <img src={cat.image} alt={cat.name} className="cat-img" />
                   <p>{cat.name}</p>
@@ -209,14 +229,22 @@ export default function Home() {
               ))}
             </div>
           </div>
-          {index < foodlist.length - visibleCount && <button className="cat-btn right" onClick={next}>▶</button>}
+          {index < foodlist.length - visibleCount && (
+            <button className="cat-btn right" onClick={next}>
+              ▶
+            </button>
+          )}
         </div>
       )}
 
       {/* Restaurants list */}
       <div className="rest-list">
-        {filteredStores.map(store => (
-          <div key={store.id} className="rest-item" onClick={() => navigate(`/store/${store.id}`)}>
+        {filteredStores.map((store) => (
+          <div
+            key={store.id}
+            className="rest-item"
+            onClick={() => navigate(`/store/${store.id}`)}
+          >
             <img src={store.logo} alt={store.name} className="rest-img" />
             <div className="rest-info">
               <h4>{store.name}</h4>
