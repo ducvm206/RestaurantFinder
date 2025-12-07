@@ -13,9 +13,18 @@ const recommendationRouters = require("./routes/recommendationRoutes");
 // Load environment variables
 dotenv.config();
 
+// Create Express app
 const app = express();
 
-// Middleware
+// Import routes
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const userRoutes = require("./routes/userRoutes");
+const restaurantRoutes = require("./routes/restaurantRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
+const restaurantReviewRoutes = require("./routes/restaurantReviewRoutes");
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For form-data

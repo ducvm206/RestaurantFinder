@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { foodlist, stores } from "../data/HomeData";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/Home.css";
+import TopBar from "../components/home/TopBar";
+import SearchBox from "../components/home/SearchBox";
+import CategoriesSlider from "../components/home/CategoriesSlider";
+import RestaurantList from "../components/home/RestaurantList";
+import FindLocation from "../components/home/FindLocation";
+import { foodlist } from "../data/HomeData";
 
 export default function Home() {
   const navigate = useNavigate();
-  const location = "ハノイ工科大学";
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [index, setIndex] = useState(0);
-  const wrapperRef = useRef(null);
-  const [visibleCount, setVisibleCount] = useState(3);
-  const itemWidth = 140;
-
+  const [user, setUser] = useState({ id: null, fullName: "", avatar: "" });
+  const [restaurants, setRestaurants] = useState([]);
   const [lang, setLang] = useState("jp");
   const [langOpen, setLangOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -62,18 +64,7 @@ export default function Home() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Responsive slider
-  useEffect(() => {
-    const updateVisibleCount = () => {
-      if (!wrapperRef.current) return;
-      const wrapperWidth = wrapperRef.current.offsetWidth;
-      const count = Math.floor(wrapperWidth / (itemWidth + 20));
-      setVisibleCount(count > 0 ? count : 1);
-    };
-    updateVisibleCount();
-    window.addEventListener("resize", updateVisibleCount);
-    return () => window.removeEventListener("resize", updateVisibleCount);
-  }, []);
+  const token = localStorage.getItem("token");
 
   // Filter dishes from foodlist directly
   const filteredDishes = foodlist.filter(dish =>
@@ -90,18 +81,28 @@ export default function Home() {
     store.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Slider navigation
-  const next = () => setIndex(i => Math.min(i + 1, filteredCategories.length - visibleCount));
-  const prev = () => setIndex(i => Math.max(i - 1, 0));
+  // Fetch restaurants
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/restaurants");
+        setRestaurants(res.data || []);
+      } catch (err) {
+        console.error("Cannot fetch restaurants:", err);
+      }
+    };
+    fetchRestaurants();
+  }, []);
 
-  // Navigate to restaurant that serves the dish
-  const goToDishRestaurant = (dishName) => {
-    const restaurant = stores.find(store =>
-      store.menu.some(item => item.name === dishName)
+  // Loading
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>読み込み中...</p>
+      </div>
     );
-    if (restaurant) navigate(`/store/${restaurant.id}`);
-    else alert("この料理を提供している店が見つかりません。");
-  };
+  }
 
   // Loading state
   if (loading) {
