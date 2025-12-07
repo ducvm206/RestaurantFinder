@@ -10,6 +10,7 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const recommendationRouters = require("./routes/recommendationRoutes");
+const restaurantReviewRoutes = require("./routes/restaurantReviewRoutes");
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ sequelize.sync({ alter: true }).then(() => {
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/recommendations", recommendationRouters);
+app.use("/api/restaurant-reviews", restaurantReviewRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
