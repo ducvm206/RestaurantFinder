@@ -13,6 +13,7 @@ const recommendationRouters = require("./routes/recommendationRoutes");
 
 dotenv.config();
 
+// Create Express app
 const app = express();
 
 // Parse cookies

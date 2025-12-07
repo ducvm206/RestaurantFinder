@@ -19,23 +19,11 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Nếu FE muốn kiểm tra login từ cookie, gọi API /me
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem("user", JSON.stringify(data));
-          navigate("/home");
-        }
-      } catch {}
-    })();
-  }, [navigate]);
+  // // Nếu đã đăng nhập rồi thì đá về Home luôn (UX tốt hơn)
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) navigate('/home');
+  // }, [navigate]);
 
   // --- XỬ LÝ CHUNG ---
   const handleAuthSuccess = (data, method = "") => {

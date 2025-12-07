@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { foodlist, stores } from "../data/HomeData";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/Home.css";
 import useTranslation from "../hooks/useTranslation";
 

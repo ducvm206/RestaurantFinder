@@ -180,6 +180,7 @@ const ProfilePage = () => {
       });
 
       const data = await response.json();
+      console.log('📊 Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.message || t("profile.errors.update_failed"));
@@ -280,13 +281,14 @@ const ProfilePage = () => {
         <button
           onClick={() => navigate("/login")}
           style={{
-            padding: "0.75rem 2rem",
-            backgroundColor: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "0.5rem",
-            cursor: "pointer",
-            fontSize: "1rem",
+            padding: '0.75rem 2rem',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: '600'
           }}
         >
           {t("profile.buttons.back_to_login")}
@@ -296,16 +298,14 @@ const ProfilePage = () => {
   }
   // Main profile display
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "1rem",
-        fontFamily: "'Noto Sans JP', sans-serif",
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
+    <div style={{
+      maxWidth: '600px',
+      margin: '0 auto',
+      padding: '1rem',
+      fontFamily: "'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif",
+      minHeight: '100vh',
+      backgroundColor: '#f5f5f5'
+    }}>
       {/* Header */}
       <div
         style={{
@@ -395,22 +395,23 @@ const ProfilePage = () => {
                 border: "3px solid #ef4444",
               }}
             />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "2.5rem",
-                fontWeight: 700,
-              }}
-            >
-              {editData.fullName?.charAt(0).toUpperCase() || "U"}
+          ) : null}
+          
+          <div 
+            className="fallback-avatar"
+            style={{
+              display: displayImage ? 'none' : 'flex',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: 'white',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2.5rem',
+              fontWeight: 700
+            }}>
+              {editData.fullName?.charAt(0).toUpperCase() || 'U'}
             </div>
           )}
 

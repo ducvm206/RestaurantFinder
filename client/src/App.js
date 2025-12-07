@@ -1,8 +1,7 @@
 // src/App.js
 import "./App.css";
 import Home from "./pages/Home";
-import Avatar from "./pages/Avatar";
-import StoreDetail from "./pages/StoreDetail";
+import RestaurantDetail from "./pages/RestaurantDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/ProfilePage";
