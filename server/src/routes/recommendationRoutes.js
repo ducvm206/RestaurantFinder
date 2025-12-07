@@ -1,7 +1,7 @@
 // server/src/routes/recommendationRoutes.js
 const express = require("express");
 const router = express.Router();
-const recommendationController = require("../controllers/recommendationController");
+const recommendationController = require("../controllers/Recommendationcontroller");
 const { protect } = require("../middleware/authMiddleware");
 
 /**
