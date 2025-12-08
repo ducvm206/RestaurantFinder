@@ -7,19 +7,18 @@ const fs = require('fs');
 // Configure multer for image uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../../uploads/avatars');
+    const uploadDir = 'uploads/avatars';
+    // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const userId = req.user?.user_id || req.user?.id || 'unknown';
-    console.log('📸 Uploading avatar for user ID:', userId);
-    
+    // Generate unique filename: userId_timestamp.extension
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    cb(null, `user-${userId}-${uniqueSuffix}${ext}`);
+    cb(null, `user-${req.user.id}-${uniqueSuffix}${ext}`);
   }
 });
 

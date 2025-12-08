@@ -47,7 +47,12 @@ const ProfilePage = () => {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          fullName: editData.fullName,
+          email: editData.email,
+          avatar: avatarUrl
+        })
       });
 
       console.log('✅ Response status:', response.status);
@@ -406,6 +411,39 @@ const ProfilePage = () => {
                   boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
                 }}
                 title="写真を変更"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '1.2rem' }}>camera_alt</span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                style={{ display: 'none' }}
+              />
+            </>
+          )}
+          
+          {isEditMode && (
+            <>
+              <button
+                onClick={() => fileInputRef.current.click()}
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: '2px solid white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}
               >
                 <span className="material-icons-outlined" style={{ fontSize: '1.2rem' }}>camera_alt</span>
               </button>

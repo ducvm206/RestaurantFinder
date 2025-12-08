@@ -106,6 +106,21 @@ useEffect(() => {
     );
   }
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>読み込み中...</p>
+      </div>
+    );
+  }
+
+  // If no user found, show nothing (will redirect in useEffect)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="home-container">
       <TopBar

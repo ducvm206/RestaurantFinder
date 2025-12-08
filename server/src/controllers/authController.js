@@ -4,15 +4,8 @@ const jwt = require('jsonwebtoken');
 
 // Hàm tạo Token (Hạn 30 ngày)
 const generateToken = (user_id) => {
-  console.log('Generating token for user_id:', user_id);
-  return jwt.sign(
-    { 
-      user_id: user_id,  // Add user_id to payload
-      id: user_id        // Keep id for backward compatibility
-    }, 
-    process.env.JWT_SECRET, 
-    { expiresIn: '30d' }
-  );
+  console.log('Generating token for user_id:', user_id); // Debug log
+  return jwt.sign({ id: user_id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
 // --- 1. ĐĂNG KÝ (Tài khoản thường) ---
