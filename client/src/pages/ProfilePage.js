@@ -413,7 +413,7 @@ const ProfilePage = () => {
             }}>
               {editData.fullName?.charAt(0).toUpperCase() || 'U'}
             </div>
-          )}
+          
 
           {isEditMode && (
             <>
