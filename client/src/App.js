@@ -1,6 +1,7 @@
 // src/App.js
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 // Pages
 import Home from "./pages/Home";
@@ -17,8 +18,23 @@ import LanguageProvider from "./context/LanguageContext";
 import LanguageSelector from "./components/language/LanguageSelector";
 
 function App() {
-  // Get logged-in user from localStorage
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(() =>
+    JSON.parse(localStorage.getItem("user"))
+  );
+
+  // Sync user state when localStorage changes (logout/login) without reload
+  useEffect(() => {
+    const syncUser = () => {
+      setUser(JSON.parse(localStorage.getItem("user")));
+    };
+
+    window.addEventListener("storage", syncUser);
+    window.addEventListener("user-updated", syncUser);
+    return () => {
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener("user-updated", syncUser);
+    };
+  }, []);
 
   return (
     <LanguageProvider>

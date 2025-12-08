@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLogin from "@greatsumini/react-facebook-login";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Login.css";
 import useTranslation from "../hooks/useTranslation";
@@ -29,6 +30,7 @@ const Login = () => {
   const handleAuthSuccess = (data, method = "") => {
     alert(`${t("login.success")} ${method}!`);
     localStorage.setItem("user", JSON.stringify(data.user));
+    window.dispatchEvent(new Event("user-updated"));
     navigate("/home");
   };
 
@@ -175,7 +177,11 @@ const Login = () => {
         <div className="social-login">
           {/* GOOGLE */}
           <button className="btn-social" onClick={loginGoogle}>
-            <span>{t("login.google")}</span>
+            <FaGoogle
+              className="social-icon"
+              aria-hidden="true"
+              style={{ color: "#DB4437" }}
+            />
           </button>
 
           {/* FACEBOOK */}
@@ -194,7 +200,11 @@ const Login = () => {
             onFail={() => setError(t("login.error_facebook"))}
             render={({ onClick }) => (
               <button className="btn-social" onClick={onClick}>
-                {t("login.facebook")}
+                <FaFacebook
+                  className="social-icon"
+                  aria-hidden="true"
+                  style={{ color: "#1877F2" }}
+                />
               </button>
             )}
           />

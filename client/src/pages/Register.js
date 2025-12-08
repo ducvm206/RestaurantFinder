@@ -1,16 +1,20 @@
 // src/pages/Register.js
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLogin from "@greatsumini/react-facebook-login";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Register.css";
 import useTranslation from "../hooks/useTranslation";
+import { LanguageContext } from "../context/LanguageContext";
 
 const Register = () => {
-  const t = useTranslation(); // <-- IMPORTANT
+  const t = useTranslation();
+  const { lang } = useContext(LanguageContext);
   const navigate = useNavigate();
-  const FACEBOOK_APP_ID = process.env.REACT_APP_FACEBOOK_APP_ID;
+  const FACEBOOK_APP_ID =
+    process.env.REACT_APP_FACEBOOK_APP_ID || "1234567890123456";
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -22,13 +26,53 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const translateError = (msg) => {
+    if (lang !== "ja") return msg;
+
+    const translations = [
+      {
+        key: "Mật khẩu phải có ít nhất 6 ký tự, 1 chữ in hoa và 1 ký tự đặc biệt",
+        jp: "パスワードは6文字以上・大文字1文字・記号1文字を含めてください。",
+      },
+      {
+        key: "Mật khẩu phải có ít nhất 6 ký tự",
+        jp: "パスワードは6文字以上にしてください。",
+      },
+      {
+        key: "Mật khẩu phải chứa ít nhất 1 chữ in hoa",
+        jp: "パスワードには大文字を1文字以上含めてください。",
+      },
+      {
+        key: "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
+        jp: "パスワードには記号を1文字以上含めてください。",
+      },
+      { key: "Tên không được để trống", jp: "名前を入力してください。" },
+      { key: "Email không hợp lệ", jp: "有効なメールアドレスを入力してください。" },
+      {
+        key: "Email này đã được sử dụng",
+        jp: "このメールアドレスは既に使用されています。",
+      },
+      {
+        key: "Không thể đăng ký",
+        jp: "登録に失敗しました。もう一度お試しください。",
+      },
+      { key: "error_register", jp: "登録に失敗しました。もう一度お試しください。" },
+    ];
+
+    const found = translations.find((t) => msg.includes(t.key));
+    return found ? found.jp : msg;
+  };
 
   // --------------------------------------------
   //   SOCIAL AUTH (Google / Facebook)
   // --------------------------------------------
   const handleSocialAuth = async (email, name, avatar, authId, authType) => {
     setIsLoading(true);
+    setError("");
+    setErrors([]);
     try {
       const res = await fetch("http://localhost:5000/api/auth/social", {
         method: "POST",
@@ -39,11 +83,16 @@ const Register = () => {
 
       const data = await res.json();
 
-      if (!res.ok) return setError(data.message || t("register.error_social"));
+      if (!res.ok) {
+        setError(data.message || t("register.error_social"));
+        if (data.errors) setErrors(data.errors.map((e) => e.msg));
+        return;
+      }
 
       alert(`${t("register.button")} ${authType} OK!`);
       localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/");
+      window.dispatchEvent(new Event("user-updated"));
+      navigate("/home");
     } catch (err) {
       setError(t("register.error_server"));
     } finally {
@@ -57,6 +106,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+    setErrors([]);
 
     if (password !== confirmPassword)
       return setError(t("register.error_password_mismatch"));
@@ -75,11 +125,17 @@ const Register = () => {
 
       const data = await res.json();
 
-      if (!res.ok) return setError(t("register.error_register"));
+      if (!res.ok) {
+        const fieldErrors = Array.isArray(data.errors)
+          ? data.errors.map((e) => e.msg)
+          : [];
+        setErrors(fieldErrors);
+        return setError(data.message || t("register.error_register"));
+      }
 
       alert(t("register.button") + " OK!");
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/");
+      // Đăng ký thường: chuyển sang trang đăng nhập
+      navigate("/login");
     } catch (err) {
       setError(t("register.error_server"));
     } finally {
@@ -124,12 +180,19 @@ const Register = () => {
         </div>
 
         {/* ERROR */}
-        {error && (
-          <p
-            style={{ color: "red", textAlign: "center", marginBottom: "15px" }}
-          >
-            {error}
-          </p>
+        {(error || errors.length > 0) && (
+          <div className="error-box">
+            {error && <p className="error-text">{translateError(error)}</p>}
+            {errors.length > 0 && (
+              <ul className="error-list">
+                {errors.map((msg, idx) => (
+                  <li key={idx} className="error-text">
+                    {translateError(msg)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
 
         {/* FORM */}
@@ -221,7 +284,9 @@ const Register = () => {
             <button
               type="button"
               className="toggle-password"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              onClick={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+              }
             >
               <span className="material-icons-outlined">
                 {showConfirmPassword ? "visibility" : "visibility_off"}
@@ -262,7 +327,11 @@ const Register = () => {
         <div className="social-login">
           {/* Google */}
           <button className="btn-social" onClick={loginGoogle}>
-            Google
+            <FaGoogle
+              className="social-icon"
+              aria-hidden="true"
+              style={{ color: "#DB4437" }}
+            />
           </button>
 
           {/* Facebook */}
@@ -281,7 +350,11 @@ const Register = () => {
             onFail={() => setError(t("register.error_facebook"))}
             render={({ onClick }) => (
               <button className="btn-social" onClick={onClick}>
-                Facebook
+                <FaFacebook
+                  className="social-icon"
+                  aria-hidden="true"
+                  style={{ color: "#1877F2" }}
+                />
               </button>
             )}
           />
