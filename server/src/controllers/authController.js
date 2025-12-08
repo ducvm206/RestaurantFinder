@@ -1,141 +1,139 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// Hàm tạo Token (Hạn 30 ngày)
+// Tạo JWT token (hạn 30 ngày)
 const generateToken = (user_id) => {
-  console.log('Generating token for user_id:', user_id); // Debug log
-  return jwt.sign({ id: user_id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id: user_id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
 };
 
-// --- 1. ĐĂNG KÝ (Tài khoản thường) ---
+// Set token vào cookie
+const sendTokenResponse = (user, statusCode, res, message) => {
+  const token = generateToken(user.user_id);
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: false, // CHO LOCALHOST
+    sameSite: "Lax", // CHO LOCALHOST
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+
+  return res.status(statusCode).json({
+    message,
+    user: {
+      id: user.user_id,
+      fullName: user.fullName,
+      email: user.email,
+      avatar: user.avatar,
+    },
+  });
+};
+
+// --- ĐĂNG KÝ ---
 exports.register = async (req, res) => {
   const { email, password, fullName } = req.body;
-  
+
   try {
-    // Kiểm tra email đã tồn tại chưa
-    const userExists = await User.findOne({ where: { email } });
-    if (userExists) {
-      return res.status(400).json({ message: 'Email này đã được sử dụng' });
+    // Validate mật khẩu
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Mật khẩu phải có ít nhất 6 ký tự, 1 chữ in hoa và 1 ký tự đặc biệt",
+      });
     }
 
-    // Mã hóa mật khẩu
+    // Check email tồn tại
+    const userExists = await User.findOne({ where: { email } });
+    if (userExists) {
+      return res.status(400).json({ message: "Email này đã được sử dụng" });
+    }
+
+    // Hash mật khẩu
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Tạo user mới
     const newUser = await User.create({
-      fullName: fullName || email.split('@')[0],
+      fullName: fullName || email.split("@")[0],
       email,
       password: hashedPassword,
-      authType: 'local'
+      authType: "local",
     });
 
-    console.log('New user created - user_id:', newUser.user_id); // Debug
-
-    res.json({
-      message: 'Đăng ký thành công',
-      token: generateToken(newUser.user_id), // FIXED: Use user_id
-      user: {
-        id: newUser.user_id, // FIXED: Map user_id to id
-        user_id: newUser.user_id, // Also include original
-        fullName: newUser.fullName,
-        email: newUser.email,
-        avatar: newUser.avatar
-      }
-    });
+    return sendTokenResponse(newUser, 200, res, "Đăng ký thành công");
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Lỗi server khi đăng ký' });
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Lỗi server khi đăng ký" });
   }
 };
 
-// --- 2. ĐĂNG NHẬP (Tài khoản thường) ---
+// --- ĐĂNG NHẬP ---
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Tìm user theo email
     const user = await User.findOne({ where: { email } });
+    if (!user || !user.password)
+      return res.status(400).json({ message: "Email hoặc mật khẩu sai" });
 
-    // Kiểm tra user tồn tại và password có đúng không
-    if (!user || !user.password) {
-      return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng' });
-    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match)
+      return res.status(400).json({ message: "Email hoặc mật khẩu sai" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng' });
-    }
-
-    console.log('Login successful - user_id:', user.user_id); // Debug
-
-    res.json({
-      message: 'Đăng nhập thành công',
-      token: generateToken(user.user_id), // FIXED: Use user_id
-      user: {
-        id: user.user_id, // FIXED: Map user_id to id
-        user_id: user.user_id,
-        fullName: user.fullName,
-        email: user.email,
-        avatar: user.avatar
-      }
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Lỗi server khi đăng nhập' });
+    return sendTokenResponse(user, 200, res, "Đăng nhập thành công");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server khi đăng nhập" });
   }
 };
 
-// --- 3. ĐĂNG NHẬP SOCIAL (Google & Facebook) ---
+// --- SOCIAL LOGIN ---
 exports.socialLogin = async (req, res) => {
   const { email, name, avatar, authId, authType } = req.body;
 
   try {
-    // Tìm xem email này đã có trong database chưa
     let user = await User.findOne({ where: { email } });
 
-    if (user) {
-      console.log('Social login existing user - user_id:', user.user_id); // Debug
-      
-      res.json({
-        message: `Đăng nhập ${authType} thành công`,
-        token: generateToken(user.user_id), // FIXED: Use user_id
-        user: {
-          id: user.user_id, // FIXED: Map user_id to id
-          user_id: user.user_id,
-          fullName: user.fullName,
-          email: user.email,
-          avatar: user.avatar
-        }
-      });
-    } else {
-      // TRƯỜNG HỢP 2: Chưa có -> Tự động đăng ký mới
+    if (!user) {
       user = await User.create({
         fullName: name,
         email,
         password: null,
         avatar,
-        authType: authType,
-        authId: authId
+        authType,
+        authId,
       });
-
-      console.log('Social login new user - user_id:', user.user_id); // Debug
-
-      res.json({
-        message: `Đăng ký mới bằng ${authType} thành công`,
-        token: generateToken(user.user_id), // FIXED: Use user_id
-        user: {
-          id: user.user_id, // FIXED: Map user_id to id
-          user_id: user.user_id,
-          fullName: user.fullName,
-          email: user.email,
-          avatar: user.avatar
-        }
-      });
+      return sendTokenResponse(
+        user,
+        200,
+        res,
+        `Đăng ký mới bằng ${authType} thành công`
+      );
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: `Lỗi đăng nhập bằng ${authType}` });
+
+    return sendTokenResponse(
+      user,
+      200,
+      res,
+      `Đăng nhập ${authType} thành công`
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi social login" });
   }
+};
+exports.logout = (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: false, // giống với khi set
+    sameSite: "Lax", // giống với khi set
+    expires: new Date(0),
+    path: "/", // rất quan trọng
+  });
+
+  res.json({ message: "Đăng xuất thành công" });
 };

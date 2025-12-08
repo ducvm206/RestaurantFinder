@@ -1,0 +1,216 @@
+{
+  "login": {
+    "welcome_text": "Xin chào!",
+    "title": "Chào mừng trở lại",
+    "email_placeholder": "Email",
+    "password_placeholder": "Mật khẩu",
+    "processing": "Đang xử lý...",
+    "button": "Đăng nhập",
+    "or_login_with": "Hoặc đăng nhập bằng",
+    "google": "Google",
+    "facebook": "Facebook",
+    "no_account": "Bạn chưa có tài khoản?",
+    "register": "Đăng ký",
+    "error_facebook": "Đăng nhập Facebook thất bại",
+    "error_google": "Đăng nhập Google thất bại"
+  },
+
+  "register": {
+    "welcome_text": "Xin chào!",
+    "title": "Tạo tài khoản",
+
+    "first_name": "Tên",
+    "last_name": "Họ",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirm_password": "Xác nhận mật khẩu",
+
+    "terms_1": "Tiếp tục đồng nghĩa với việc bạn đồng ý với",
+    "terms_privacy": "Chính sách quyền riêng tư",
+    "terms_and": "và",
+    "terms_service": "Điều khoản dịch vụ",
+    "terms_2": "",
+
+    "processing": "Đang xử lý...",
+    "button": "Đăng ký",
+
+    "or": "Hoặc",
+
+    "footer_question": "Bạn đã có tài khoản?",
+    "footer_login": "Đăng nhập",
+
+    "error_social": "Xác thực mạng xã hội thất bại",
+    "error_server": "Không thể kết nối server",
+    "error_password_mismatch": "Mật khẩu nhập lại không khớp!",
+    "error_register": "Đăng ký thất bại",
+    "error_google": "Đăng nhập Google thất bại",
+    "error_facebook": "Đăng nhập Facebook thất bại"
+  },
+
+  "home": {
+    "favorites": "Yêu thích",
+    "location": "Đại học Bách Khoa Hà Nội",
+    "greeting": "Xin chào, {name}! Chúc buổi chiều tốt lành!",
+    "search_placeholder": "Nhập tên món ăn...",
+    "dish_not_found": "Không tìm thấy nhà hàng phục vụ món này.",
+    "loading": "Đang tải..."
+  },
+
+  "profile": {
+    "header": {
+      "title": "Thông tin cá nhân"
+    },
+    "title": "Thông tin cá nhân",
+    "loading": "Đang tải...",
+    "error_title": "Đã xảy ra lỗi",
+    "back_to_login": "Quay lại đăng nhập",
+
+    "edit_photo_hint": "Nhấn vào ảnh để thay đổi",
+
+    "field_name": "Họ và tên",
+    "field_email": "Email",
+    "field_registered": "Ngày đăng ký",
+
+    "button_edit": "Chỉnh sửa",
+    "button_update_profile": "Làm mới thông tin",
+    "button_logout": "Đăng xuất",
+    "button_save": "Lưu thay đổi",
+    "button_cancel": "Hủy",
+
+    "upload_invalid_type": "Vui lòng chọn file ảnh",
+    "upload_too_large": "Dung lượng ảnh tối đa 5MB",
+
+    "profile_updated": "Cập nhật hồ sơ thành công",
+    "logout_success": "Đã đăng xuất",
+
+    "saving": "Đang lưu...",
+    "errors": {
+      "invalid_image": "Vui lòng chọn đúng ảnh",
+      "file_too_large": "Kích thước ảnh phải nhỏ hơn 5MB",
+      "upload_failed": "Tải ảnh đại diện thất bại",
+      "update_failed": "Cập nhật hồ sơ thất bại",
+      "general": "Lỗi",
+      "title": "Đã xảy ra lỗi",
+      "back_to_login": "Quay lại trang đăng nhập"
+    },
+    "success": {
+      "updated": "Cập nhật hồ sơ thành công"
+    },
+    "buttons": {
+      "refresh": "Làm mới hồ sơ",
+      "logout": "Đăng xuất",
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu...",
+      "cancel": "Hủy"
+    },
+    "greeting": "Xin chào!",
+    "edit": {
+      "click_to_change": "Nhấn vào ảnh để thay đổi"
+    },
+    "fields": {
+      "full_name": "Họ và tên",
+      "email": "Email",
+      "created_at": "Ngày tạo tài khoản"
+    },
+    "placeholders": {
+      "full_name": "Nhập họ và tên",
+      "email": "Nhập email"
+    },
+    "avatar": {
+      "invalid_file": "Vui lòng chọn tệp hình ảnh",
+      "too_large": "Kích thước tệp phải dưới 5MB",
+      "updated": "Cập nhật hồ sơ thành công"
+    }
+  },
+  "search": {
+    "title": "Tìm kiếm",
+    "search_placeholder": "Ramen / Phở...",
+    "filters_button": "Bộ lọc",
+
+    "sections": {
+      "popular_dishes": "Món phổ biến",
+      "open_restaurants": "Nhà hàng đang mở",
+      "no_results_title": "Không tìm thấy kết quả",
+      "no_results_text": "Hãy thử từ khóa khác",
+      "recent_keywords": "Từ khóa gần đây",
+      "recommended_restaurants": "Nhà hàng gợi ý",
+      "recommended_dishes": "Món ăn gợi ý"
+    }
+  },
+
+  "filterModal": {
+    "title": "Bộ lọc tìm kiếm",
+    "services_title": "Dịch vụ",
+    "distance_title": "Khoảng cách",
+    "price_title": "Mức giá",
+    "styles_title": "Phong cách",
+    "rating_title": "Đánh giá",
+    "reset_button": "Đặt lại",
+    "apply_button": "Áp dụng",
+    "rating_text": "Từ {stars} sao trở lên",
+    "options": {
+      "services": {
+        "wifi": "Wi-Fi",
+        "parking": "Bãi đỗ xe",
+        "kid_friendly": "Thân thiện với trẻ em",
+        "delivery": "Giao hàng",
+        "takeout": "Mang về",
+        "reservation": "Đặt bàn",
+        "outdoor_seating": "Chỗ ngồi ngoài trời",
+        "wheelchair_accessible": "Xe lăn"
+      },
+      "cuisines": {
+        "japanese": "Nhật Bản",
+        "vietnamese": "Việt Nam",
+        "chinese": "Trung Quốc",
+        "korean": "Hàn Quốc",
+        "western": "Phương Tây",
+        "thai": "Thái Lan",
+        "italian": "Ý",
+        "french": "Pháp",
+        "indian": "Ấn Độ",
+        "fusion": "Hỗn hợp"
+      },
+      "distances": {
+        "500m": "500m",
+        "1km": "1km",
+        "2km": "2km",
+        "5km": "5km",
+        "10km": "10km"
+      },
+      "priceRanges": {
+        "budget": "Bình dân",
+        "medium": "Trung bình",
+        "expensive": "Cao cấp",
+        "luxury": "Sang trọng"
+      },
+      "styles": {
+        "casual": "Thoải mái",
+        "formal": "Trang trọng",
+        "traditional": "Truyền thống",
+        "modern": "Hiện đại",
+        "romantic": "Lãng mạn",
+        "family": "Gia đình",
+        "business": "Công việc",
+        "cozy": "Ấm cúng"
+      }
+    }
+  },
+
+  "storeDetail": {
+    "loading": "Đang tải...",
+    "not_found": "Không tìm thấy cửa hàng",
+
+    "tabs": {
+      "menu": "Thực đơn",
+      "reviews": "Đánh giá",
+      "images": "Hình ảnh"
+    },
+
+    "sections": {
+      "menu": "Thực đơn",
+      "reviews": "Đánh giá",
+      "images": "Hình ảnh"
+    }
+  }
+}

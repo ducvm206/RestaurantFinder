@@ -1,0 +1,218 @@
+{
+  "login": {
+    "welcome_text": "今日は!",
+    "title": "おかえり",
+    "email_placeholder": "メール",
+    "password_placeholder": "パスワード",
+    "processing": "処理中...",
+    "button": "ログイン",
+    "or_login_with": "Or Login with",
+    "google": "Google",
+    "facebook": "Facebook",
+    "no_account": "まだアカウントをお持ちではありませんか?",
+    "register": "レジスター",
+    "error_facebook": "Facebookログイン失敗",
+    "error_google": "Googleログイン失敗"
+  },
+
+  "register": {
+    "welcome_text": "今日は!",
+    "title": "アカウントを作成する",
+
+    "first_name": "ファーストネーム",
+    "last_name": "苗字",
+    "email": "メール",
+    "password": "パスワード",
+    "confirm_password": "パスワードを確認する",
+
+    "terms_1": "続行すると、当社の",
+    "terms_privacy": "プライバシーポリシー",
+    "terms_and": "と",
+    "terms_service": "利用規約",
+    "terms_2": "に同意したことになります。",
+
+    "processing": "処理中...",
+    "button": "レジスター",
+
+    "or": "Or",
+
+    "footer_question": "すでにアカウントをお持ちですか?",
+    "footer_login": "ログイン",
+
+    "error_social": "Xác thực mạng xã hội thất bại",
+    "error_server": "サーバーに接続できません",
+    "error_password_mismatch": "パスワードが一致しません！",
+    "error_register": "登録に失敗しました",
+    "error_google": "Googleログイン失敗",
+    "error_facebook": "Facebookログイン失敗"
+  },
+
+  "home": {
+    "favorites": "お気に入り",
+    "location": "ハノイ工科大学",
+    "greeting": "こんにちは、{name}さん！午後もがんばりましょう！",
+    "search_placeholder": "料理名を入力...",
+    "dish_not_found": "この料理を提供している店が見つかりません。",
+    "loading": "読み込み中..."
+  },
+
+  "profile": {
+    "title": "個人情報",
+    "loading": "読み込み中...",
+    "error_title": "エラーが発生しました",
+    "back_to_login": "ログインページへ戻る",
+
+    "edit_photo_hint": "写真をクリックして変更",
+
+    "field_name": "氏名",
+    "field_email": "メール",
+    "field_registered": "登録日",
+
+    "button_edit": "編集",
+    "button_update_profile": "プロフィールを更新",
+    "button_logout": "ログアウト",
+    "button_save": "変更を保存",
+    "button_cancel": "キャンセル",
+
+    "upload_invalid_type": "画像ファイルを選択してください",
+    "upload_too_large": "ファイルサイズは5MB以下にしてください",
+
+    "profile_updated": "プロフィールを更新しました",
+    "logout_success": "ログアウトしました",
+
+    "saving": "保存中...",
+    "errors": {
+      "invalid_image": "画像ファイルを選択してください",
+      "file_too_large": "ファイルサイズは5MB以下にしてください",
+      "upload_failed": "アバターのアップロードに失敗しました",
+      "update_failed": "プロフィールの更新に失敗しました",
+      "general": "エラー",
+      "title": "エラーが発生しました",
+      "back_to_login": "ログインページへ戻る"
+    },
+    "success": {
+      "updated": "プロフィールを更新しました",
+      "logout": "ログアウトしました"
+    },
+    "buttons": {
+      "back_to_login": "ログインページへ戻る",
+      "refresh": "プロフィールを更新",
+      "logout": "ログアウト",
+      "save": "変更を保存",
+      "saving": "保存中...",
+      "cancel": "キャンセル"
+    },
+    "header": {
+      "title": "個人情報"
+    },
+    "greeting": "こんにちは！",
+    "edit": {
+      "click_to_change": "写真をクリックして変更"
+    },
+    "fields": {
+      "full_name": "氏名",
+      "email": "メール",
+      "created_at": "登録日"
+    },
+    "placeholders": {
+      "full_name": "氏名を入力",
+      "email": "メールアドレスを入力"
+    },
+    "avatar": {
+      "invalid_file": "画像ファイルを選択してください",
+      "too_large": "ファイルサイズは5MB以下にしてください",
+      "updated": "プロフィールを更新しました"
+    }
+  },
+  "search": {
+    "title": "検索",
+    "search_placeholder": "ラーメン",
+    "filters_button": "絞り込み検索",
+
+    "sections": {
+      "popular_dishes": "人気のラーメン",
+      "open_restaurants": "営業中のレストラン",
+      "no_results_title": "検索結果が見つかりませんでした",
+      "no_results_text": "別のキーワードで検索してください",
+      "recent_keywords": "最近のキーワード",
+      "recommended_restaurants": "おすすめのレストラン",
+      "recommended_dishes": "おすすめの料理"
+    }
+  },
+
+  "filterModal": {
+    "title": "絞り込み検索",
+    "services_title": "サービス内容",
+    "distance_title": "距離",
+    "price_title": "価格帯",
+    "styles_title": "スタイル",
+    "rating_title": "評価",
+    "reset_button": "リセット",
+    "apply_button": "絞り込む",
+    "rating_text": "{stars}つ星以上",
+    "options": {
+      "services": {
+        "wifi": "Wi-Fi",
+        "parking": "駐車場",
+        "kid_friendly": "子供連れ歓迎",
+        "delivery": "デリバリー",
+        "takeout": "テイクアウト",
+        "reservation": "予約可能",
+        "outdoor_seating": "テラス席",
+        "wheelchair_accessible": "車椅子対応"
+      },
+      "cuisines": {
+        "japanese": "和食",
+        "vietnamese": "ベトナム料理",
+        "chinese": "中華料理",
+        "korean": "韓国料理",
+        "western": "洋食",
+        "thai": "タイ料理",
+        "italian": "イタリア料理",
+        "french": "フランス料理",
+        "indian": "インド料理",
+        "fusion": "フュージョン"
+      },
+      "distances": {
+        "500m": "500m",
+        "1km": "1km",
+        "2km": "2km",
+        "5km": "5km",
+        "10km": "10km"
+      },
+      "priceRanges": {
+        "budget": "リーズナブル",
+        "medium": "普通",
+        "expensive": "高級",
+        "luxury": "最高級"
+      },
+      "styles": {
+        "casual": "カジュアル",
+        "formal": "フォーマル",
+        "traditional": "伝統的",
+        "modern": "モダン",
+        "romantic": "ロマンチック",
+        "family": "ファミリー",
+        "business": "ビジネス",
+        "cozy": "アットホーム"
+      }
+    }
+  },
+
+  "storeDetail": {
+    "loading": "読み込み中...",
+    "not_found": "店舗が見つかりません",
+
+    "tabs": {
+      "menu": "メニュー",
+      "reviews": "レビュー",
+      "images": "画像"
+    },
+
+    "sections": {
+      "menu": "メニュー",
+      "reviews": "レビュー",
+      "images": "画像"
+    }
+  }
+}
