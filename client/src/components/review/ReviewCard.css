@@ -1,0 +1,362 @@
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW CARD - STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.review-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.review-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ═══ HEADER ═══ */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.review-user {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.review-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+
+.review-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.review-user-info {
+  flex: 1;
+}
+
+.review-user-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+}
+
+.rating-number {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* ═══ DELETE BUTTON ═══ */
+.review-delete-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.review-delete-btn:hover:not(:disabled) {
+  background: #d32f2f;
+  transform: translateY(-1px);
+}
+
+.review-delete-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* ═══ TITLE ═══ */
+.review-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* ═══ COMMENT ═══ */
+.review-comment {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.review-expand-btn {
+  background: none;
+  border: none;
+  color: #ff6b35;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.review-expand-btn:hover {
+  color: #ff5722;
+}
+
+/* ═══ TAGS ═══ */
+.review-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.review-tag {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.review-tag.service {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.review-tag.style {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.review-tag.dish {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+/* ═══ IMAGES ═══ */
+.review-images {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.review-image-thumb {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid #e0e0e0;
+  transition: all 0.2s;
+}
+
+.review-image-thumb:hover {
+  transform: scale(1.05);
+  border-color: #ff6b35;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.review-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ═══ DATE ═══ */
+.review-date {
+  font-size: 13px;
+  color: #999;
+  text-align: right;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GALLERY MODAL
+   ═══════════════════════════════════════════════════════════════ */
+
+.gallery-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.gallery-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.gallery-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.gallery-nav:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-prev {
+  left: 20px;
+}
+
+.gallery-next {
+  right: 20px;
+}
+
+.gallery-content {
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.gallery-content img {
+  max-width: 100%;
+  max-height: calc(90vh - 80px);
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-counter {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE - MOBILE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .review-card {
+    padding: 16px;
+  }
+
+  .review-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .review-avatar-placeholder {
+    font-size: 18px;
+  }
+
+  .review-user-name {
+    font-size: 14px;
+  }
+
+  .review-rating {
+    font-size: 14px;
+  }
+
+  .review-comment {
+    font-size: 13px;
+  }
+
+  .review-image-thumb {
+    width: 80px;
+    height: 80px;
+  }
+
+  .gallery-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .gallery-prev {
+    left: 10px;
+  }
+
+  .gallery-next {
+    right: 10px;
+  }
+
+  .gallery-close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+}

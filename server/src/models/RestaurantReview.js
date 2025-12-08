@@ -1,4 +1,6 @@
-// server/src/models/RestaurantReview.js
+// ═══════════════════════════════════════════════════════════════
+// MODEL: RestaurantReview (UPDATED WITH TAGS)
+// ═══════════════════════════════════════════════════════════════
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
@@ -46,6 +48,25 @@ const RestaurantReview = sequelize.define(
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
+    
+    // ═══ TAGS (NEW) ═══
+    service_tags: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: [],
+    },
+    style_tags: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: [],
+    },
+    dish_tags: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: [],
+    },
+    
+    // ═══ DETAILED RATINGS ═══
     food_rating: {
       type: DataTypes.DECIMAL(3, 2),
       allowNull: true,

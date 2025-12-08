@@ -7,6 +7,7 @@ const Restaurant = require("./Restaurant");
 const Review = require("./Review");
 const MenuItem = require("./MenuItem");
 const MenuItemReview = require("./MenuItemReview");
+const RestaurantReviewImage = require("./RestaurantReviewImage");
 const RestaurantReview = require("./RestaurantReview");
 const Favorite = require("./Favorite");
 const SearchHistory = require("./SearchHistory");
@@ -15,7 +16,7 @@ const Recommendation = require("./Recommendation");
 // Validate models
 const allModels = [
   User, Restaurant, Review, MenuItem, MenuItemReview,
-  RestaurantReview, Favorite, SearchHistory, Recommendation
+  RestaurantReview,RestaurantReviewImage, Favorite, SearchHistory, Recommendation
 ];
 
 // Debug: Check if each model is valid
@@ -48,6 +49,16 @@ function setupAssociations() {
   RestaurantReview.belongsTo(Restaurant, {
     foreignKey: "restaurant_id",
     as: "restaurant"
+  });
+// ═══ RestaurantReview ↔ RestaurantReviewImage ═══
+  RestaurantReview.hasMany(RestaurantReviewImage, {
+    foreignKey: "review_id",
+    as: "images",
+    onDelete: "CASCADE"
+  });
+  RestaurantReviewImage.belongsTo(RestaurantReview, {
+    foreignKey: "review_id",
+    as: "review"
   });
 
   // Restaurant ↔ MenuItem
@@ -114,6 +125,7 @@ module.exports = {
   MenuItem,
   MenuItemReview,
   RestaurantReview,
+  RestaurantReviewImage,
   Favorite,
   SearchHistory,
   Recommendation

@@ -218,3 +218,53 @@
   font-size: 14px;
   color: #555;
 }
+/* ═══════════════════════════════════════════════════════════════
+   REVIEWS SECTION - NEW STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.write-review-btn {
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.write-review-btn:hover {
+  background: #ff5722;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.write-review-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .reviews-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .write-review-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
