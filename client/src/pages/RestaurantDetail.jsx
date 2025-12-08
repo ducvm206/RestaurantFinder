@@ -8,12 +8,19 @@ import RestaurantInfo from "../components/restaurant/RestaurantInfo";
 import RestaurantCarousel from "../components/restaurant/RestaurantCarousel";
 import MenuList from "../components/restaurant/MenuList";
 import ReviewList from "../components/restaurant/ReviewList";
+import ReviewForm from "../components/review/ReviewForm"; // ← THÊM
+import { ToastContainer } from "react-toastify"; // ← THÊM
+import "react-toastify/dist/ReactToastify.css"; // ← THÊM
 import RestaurantImages from "../components/restaurant/RestaurantImages";
 
 export default function RestaurantDetail() {
   const { id } = useParams(); // <-- this is the restaurant ID
   const [restaurant, setRestaurant] = useState(null);
   const [reviews, setReviews] = useState([]); // separate state for reviews
+
+  const [showReviewForm, setShowReviewForm] = useState(false); // ← THÊM
+  const [refreshKey, setRefreshKey] = useState(0); // ← THÊM
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [favorites, setFavorites] = useState([]);
@@ -56,6 +63,26 @@ export default function RestaurantDetail() {
 
   fetchReviews();
 }, [id]); // <-- use "id" here, not restaurantId
+
+// ═══════════════════════════════════════════════════════════════
+// HANDLE REVIEW FORM SUCCESS
+// ═══════════════════════════════════════════════════════════════
+const handleReviewSuccess = () => {
+  // Refresh reviews by re-fetching
+  const fetchReviews = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/restaurant-reviews/restaurant/${id}`);
+      if (res.data.success) {
+        setReviews(res.data.data.reviews);
+      }
+    } catch (err) {
+      console.error("Cannot fetch reviews:", err);
+    }
+  };
+  
+  fetchReviews();
+  setRefreshKey(prev => prev + 1); // Force re-render
+};
 
   const isFavorite = restaurant && favorites.some(f => f.id === restaurant.id);
 
@@ -122,9 +149,46 @@ export default function RestaurantDetail() {
 
       {/* REVIEWS */}
       <section ref={reviewsRef} className="restaurant-section">
-        <h2 className="section-title">Reviews</h2>
-        <ReviewList reviews={reviews} />
-      </section>
+  <div className="reviews-header">
+    <h2 className="section-title">お客様の声</h2>
+    <button 
+      className="write-review-btn"
+      onClick={() => setShowReviewForm(true)}
+    >
+      レビューを書く
+    </button>
+  </div>
+  <ReviewList 
+    reviews={reviews} 
+    restaurantId={id}
+    key={refreshKey}
+    onReviewsChange={(newReviews) => setReviews(newReviews)}
+  />
+</section>
+{/* ═══ REVIEW FORM MODAL ═══ */}
+      {showReviewForm && (
+        <ReviewForm
+          restaurantId={id}
+          restaurantName={restaurant.name}
+          onClose={() => setShowReviewForm(false)}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
+
+      {/* ═══ TOAST NOTIFICATIONS ═══ */}
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+  
     </div>
   );
 }
