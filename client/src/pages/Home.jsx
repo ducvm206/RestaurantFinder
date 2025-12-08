@@ -1,231 +1,142 @@
-import { useState, useRef, useEffect } from "react";
-import { foodlist, stores } from "../data/HomeData";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/Home.css";
 
+import useTranslation from "../hooks/useTranslation";
+import { foodlist } from "../data/HomeData";
+
+import SearchBox from "../components/home/SearchBox";
+import CategoriesSlider from "../components/home/CategoriesSlider";
+import RestaurantList from "../components/home/RestaurantList";
+import FindLocation from "../components/home/FindLocation";
+
 export default function Home() {
+  const t = useTranslation();
   const navigate = useNavigate();
-  const location = "ハノイ工科大学";
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [index, setIndex] = useState(0);
-  const wrapperRef = useRef(null);
-  const [visibleCount, setVisibleCount] = useState(3);
-  const itemWidth = 140;
-
-  const [lang, setLang] = useState("jp");
-  const [langOpen, setLangOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // REAL USER STATE
+  // User login
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const toggleLangMenu = () => setLangOpen(prev => !prev);
-  const selectLang = (value) => { setLang(value); setLangOpen(false); };
+  // API restaurants
+  const [restaurants, setRestaurants] = useState([]);
 
-  // Load real user data on component mount
+  // For searching foods
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Slider settings
+  const [index, setIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const itemWidth = 140;
+  const wrapperRef = useRef(null);
+
+  // User location
+  const [userCoords, setUserCoords] = useState(null);
+
+  /* Fetch user */
   useEffect(() => {
-    const loadUserData = () => {
+    async function fetchUser() {
       try {
-        const token = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('user');
-        
-        if (token && savedUser) {
-          const userData = JSON.parse(savedUser);
-          // If userData has id but not user_id, convert it
-          if (userData.id && !userData.user_id) {
-            userData.user_id = userData.id;
-          }
-          setUser(userData);
-        } else {
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
+        const res = await fetch("http://localhost:5000/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) return navigate("/login");
+
+        const data = await res.json();
+        localStorage.setItem("user", JSON.stringify(data));
+        setUser(data);
+      } catch {
+        navigate("/login");
       } finally {
         setLoading(false);
       }
-    };
+    }
 
-    loadUserData();
+    fetchUser();
   }, [navigate]);
 
-  // Close dropdown if click outside
+  /* Fetch restaurants */
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setLangOpen(false);
+    async function loadRestaurants() {
+      try {
+        const res = await axios.get("http://localhost:5000/api/restaurants");
+        setRestaurants(res.data);
+      } catch (err) {
+        console.error("Restaurant fetch failed", err);
       }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+    loadRestaurants();
   }, []);
 
-  // Responsive slider
+  /* Slider responsive calculation */
   useEffect(() => {
-    const updateVisibleCount = () => {
+    const resize = () => {
       if (!wrapperRef.current) return;
-      const wrapperWidth = wrapperRef.current.offsetWidth;
-      const count = Math.floor(wrapperWidth / (itemWidth + 20));
+
+      const w = wrapperRef.current.offsetWidth;
+      const count = Math.floor(w / (itemWidth + 20));
       setVisibleCount(count > 0 ? count : 1);
     };
-    updateVisibleCount();
-    window.addEventListener("resize", updateVisibleCount);
-    return () => window.removeEventListener("resize", updateVisibleCount);
+
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
   }, []);
 
-  // Filter dishes from foodlist directly
-  const filteredDishes = foodlist.filter(dish =>
-    dish.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const next = () =>
+    setIndex((i) => Math.min(i + 1, foodlist.length - visibleCount));
+  const prev = () => setIndex((i) => Math.max(i - 1, 0));
+
+  /* Food search filter */
+  const filteredFoods = foodlist.filter((f) =>
+    f.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Filter categories for the slider
-  const filteredCategories = filteredDishes.length > 0
-    ? Array.from(new Set(filteredDishes.map(d => d.name)))
-    : foodlist;
-
-  // Filter stores by name
-  const filteredStores = stores.filter(store =>
-    store.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Slider navigation
-  const next = () => setIndex(i => Math.min(i + 1, filteredCategories.length - visibleCount));
-  const prev = () => setIndex(i => Math.max(i - 1, 0));
-
-  // Navigate to restaurant that serves the dish
-  const goToDishRestaurant = (dishName) => {
-    const restaurant = stores.find(store =>
-      store.menu.some(item => item.name === dishName)
-    );
-    if (restaurant) navigate(`/store/${restaurant.id}`);
-    else alert("この料理を提供している店が見つかりません。");
-  };
-
-  // Loading state
   if (loading) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>読み込み中...</p>
+        <p>{t("home.loading")}</p>
       </div>
     );
   }
 
-  // If no user found, show nothing (will redirect in useEffect)
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="home-container">
-      {/* Top bar */}
-      <div className="top-bar">
-        {/* Language Dropdown */}
-        <div className="lang-dropdown" ref={dropdownRef}>
-          <button className="lang-btn" onClick={toggleLangMenu}>
-            {lang === "jp" ? "日本語" : "Tiếng Việt"} ▾
-          </button>
-          {langOpen && (
-            <div className="lang-menu">
-              <div className="lang-item" onClick={() => selectLang("jp")}>日本語</div>
-              <div className="lang-item" onClick={() => selectLang("vi")}>Tiếng Việt</div>
-            </div>
-          )}
-        </div>
 
-        {/* Favorites Button */}
-        <button
-          className="favorites-btn"
-          onClick={() => navigate("/favorites")}
-        >
-          お気に入り
-        </button>
+      <p className="location">
+        📍 <FindLocation onCoords={setUserCoords} />
+      </p>
 
-        {/* Avatar with REAL USER DATA */}
-        <div
-          className="avatar-container"
-          onClick={() => navigate("/profile")}
-        >
-          {user.avatar ? (
-            <img src={user.avatar} alt={user.fullName} className="avatar-img" />
-          ) : (
-            <div className="avatar-default">
-              {user.fullName?.charAt(0).toUpperCase() || 'U'}
-            </div>
-          )}
-          <span className="avatar-name">{user.fullName}</span>
-        </div>
-      </div>
-
-      <p className="location">📍 {location}</p>
       <h2 className="greeting">
-        こんにちは、{user.fullName}さん！午後もがんばりましょう！
+        {t("home.greeting").replace("{name}", user.fullName)}
       </h2>
 
-      {/* Search box */}
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="料理名を入力..."
-          onClick={() => navigate('/search')}
-          readOnly
-          className="search-box"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+      <SearchBox
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        navigate={navigate}
+        t={t}
+      />
 
-      {/* Search results: dishes */}
-      {searchQuery && filteredDishes.length > 0 && (
-        <div className="search-results">
-          {filteredDishes.map(dish => (
-            <div
-              key={dish.id}
-              className="dish-card"
-              onClick={() => goToDishRestaurant(dish.name)}
-            >
-              <div className="dish-img-wrapper">
-                <img src={dish.image} alt={dish.name} className="dish-img" />
-              </div>
-              <p className="dish-name">{dish.name}</p>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Categories slider */}
-      {foodlist.length > 0 && (
-        <div className="cat-slider">
-          {index > 0 && <button className="cat-btn left" onClick={prev}>◀</button>}
-          <div className="cat-wrapper" ref={wrapperRef}>
-            <div className="cat-list" style={{ transform: `translateX(-${index * (itemWidth + 20)}px)`, transition: "transform 0.3s ease" }}>
-              {foodlist.map(cat => (
-                <div key={cat.id} className="cat-item">
-                  <img src={cat.image} alt={cat.name} className="cat-img" />
-                  <p>{cat.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          {index < foodlist.length - visibleCount && <button className="cat-btn right" onClick={next}>▶</button>}
-        </div>
-      )}
 
-      {/* Restaurants list */}
-      <div className="rest-list">
-        {filteredStores.map(store => (
-          <div key={store.id} className="rest-item" onClick={() => navigate(`/store/${store.id}`)}>
-            <img src={store.logo} alt={store.name} className="rest-img" />
-            <div className="rest-info">
-              <h4>{store.name}</h4>
-              <p>{store.categories.join("・")}</p>
-              <p>⭐ {store.rating}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <CategoriesSlider
+        index={index}
+        next={next}
+        prev={prev}
+        foodlist={foodlist}
+        wrapperRef={wrapperRef}
+        visibleCount={visibleCount}
+        itemWidth={itemWidth}
+      />
+
+      <RestaurantList restaurants={restaurants} userCoords={userCoords} />
     </div>
   );
 }

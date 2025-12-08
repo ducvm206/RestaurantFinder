@@ -1,15 +1,22 @@
-// server/src/routes/authRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { register, login, socialLogin } = require('../controllers/authController');
+const {
+  register,
+  login,
+  socialLogin,
+  logout,
+} = require("../controllers/authController");
+const { protect } = require("../middleware/authMiddleware");
+const { registerValidator, loginValidator } = require("../utils/validators");
 
-// POST: /api/auth/register
-router.post('/register', register);
+// Route kiểm tra user từ cookie
+router.get("/me", protect, (req, res) => {
+  res.json(req.user);
+});
 
-// POST: /api/auth/login
-router.post('/login', login);
-
-// POST: /api/auth/social
-router.post('/social', socialLogin);
+router.post("/register", registerValidator, register);
+router.post("/login", loginValidator, login);
+router.post("/social", socialLogin);
+router.post("/logout", logout);
 
 module.exports = router;

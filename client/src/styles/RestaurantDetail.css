@@ -1,5 +1,5 @@
 /* Container */
-.store-detail-container {
+.restaurant-detail-container {
   padding: 25px 20px;
   max-width: 950px;
   margin: auto;
@@ -8,7 +8,7 @@
 }
 
 /* Header */
-.store-header {
+.restaurant-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -36,7 +36,7 @@
 }
 
 /* Full-width logo */
-.store-logo-full {
+.restaurant-logo-full {
   width: 100%;
   height: 280px;
   object-fit: cover;
@@ -46,12 +46,12 @@
   transition: transform 0.25s ease;
 }
 
-.store-logo-full:hover {
+.restaurant-logo-full:hover {
   transform: scale(1.02);
 }
 
 /* Tabs container */
-.store-tabs {
+.restaurant-tabs {
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -64,7 +64,7 @@
 }
 
 /* Tab buttons */
-.store-tabs button {
+.restaurant-tabs button {
   padding: 10px 0;
   border: none;
   background: none;
@@ -77,18 +77,18 @@
   transition: all 0.25s ease;
 }
 
-.store-tabs button:hover {
+.restaurant-tabs button:hover {
   color: #000;
   border-bottom: 3px solid #ff5c5c;
 }
 
-.store-tabs button.active {
+.restaurant-tabs button.active {
   color: #000;
   border-bottom: 3px solid #ff5c5c;
 }
 
 /* Sections */
-.store-section {
+.restaurant-section {
   margin-bottom: 60px;
   scroll-margin-top: 90px; /* prevent sticky tab overlap */
 }
@@ -104,8 +104,8 @@
   color: #222;
 }
 
-/*----------------Store Info Card---------------------*/
-.store-info {
+/*----------------restaurant Info Card---------------------*/
+.restaurant-info {
   text-align: left;
   margin-bottom: 35px;
   padding: 22px 24px;
@@ -115,19 +115,19 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.store-info:hover {
+.restaurant-info:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 26px rgba(0,0,0,0.12);
 }
 
-.store-info h2 {
+.restaurant-info h2 {
   font-size: 30px;
   font-weight: 800;
   margin-bottom: 10px;
   color: #222;
 }
 
-.store-info p {
+.restaurant-info p {
   margin: 6px 0;
   font-size: 15px;
   color: #555;
@@ -136,26 +136,29 @@
   gap: 8px;
 }
 
-.store-info .store-rating .icon-star {
+/* Star rating */
+.restaurant-info .restaurant-rating .icon-star {
   font-size: 16px;
   color: #ebd109;
 }
 
-.store-info .categories {
+.restaurant-info .categories {
   font-size: 14px;
   color: #888;
   margin: 6px 0;
   font-weight: 500;
 }
 
-.store-info .contact-info {
+/* Contact info container: make vertical (line by line) */
+.restaurant-info .contact-info {
   display: flex;
-  gap: 22px;
-  flex-wrap: wrap;
+  flex-direction: column; /* stack vertically */
+  gap: 6px;              /* space between lines */
   margin-top: 12px;
 }
 
-.store-info .contact-info p {
+/* Each contact line */
+.restaurant-info .contact-info p {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -163,10 +166,25 @@
   font-size: 14px;
 }
 
-.store-info .contact-info p .icon {
+/* Icon styling */
+.restaurant-info .info-list p .icon {
   color: #ff5c5c;
   font-size: 16px;
 }
+
+.restaurant-info .opening-hours .icon {
+  color: #ff5c5c; 
+  font-size: 16px;
+}
+
+
+/* Optional: make opening hours multiline */
+.restaurant-info .opening-hour-item {
+  font-size: 14px;
+  color: #555;
+}
+
+
 
 /*----------------Reviews---------------------*/
 .review-list {

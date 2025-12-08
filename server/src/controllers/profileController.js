@@ -59,15 +59,21 @@ exports.getProfile = async (req, res) => {
         user_id: user.user_id,
         fullName: user.fullName,
         email: user.email,
-        avatar: user.avatar,
+        avatar: null,
+        avatarUrl: null,
         authType: user.authType,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }
     });
+
   } catch (error) {
-    console.error('Lỗi khi lấy profile:', error);
-    res.status(500).json({ message: 'Lỗi server khi lấy thông tin profile' });
+    console.error('❌ Error in deleteAvatar:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'サーバーエラーが発生しました',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

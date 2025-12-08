@@ -4,37 +4,44 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
 const { connectDB, sequelize } = require("./config/database");
+const cookieParser = require("cookie-parser");
 
-
-// Import file routes
-const restaurantRouter = require("./routes/restaurantRoutes");
+// Routes
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const recommendationRouters = require("./routes/recommendationRoutes");
+const restaurantReviewRoutes = require("./routes/restaurantReviewRoutes");
+const restaurantRoutes = require("./routes/restaurantRoutes");
 
-
-// Load environment variables
 dotenv.config();
 
+// Create Express app
 const app = express();
 
-// Middleware
-app.use(cors());
+// Parse cookies
+app.use(cookieParser());
+
+// ⭐ CORS CHUẨN CHO COOKIE-BASED AUTH
+app.use(
+  cors({
+    origin: "http://localhost:3000", // FE
+    credentials: true, // Cho phép gửi cookie
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// Body parser
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // For form-data
+app.use(express.urlencoded({ extended: true }));
 
+// Serve static uploads
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+console.log("📁 Uploads directory:", path.join(__dirname, "../uploads"));
 
-// ⭐ CRITICAL: Serve static files from uploads directory
-// This allows uploaded avatars to be accessible via URL
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// Log uploads directory for debugging
-console.log('📁 Uploads directory:', path.join(__dirname, '../uploads'));
-
-// Database connection
+// Connect DB
 connectDB();
 
-// Sync database tables
 sequelize.sync({ alter: true }).then(() => {
   console.log("✅ Database synced!");
 });
@@ -43,32 +50,26 @@ sequelize.sync({ alter: true }).then(() => {
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/recommendations", recommendationRouters);
-app.use("/api/restaurants", restaurantRouter);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: 'Server is running',
-    uploadsPath: path.join(__dirname, '../uploads')
-  });
+app.use("/api/restaurant-reviews", restaurantReviewRoutes);
+app.use("/api/restaurants", restaurantRoutes);
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running" });
 });
 
-// Error handling middleware
+// Error handler
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err);
+  console.error("❌ Error:", err);
   res.status(err.status || 500).json({
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    message: err.message || "Internal server error",
   });
 });
 
-// 404 handler
+// 404
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ message: "Route not found" });
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

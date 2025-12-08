@@ -10,26 +10,27 @@ import './SearchPage.css';
 
 const SearchPage = () => {
   const navigate = useNavigate();
-  const [keyword, setKeyword] = useState('');
+  const t = useTranslation();
+
+  const [keyword, setKeyword] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   
   // State filters giữ giá trị mặc định (rỗng)
   const [filters, setFilters] = useState({
     services: [],
     cuisines: [],
-    distance: '',
-    priceRange: '',
+    distance: "",
+    priceRange: "",
     styles: [],
-    minRating: 0
+    minRating: 0,
   });
   
   const [recentKeywords, setRecentKeywords] = useState(mockRecentKeywords);
   const [searchResults, setSearchResults] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
 
-  // Load recent keywords
   useEffect(() => {
-    const saved = localStorage.getItem('recentKeywords');
+    const saved = localStorage.getItem("recentKeywords");
     if (saved) {
       setRecentKeywords(JSON.parse(saved));
     }
@@ -54,7 +55,7 @@ const SearchPage = () => {
     if (!kw.trim()) return;
     const updated = [kw, ...recentKeywords.filter(k => k !== kw)].slice(0, 10);
     setRecentKeywords(updated);
-    localStorage.setItem('recentKeywords', JSON.stringify(updated));
+    localStorage.setItem("recentKeywords", JSON.stringify(updated));
   };
 
   // --- SỬA ĐỔI CHÍNH TẠI ĐÂY ---
@@ -151,7 +152,7 @@ const SearchPage = () => {
 
     setSearchResults({
       restaurants: filtered,
-      dishes: filteredDishes.filter(d => d.isPopular).slice(0, 4)
+      dishes: filteredDishes.filter((d) => d.isPopular).slice(0, 4),
     });
   };
 
@@ -188,18 +189,16 @@ const SearchPage = () => {
     .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, 3);
 
-  const popularDishes = mockDishes
-    .filter(d => d.isPopular)
-    .slice(0, 4);
+  const popularDishes = mockDishes.filter((d) => d.isPopular).slice(0, 4);
 
   return (
     <div className="search-page">
       {/* Header */}
       <div className="search-header">
-        <button className="back-button" onClick={() => navigate('/home')}>
+        <button className="back-button" onClick={() => navigate("/home")}>
           <span>←</span>
         </button>
-        <h1 className="search-title">検索</h1>
+        <h1 className="search-title">{t("search.title")}</h1>
       </div>
 
       {/* Search Bar */}
@@ -209,7 +208,7 @@ const SearchPage = () => {
           <input
             type="text"
             className="search-input"
-            placeholder="ラーメン"
+            placeholder={t("search.search_placeholder")}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             // Khi nhấn Enter, gọi search không tham số (dùng filters rỗng mặc định)
@@ -219,7 +218,7 @@ const SearchPage = () => {
         <button
           className="filter-button"
           onClick={() => setShowFilter(true)}
-          title="絞り込み検索"
+          title={t("search.filters_button")}
         >
           <svg
             className="filter-icon"
@@ -233,9 +232,6 @@ const SearchPage = () => {
               d="M3 4.5H21V6.75L14.25 13.5V19.5L9.75 21.75V13.5L3 6.75V4.5Z"
               fill="currentColor"
               stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
             />
           </svg>
         </button>
@@ -245,17 +241,19 @@ const SearchPage = () => {
       <div className="search-content">
         {searchResults ? (
           <div className="search-results">
+            {/* Popular Dishes */}
             {searchResults.dishes.length > 0 && (
               <div className="results-section">
-                <h2 className="section-title">人気のラーメン</h2>
+                <h2 className="section-title">
+                  {t("search.sections.popular_dishes")}
+                </h2>
                 <div className="dishes-grid">
-                  {searchResults.dishes.map(dish => (
+                  {searchResults.dishes.map((dish) => (
                     <div key={dish.id} className="dish-card">
                       <img
                         src={dish.image}
                         alt={dish.name}
                         className="dish-image"
-                        loading="lazy"
                       />
                       <h3 className="dish-name">{dish.name}</h3>
                       <p className="dish-restaurant">{dish.restaurantName}</p>
@@ -267,9 +265,12 @@ const SearchPage = () => {
               </div>
             )}
 
+            {/* Restaurants */}
             {searchResults.restaurants.length > 0 && (
               <div className="results-section">
-                <h2 className="section-title">営業中のレストラン</h2>
+                <h2 className="section-title">
+                  {t("search.sections.open_restaurants")}
+                </h2>
                 <div className="restaurants-list">
                   {searchResults.restaurants.map(restaurant => (
                     <div
@@ -281,7 +282,6 @@ const SearchPage = () => {
                         src={restaurant.image_url}
                         alt={restaurant.name}
                         className="restaurant-image"
-                        loading="lazy"
                       />
                       <div className="restaurant-info">
                         <h3 className="restaurant-name">{restaurant.name}</h3>
@@ -305,15 +305,17 @@ const SearchPage = () => {
             )}
           </div>
         ) : (
-          // Default view
           <>
+            {/* Recent Keywords */}
             {recentKeywords.length > 0 && (
               <div className="recent-keywords-section">
-                <h2 className="section-title">最近のキーワード</h2>
+                <h2 className="section-title">
+                  {t("search.sections.recent_keywords")}
+                </h2>
                 <div className="keywords-list">
-                  {recentKeywords.map((kw, index) => (
+                  {recentKeywords.map((kw, i) => (
                     <button
-                      key={index}
+                      key={i}
                       className="keyword-chip"
                       onClick={() => handleKeywordClick(kw)}
                     >
@@ -324,8 +326,11 @@ const SearchPage = () => {
               </div>
             )}
 
+            {/* Recommended Restaurants */}
             <div className="recommendations-section">
-              <h2 className="section-title">おすすめのレストラン</h2>
+              <h2 className="section-title">
+                {t("search.sections.recommended_restaurants")}
+              </h2>
               <div className="restaurants-list">
                 {recommendations.map(restaurant => (
                   <div
@@ -337,7 +342,6 @@ const SearchPage = () => {
                       src={restaurant.image_url}
                       alt={restaurant.name}
                       className="restaurant-image"
-                      loading="lazy"
                     />
                     <div className="restaurant-info">
                       <h3 className="restaurant-name">{restaurant.name}</h3>
@@ -352,19 +356,23 @@ const SearchPage = () => {
               </div>
             </div>
 
+            {/* Recommended Dishes */}
             <div className="popular-dishes-section">
-              <h2 className="section-title">おすすめの料理</h2>
+              <h2 className="section-title">
+                {t("search.sections.recommended_dishes")}
+              </h2>
               <div className="dishes-scroll">
-                {popularDishes.map(dish => (
+                {popularDishes.map((dish) => (
                   <div key={dish.id} className="dish-card-small">
                     <img
                       src={dish.image}
                       alt={dish.name}
                       className="dish-image-small"
-                      loading="lazy"
                     />
                     <p className="dish-name-small">{dish.name}</p>
-                    <p className="dish-restaurant-small">{dish.restaurantName}</p>
+                    <p className="dish-restaurant-small">
+                      {dish.restaurantName}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -373,12 +381,12 @@ const SearchPage = () => {
         )}
       </div>
 
-      {/* Filter Modal */}
       {showFilter && (
         <FilterModal
           filters={filters}
-          onApply={handleApplyFilter}
           onClose={() => setShowFilter(false)}
+          onApply={handleApplyFilter}
+          t={t}
         />
       )}
     </div>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/StoreCarousel.css";
+import "../../styles/RestaurantCarousel.css";
 
-export default function StoreCarousel({ menu, storeId }) {
+export default function RestaurantCarousel({ menu, restaurantId }) {
   const [randomDishes, setRandomDishes] = useState([]);
   const navigate = useNavigate();
 
@@ -17,8 +17,8 @@ export default function StoreCarousel({ menu, storeId }) {
 
   if (!randomDishes.length) return null;
 
-  const goToStore = () => {
-    navigate(`/store/${storeId}`);
+  const goToRestaurant = () => {
+    navigate(`/restaurant/${restaurantId}`);
   };
 
   return (
@@ -28,9 +28,13 @@ export default function StoreCarousel({ menu, storeId }) {
           <div
             key={dish.id}
             className="carousel-item"
-            onClick={goToStore}
+            onClick={goToRestaurant}
           >
-            <img src={dish.image} alt={dish.name} className="carousel-img" />
+            {dish.image ? (
+              <img src={dish.image} alt={dish.name} className="carousel-img" />
+            ) : (
+              <div className="carousel-img placeholder">No image</div>
+            )}
             <p className="carousel-name">{dish.name}</p>
           </div>
         ))}

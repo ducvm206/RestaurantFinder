@@ -1,8 +1,12 @@
-const express = require('express');
+// server/src/routes/restaurantRoutes.js
+const express = require("express");
+const { getAllRestaurants, getRestaurantById } = require("../controllers/restaurantController");
+
 const router = express.Router();
-const restaurantController = require('../controllers/restaurantController');
 
-// GET http://localhost:5000/api/restaurants
-router.get('/', restaurantController.getAllRestaurants);
+// GET all restaurants
+router.get("/", getAllRestaurants);          // /api/restaurants
+// GET restaurant by ID
+router.get("/:id", getRestaurantById);       // /api/restaurants/:id
 
-module.exports = router;
+module.exports = router; // CommonJS
