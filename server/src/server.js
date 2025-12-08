@@ -12,6 +12,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const recommendationRouters = require("./routes/recommendationRoutes");
 const restaurantReviewRoutes = require("./routes/restaurantReviewRoutes");
 const restaurantRoutes = require("./routes/restaurantRoutes");
+const favoriteRoutes = require("./routes/favoriteRoutes");
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/recommendations", recommendationRouters);
 app.use("/api/restaurant-reviews", restaurantReviewRoutes);
 app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/favorites", favoriteRoutes);
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });

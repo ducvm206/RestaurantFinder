@@ -84,6 +84,12 @@ function setupAssociations() {
     as: "favoritedByUsers"
   });
 
+  // Direct Favorite relations
+  User.hasMany(Favorite, { foreignKey: "user_id", as: "favorites" });
+  Restaurant.hasMany(Favorite, { foreignKey: "restaurant_id", as: "favorites" });
+  Favorite.belongsTo(User, { foreignKey: "user_id", as: "user" });
+  Favorite.belongsTo(Restaurant, { foreignKey: "restaurant_id", as: "restaurant" });
+
   // Search history
   User.hasMany(SearchHistory, { foreignKey: "user_id", as: "searchHistory" });
   SearchHistory.belongsTo(User, { foreignKey: "user_id", as: "user" });
