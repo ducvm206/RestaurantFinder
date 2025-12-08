@@ -1,31 +1,48 @@
 // src/App.js
 import "./App.css";
+import { Routes, Route } from "react-router-dom";
+
+// Pages
 import Home from "./pages/Home";
 import RestaurantDetail from "./pages/RestaurantDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/ProfilePage";
 import Favorites from "./pages/FavoritesPage";
-import SearchPage from './pages/SearchPage';
-import { Routes, Route } from "react-router-dom";
+import SearchPage from "./pages/SearchPage";
 
-
-
+// Components
+import Layout from "./components/home/Layout/Layout"; // Persistent TopBar wrapper
+import LanguageProvider from "./context/LanguageContext";
+import LanguageSelector from "./components/language/LanguageSelector";
 
 function App() {
+  // Get logged-in user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
+
   return (
-    <div className="App">
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/restaurants/:id" element={<RestaurantDetail />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/favorites" element={<Favorites  />} />
-        <Route path="/search" element={<SearchPage />} />
-      </Routes>
-    </div>
+    <LanguageProvider>
+      {/* Language selector always visible */}
+      <LanguageSelector />
+
+      <div className="App">
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Authenticated routes with TopBar */}
+          <Route element={<Layout user={user} />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/restaurants/:id" element={<RestaurantDetail />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/search" element={<SearchPage />} />
+          </Route>
+        </Routes>
+      </div>
+    </LanguageProvider>
   );
 }
 
