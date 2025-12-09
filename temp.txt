@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDistanceFromLatLonInKm } from "../../utils/distance";
-import { useLocationContext } from "../../context/LocationContext";
 
-export default function RestaurantList({ restaurants = [] }) {
+export default function RestaurantList({ restaurants = [], userCoords }) {
   const navigate = useNavigate();
-  const { userCoords } = useLocationContext(); // ⭐ Lấy vị trí toàn cục
   const [restWithDistance, setRestWithDistance] = useState([]);
 
   useEffect(() => {
-    console.log("Restaurants:", restaurants);
-    console.log("User Coords:", userCoords);
-
     const updated = restaurants.map((r) => {
       let distance = null;
 
@@ -68,17 +63,9 @@ export default function RestaurantList({ restaurants = [] }) {
 
           <div className="rest-info">
             <h4>{restaurant.name || "Unnamed Restaurant"}</h4>
-            <p>{restaurant.address_ja || restaurant.address || restaurant.city}</p>
-
-            {restaurant.average_rating != null && (
-              <p>⭐ {restaurant.average_rating}</p>
-            )}
-
-            {restaurant.distance != null && (
-              <p style={{ marginTop: 8, fontWeight: 600 }}>
-                📍 {restaurant.distance.toFixed(2)} km
-              </p>
-            )}
+            {restaurant.address && <p>{restaurant.address}</p>}
+            {restaurant.average_rating != null && <p>⭐ {restaurant.average_rating}</p>}
+            {restaurant.distance != null && <p>📍 {restaurant.distance.toFixed(2)} km</p>}
           </div>
         </div>
       ))}

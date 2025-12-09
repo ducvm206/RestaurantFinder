@@ -1,5 +1,5 @@
 import "../styles/RestaurantDetail.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import axios from "axios";
@@ -15,6 +15,7 @@ import RestaurantImages from "../components/restaurant/RestaurantImages";
 
 export default function RestaurantDetail() {
   const { id } = useParams(); // <-- this is the restaurant ID
+  const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
   const [reviews, setReviews] = useState([]); // separate state for reviews
 
@@ -84,14 +85,75 @@ const handleReviewSuccess = () => {
   setRefreshKey(prev => prev + 1); // Force re-render
 };
 
-  const isFavorite = restaurant && favorites.some(f => f.id === restaurant.id);
+  // Load favorites for current user
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/favorites", {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.status === 401) return; // not logged in
+        const data = await res.json();
+        setFavorites(data || []);
+      } catch (err) {
+        console.error("Cannot load favorites:", err);
+      }
+    };
+    loadFavorites();
 
-  const toggleFavorite = () => {
-    if (!restaurant) return;
-    if (isFavorite) {
-      setFavorites(favorites.filter(f => f.id !== restaurant.id));
-    } else {
-      setFavorites([...favorites, restaurant]);
+    const handleUpdated = () => loadFavorites();
+    window.addEventListener("favorites-updated", handleUpdated);
+    return () => window.removeEventListener("favorites-updated", handleUpdated);
+  }, [id]);
+
+  const restaurantId = restaurant?.restaurant_id || parseInt(id, 10);
+  const isFavorite =
+    restaurantId &&
+    favorites.some((f) => f.restaurant_id === restaurantId);
+
+  const toggleFavorite = async () => {
+    if (!restaurantId) return;
+
+    try {
+      if (isFavorite) {
+        const res = await fetch(
+          `http://localhost:5000/api/favorites/${restaurantId}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
+        if (res.status === 401) {
+          navigate("/login");
+          return;
+        }
+        if (!res.ok) throw new Error("Remove favorite failed");
+        setFavorites((prev) =>
+          prev.filter((f) => f.restaurant_id !== restaurantId)
+        );
+      } else {
+        const res = await fetch("http://localhost:5000/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ restaurant_id: restaurantId }),
+        });
+        if (res.status === 401) {
+          navigate("/login");
+          return;
+        }
+        if (!res.ok) throw new Error("Add favorite failed");
+        const data = await res.json();
+        const favToAdd = data.favorite || {
+          restaurant_id: restaurantId,
+          restaurant,
+        };
+        setFavorites((prev) => [...prev, favToAdd]);
+      }
+      window.dispatchEvent(new Event("favorites-updated"));
+    } catch (err) {
+      console.error("Toggle favorite error:", err);
     }
   };
 

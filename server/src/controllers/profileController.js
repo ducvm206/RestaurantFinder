@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
     // Generate unique filename: userId_timestamp.extension
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    cb(null, `user-${req.user.id}-${uniqueSuffix}${ext}`);
+    const uid = req.user?.user_id || req.user?.id;
+    cb(null, `user-${uid}-${uniqueSuffix}${ext}`);
   }
 });
 
@@ -59,8 +60,8 @@ exports.getProfile = async (req, res) => {
         user_id: user.user_id,
         fullName: user.fullName,
         email: user.email,
-        avatar: null,
-        avatarUrl: null,
+        avatar: user.avatar || null,
+        avatarUrl: user.avatar || null,
         authType: user.authType,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
@@ -180,7 +181,8 @@ exports.uploadAvatar = [
       const avatarUrl = `/uploads/avatars/${req.file.filename}`;
 
       // Optionally update user's avatar in database immediately
-      const user = await User.findByPk(req.user.id);
+      const uid = req.user.user_id || req.user.id;
+      const user = await User.findByPk(uid);
       if (user) {
         // Delete old avatar if exists
         if (user.avatar && user.avatar.startsWith('/uploads/')) {
@@ -236,7 +238,7 @@ exports.uploadAvatar = [
 // DELETE: Delete avatar
 exports.deleteAvatar = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id);
+    const user = await User.findByPk(req.user.user_id || req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: 'ユーザーが見つかりません' });

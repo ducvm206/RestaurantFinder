@@ -32,12 +32,14 @@ const FilterModal = ({ filters, onApply, onClose }) => {
   }, []);
 
   const [localFilters, setLocalFilters] = useState({
-    services: [...filters.services],
-    cuisines: [...filters.cuisines],
-    distance: filters.distance,
-    priceRange: filters.priceRange,
-    styles: [...filters.styles],
-    minRating: filters.minRating,
+    services: Array.isArray(filters.services) ? [...filters.services] : [],
+    cuisines: Array.isArray(filters.cuisines) ? [...filters.cuisines] : [],
+    distance: filters.distance || "",
+    priceRange: filters.priceRange || "",
+    styles: Array.isArray(filters.styles) ? [...filters.styles] : [],
+    minRating: filters.minRating || 0,
+    district: filters.district || "",
+    city: filters.city || "",
   });
 
   // Toggle multi-select filter (services, cuisines, styles)
@@ -83,6 +85,8 @@ const FilterModal = ({ filters, onApply, onClose }) => {
       priceRange: "",
       styles: [],
       minRating: 0,
+      district: "",
+      city: "",
     };
     setLocalFilters(resetFilters);
   };
@@ -243,6 +247,31 @@ const FilterModal = ({ filters, onApply, onClose }) => {
                 })}
               </p>
             )}
+          </div>
+
+          {/* Location filters */}
+          <div className="filter-section">
+            <h3 className="filter-section-title">Khu vực</h3>
+            <div className="filter-chips" style={{ flexDirection: "column", gap: "8px" }}>
+              <input
+                type="text"
+                className="filter-input"
+                placeholder="Quận/Huyện"
+                value={localFilters.district}
+                onChange={(e) =>
+                  setLocalFilters((prev) => ({ ...prev, district: e.target.value }))
+                }
+              />
+              <input
+                type="text"
+                className="filter-input"
+                placeholder="Thành phố"
+                value={localFilters.city}
+                onChange={(e) =>
+                  setLocalFilters((prev) => ({ ...prev, city: e.target.value }))
+                }
+              />
+            </div>
           </div>
         </div>
 

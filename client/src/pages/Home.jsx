@@ -9,7 +9,8 @@ import { foodlist } from "../data/HomeData";
 import SearchBox from "../components/home/SearchBox";
 import CategoriesSlider from "../components/home/CategoriesSlider";
 import RestaurantList from "../components/home/RestaurantList";
-import FindLocation from "../components/home/FindLocation";
+// ❌ FindLocation không cần nữa
+// import FindLocation from "../components/home/FindLocation";
 
 export default function Home() {
   const t = useTranslation();
@@ -19,20 +20,17 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // API restaurants
+  // Restaurants
   const [restaurants, setRestaurants] = useState([]);
 
-  // For searching foods
+  // Food search
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Slider settings
+  // Slider
   const [index, setIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const itemWidth = 140;
   const wrapperRef = useRef(null);
-
-  // User location
-  const [userCoords, setUserCoords] = useState(null);
 
   /* Fetch user */
   useEffect(() => {
@@ -71,7 +69,7 @@ export default function Home() {
     loadRestaurants();
   }, []);
 
-  /* Slider responsive calculation */
+  /* Slider responsive */
   useEffect(() => {
     const resize = () => {
       if (!wrapperRef.current) return;
@@ -90,11 +88,6 @@ export default function Home() {
     setIndex((i) => Math.min(i + 1, foodlist.length - visibleCount));
   const prev = () => setIndex((i) => Math.max(i - 1, 0));
 
-  /* Food search filter */
-  const filteredFoods = foodlist.filter((f) =>
-    f.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   if (loading) {
     return (
       <div className="loading-container">
@@ -108,10 +101,10 @@ export default function Home() {
 
   return (
     <div className="home-container">
-
-      <p className="location">
+      {/* ❌ BỎ FindLocation – giờ dùng LocationContext */}
+      {/* <p className="location">
         📍 <FindLocation onCoords={setUserCoords} />
-      </p>
+      </p> */}
 
       <h2 className="greeting">
         {t("home.greeting").replace("{name}", user.fullName)}
@@ -124,8 +117,6 @@ export default function Home() {
         t={t}
       />
 
-
-
       <CategoriesSlider
         index={index}
         next={next}
@@ -136,7 +127,8 @@ export default function Home() {
         itemWidth={itemWidth}
       />
 
-      <RestaurantList restaurants={restaurants} userCoords={userCoords} />
+      {/* ⭐ Không truyền userCoords nữa */}
+      <RestaurantList restaurants={restaurants} />
     </div>
   );
 }
