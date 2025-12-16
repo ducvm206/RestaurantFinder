@@ -22,6 +22,9 @@ const app = express();
 // Parse cookies
 app.use(cookieParser());
 
+// Also make sure you have this for client-side assets if needed
+app.use(express.static(path.join(__dirname, '../client/build')));
+
 // ⭐ CORS CHUẨN CHO COOKIE-BASED AUTH
 app.use(
   cors({
@@ -37,8 +40,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static uploads
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-console.log("📁 Uploads directory:", path.join(__dirname, "../uploads"));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+console.log('Static files served from:', path.join(__dirname, '..', 'uploads'));
+console.log('Full uploads path:', path.join(__dirname, '..', 'uploads', 'avatars'));
 
 // Connect DB
 connectDB();

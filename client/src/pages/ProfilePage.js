@@ -1,7 +1,8 @@
-// FILE: client/src/pages/ProfilePage.jsx
+// FILE: client/src/pages/ProfilePage.js
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useTranslation from "../hooks/useTranslation";
+import "../styles/Profile.css";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -22,6 +23,40 @@ const ProfilePage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
+  // Helper function to get full avatar URL
+ // Update the getFullAvatarUrl function to be more robust:
+const getFullAvatarUrl = (avatarPath) => {
+  if (!avatarPath || avatarPath.trim() === "") return null;
+  
+  // If it's already a full URL, return as is
+  if (avatarPath.startsWith("http")) {
+    return avatarPath;
+  }
+  
+  // If it's a relative path starting with /uploads/avatars/
+  if (avatarPath.startsWith("/uploads/avatars/")) {
+    return `http://localhost:5000${avatarPath}`;
+  }
+  
+  // If it's just a filename without path
+  if (!avatarPath.includes("/")) {
+    return `http://localhost:5000/uploads/avatars/${avatarPath}`;
+  }
+  
+  // For any other relative paths starting with /
+  if (avatarPath.startsWith("/")) {
+    return `http://localhost:5000${avatarPath}`;
+  }
+  
+  // Default fallback
+  return `http://localhost:5000/uploads/avatars/${avatarPath}`;
+};
+
+  // Helper to ensure avatar is always stored as full URL in state
+  const normalizeAvatarUrl = (avatarPath) => {
+    return getFullAvatarUrl(avatarPath) || "";
+  };
+
   // =========================================
   // Fetch profile from backend
   // =========================================
@@ -31,6 +66,9 @@ const ProfilePage = () => {
 
   const fetchUserProfile = async () => {
     try {
+      setLoading(true);
+      setError("");
+      
       const rawUser = localStorage.getItem("user");
 
       if (!rawUser) {
@@ -38,6 +76,7 @@ const ProfilePage = () => {
         return;
       }
 
+      // Parse user from localStorage
       let userObj = rawUser;
       while (typeof userObj === "string") {
         try {
@@ -47,17 +86,18 @@ const ProfilePage = () => {
         }
       }
 
-      setUser(userObj);
-      setEditData({
-        fullName: userObj.fullName,
-        email: userObj.email,
-        avatar: userObj.avatar || "",
-      });
+      console.log("🔍 Fetching profile from API...");
 
+      // Fetch fresh data from backend
       const response = await fetch("http://localhost:5000/api/profile", {
         method: "GET",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
+      console.log("📡 API Response status:", response.status);
 
       if (response.status === 401) {
         localStorage.removeItem("user");
@@ -65,20 +105,67 @@ const ProfilePage = () => {
         return;
       }
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Parse the response data
       const data = await response.json();
-      setUser(data.user);
+      
+      console.log("✅ API Response data:", data);
+      console.log("🖼️ Raw avatar from API:", data?.user?.avatar);
+
+      if (!data.success) {
+        throw new Error(data.message || "Failed to fetch profile");
+      }
+
+      if (!data.user) {
+        throw new Error("No user data received from server");
+      }
+
+      // Convert avatar to full URL before storing
+      const userWithFullAvatar = {
+        ...data.user,
+        avatar: getFullAvatarUrl(data.user.avatar) || data.user.avatar,
+        avatarUrl: getFullAvatarUrl(data.user.avatarUrl) || data.user.avatarUrl
+      };
+
+      console.log("🖼️ Full avatar URL for state:", userWithFullAvatar.avatar);
+
+      // Update state with fresh data - store full URLs
+      setUser(userWithFullAvatar);
       setEditData({
-        fullName: data.user.fullName,
-        email: data.user.email,
-        avatar: data.user.avatar || "",
+        fullName: userWithFullAvatar.fullName || "",
+        email: userWithFullAvatar.email || "",
+        avatar: userWithFullAvatar.avatar || userWithFullAvatar.avatarUrl || "",
       });
 
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // Update localStorage with full URLs
+      localStorage.setItem("user", JSON.stringify(userWithFullAvatar));
+      
+      console.log("💾 Updated localStorage with full URLs");
+
       setLoading(false);
     } catch (err) {
-      console.error("Profile error:", err);
-      setError("Failed to fetch profile");
+      console.error("❌ Profile error:", err);
+      setError("Failed to fetch profile: " + err.message);
       setLoading(false);
+      
+      // Fallback to localStorage data
+      const rawUser = localStorage.getItem("user");
+      if (rawUser) {
+        try {
+          const userObj = JSON.parse(rawUser);
+          setUser(userObj);
+          setEditData({
+            fullName: userObj.fullName || "",
+            email: userObj.email || "",
+            avatar: getFullAvatarUrl(userObj.avatar) || userObj.avatar || "",
+          });
+        } catch (e) {
+          console.error("Failed to parse localStorage user:", e);
+        }
+      }
     }
   };
 
@@ -112,11 +199,12 @@ const ProfilePage = () => {
   const handleCancelEdit = () => {
     setIsEditMode(false);
 
+    // Use full URL when canceling
     const parsedUser = typeof user === "string" ? JSON.parse(user) : user;
     setEditData({
       fullName: parsedUser.fullName,
       email: parsedUser.email,
-      avatar: parsedUser.avatar || "",
+      avatar: getFullAvatarUrl(parsedUser.avatar) || parsedUser.avatar || "",
     });
 
     setPreviewImage(null);
@@ -129,29 +217,48 @@ const ProfilePage = () => {
   const handleSaveProfile = async () => {
     try {
       setIsSaving(true);
+      console.log("💾 Starting profile save...");
+      
+      // Send relative path to backend (backend expects relative path)
       let avatarUrl = editData.avatar;
+      
+      // Convert full URL back to relative path for backend
+      if (avatarUrl && avatarUrl.includes("localhost:5000")) {
+        avatarUrl = avatarUrl.replace("http://localhost:5000", "");
+      }
 
       // Upload avatar if new file selected
       if (selectedFile) {
+        console.log("📤 Uploading new avatar file...");
         const formData = new FormData();
         formData.append("avatar", selectedFile);
 
         const uploadResponse = await fetch(
           "http://localhost:5000/api/profile/upload-avatar",
-          { method: "POST", credentials: "include", body: formData }
+          { 
+            method: "POST", 
+            credentials: "include", 
+            body: formData 
+          }
         );
 
-        const uploadData = await uploadResponse.json();
+        console.log("📡 Upload response status:", uploadResponse.status);
 
         if (!uploadResponse.ok) {
-          throw new Error(
-            uploadData.message || t("profile.errors.upload_failed")
-          );
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.message || t("profile.errors.upload_failed"));
         }
 
-        avatarUrl = uploadData.avatarUrl;
+        const uploadData = await uploadResponse.json();
+        console.log("✅ Upload response:", uploadData);
+        
+        avatarUrl = uploadData.avatarUrl || uploadData.user?.avatar;
+        console.log("🖼️ New avatar URL from backend:", avatarUrl);
       }
 
+      console.log("📝 Sending profile update...");
+      console.log("🖼️ Avatar URL to send:", avatarUrl);
+      
       const response = await fetch("http://localhost:5000/api/profile", {
         method: "PUT",
         credentials: "include",
@@ -163,22 +270,46 @@ const ProfilePage = () => {
         }),
       });
 
-      const data = await response.json();
+      console.log("📡 Update response status:", response.status);
 
       if (!response.ok) {
-        throw new Error(data.message || t("profile.errors.update_failed"));
+        const errorData = await response.json();
+        throw new Error(errorData.message || t("profile.errors.update_failed"));
       }
 
-      setUser(data.user);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      const data = await response.json();
+      console.log("✅ Update response:", data);
+
+      if (!data.success) {
+        throw new Error(data.message || "Update failed");
+      }
+
+      // Convert avatar to full URL before storing in state
+      const userWithFullAvatar = {
+        ...data.user,
+        avatar: getFullAvatarUrl(data.user.avatar) || data.user.avatar,
+        avatarUrl: getFullAvatarUrl(data.user.avatarUrl) || data.user.avatarUrl
+      };
+
+      // Update state with fresh data - store full URLs
+      setUser(userWithFullAvatar);
+      setEditData({
+        fullName: userWithFullAvatar.fullName || "",
+        email: userWithFullAvatar.email || "",
+        avatar: userWithFullAvatar.avatar || userWithFullAvatar.avatarUrl || "",
+      });
+
+      // Update localStorage with full URLs
+      localStorage.setItem("user", JSON.stringify(userWithFullAvatar));
 
       setIsEditMode(false);
       setPreviewImage(null);
       setSelectedFile(null);
 
+      console.log("✅ Profile saved successfully");
       alert(t("profile.success.updated"));
     } catch (err) {
-      console.error("Error updating profile:", err);
+      console.error("❌ Error updating profile:", err);
       alert(`${t("profile.errors.general")}: ${err.message}`);
     } finally {
       setIsSaving(false);
@@ -208,77 +339,53 @@ const ProfilePage = () => {
     navigate("/login");
   };
 
+  // Get display avatar URL - always use full URL
+  const getDisplayAvatar = () => {
+    if (previewImage) {
+      return previewImage;
+    }
+    
+    // Always return full URL for display
+    if (editData.avatar) {
+      return getFullAvatarUrl(editData.avatar);
+    }
+    
+    return null;
+  };
+
+  // Debug
+  useEffect(() => {
+    console.log("🔄 State debug:", {
+      userAvatar: user?.avatar,
+      editDataAvatar: editData.avatar,
+      displayAvatar: getDisplayAvatar(),
+      localStorageUser: JSON.parse(localStorage.getItem("user") || "{}")?.avatar
+    });
+  }, [user, editData.avatar, previewImage]);
+
   // =========================================
   // Loading/Error states
   // =========================================
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          gap: "1rem",
-        }}
-      >
-        <div
-          style={{
-            width: "50px",
-            height: "50px",
-            border: "4px solid #f3f3f3",
-            borderTop: "4px solid #ef4444",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite",
-          }}
-        ></div>
+      <div className="profile-loading-container">
+        <div className="profile-loading-spinner"></div>
         <p>{t("profile.loading")}</p>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
 
   if (error && !user) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          padding: "2rem",
-          textAlign: "center",
-        }}
-      >
-        <span
-          className="material-icons-outlined"
-          style={{ fontSize: "4rem", color: "#ef4444", marginBottom: "1rem" }}
-        >
+      <div className="profile-error-container">
+        <span className="material-icons-outlined profile-error-icon">
           error_outline
         </span>
-        <h2 style={{ color: "#1f2937", marginBottom: "0.5rem" }}>
-          {t("profile.errors.title")}
-        </h2>
-        <p style={{ color: "#6b7280", marginBottom: "2rem" }}>{error}</p>
+        <h2>{t("profile.errors.title")}</h2>
+        <p>{error}</p>
         <button
           onClick={() => navigate("/login")}
-          style={{
-            padding: "0.75rem 2rem",
-            backgroundColor: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "0.5rem",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "600",
-          }}
+          className="profile-error-button"
         >
           {t("profile.buttons.back_to_login")}
         </button>
@@ -286,124 +393,59 @@ const ProfilePage = () => {
     );
   }
 
+  const displayAvatar = getDisplayAvatar();
+
   // =========================================
   // Main profile page
   // =========================================
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "1rem",
-        fontFamily: "'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif",
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
+    <div className="profile-container">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "1rem 0",
-          marginBottom: "2rem",
-        }}
-      >
+      <div className="profile-header">
         <button
           onClick={() => navigate("/home")}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            padding: "0.5rem",
-            borderRadius: "0.5rem",
-            transition: "background 0.2s",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.background = "rgba(0,0,0,0.05)")
-          }
-          onMouseOut={(e) => (e.currentTarget.style.background = "none")}
+          className="profile-back-button"
         >
           <span className="material-icons-outlined">arrow_back</span>
         </button>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0 }}>
-          {t("profile.header.title")}
-        </h1>
+        <h1 className="profile-title">{t("profile.header.title")}</h1>
         {!isEditMode ? (
           <button
             onClick={handleEditClick}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              padding: "0.5rem",
-              borderRadius: "0.5rem",
-              transition: "background 0.2s",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.background = "rgba(0,0,0,0.05)")
-            }
-            onMouseOut={(e) => (e.currentTarget.style.background = "none")}
+            className="profile-edit-button"
           >
             <span className="material-icons-outlined">edit</span>
           </button>
         ) : (
-          <div style={{ width: "40px" }}></div>
+          <div className="profile-placeholder"></div>
         )}
       </div>
 
       {/* Profile Section */}
-      <div
-        style={{
-          textAlign: "center",
-          marginBottom: "2rem",
-          background: "white",
-          padding: "2rem",
-          borderRadius: "1rem",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <div
-          style={{
-            margin: "0 auto 1rem",
-            width: "100px",
-            height: "100px",
-            position: "relative",
-          }}
-        >
-          {previewImage || editData.avatar ? (
+      <div className="profile-section">
+        <div className="profile-avatar-container">
+          {displayAvatar ? (
             <img
-              src={previewImage || editData.avatar}
+              src={displayAvatar}
               alt="Profile"
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "3px solid #ef4444",
+              className="profile-avatar-image"
+              key={displayAvatar} // Key forces re-render when URL changes
+              onError={(e) => {
+                console.error("❌ Image failed to load:", e.target.src);
+                console.error("Attempting fallback...");
+                // Try direct server URL as fallback
+                if (editData.avatar && !editData.avatar.startsWith("http")) {
+                  const fallbackUrl = `http://localhost:5000${editData.avatar}`;
+                  console.log("Trying fallback URL:", fallbackUrl);
+                  e.target.src = fallbackUrl;
+                } else {
+                  e.target.style.display = "none";
+                }
               }}
+              onLoad={() => console.log("✅ Image loaded successfully:", displayAvatar)}
             />
           ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                background:
-                  "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "2.5rem",
-                fontWeight: 700,
-              }}
-            >
+            <div className="profile-avatar-default">
               {editData.fullName?.charAt(0).toUpperCase() || "U"}
             </div>
           )}
@@ -412,27 +454,9 @@ const ProfilePage = () => {
             <>
               <button
                 onClick={() => fileInputRef.current.click()}
-                style={{
-                  position: "absolute",
-                  bottom: "0",
-                  right: "0",
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#ef4444",
-                  color: "white",
-                  border: "2px solid white",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                }}
+                className="profile-avatar-upload-button"
               >
-                <span
-                  className="material-icons-outlined"
-                  style={{ fontSize: "1.2rem" }}
-                >
+                <span className="material-icons-outlined">
                   camera_alt
                 </span>
               </button>
@@ -441,7 +465,7 @@ const ProfilePage = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageSelect}
-                style={{ display: "none" }}
+                className="profile-file-input"
               />
             </>
           )}
@@ -449,87 +473,66 @@ const ProfilePage = () => {
 
         {!isEditMode ? (
           <>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 700, margin: "0.5rem 0" }}>
-              {user.fullName}
-            </h2>
-            <p style={{ color: "#6b7280", fontSize: "0.9rem" }}>
-              {t("profile.greeting")}
-            </p>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "0.25rem 0.75rem",
-                backgroundColor:
-                  user.authType === "google"
-                    ? "#4285F4"
-                    : user.authType === "facebook"
-                    ? "#1877F2"
-                    : "#6B7280",
-                color: "white",
-                borderRadius: "1rem",
-                fontSize: "0.75rem",
-                marginTop: "0.5rem",
-              }}
-            >
-              {user.authType === "google" && "🔗 Google"}
-              {user.authType === "facebook" && "🔗 Facebook"}
-              {user.authType === "local" && "📧 Email"}
+            <h2 className="profile-name">{user?.fullName || editData.fullName}</h2>
+            <p className="profile-greeting">{t("profile.greeting")}</p>
+            <div className={`profile-auth-badge profile-auth-${user?.authType || 'local'}`}>
+              {user?.authType === "google" && "🔗 Google"}
+              {user?.authType === "facebook" && "🔗 Facebook"}
+              {(user?.authType === "local" || !user?.authType) && "📧 Email"}
             </div>
           </>
         ) : (
-          <p style={{ color: "#6b7280", fontSize: "0.9rem", marginTop: "0.5rem" }}>
+          <p className="profile-edit-hint">
             {t("profile.edit.click_to_change")}
           </p>
         )}
       </div>
 
       {/* Details Card */}
-      <div
-        style={{
-          background: "white",
-          borderRadius: "1rem",
-          padding: "1.5rem",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          marginBottom: "1.5rem",
-        }}
-      >
+      <div className="profile-details-card">
         {!isEditMode ? (
           <>
             {/* FULL NAME */}
-            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", marginBottom: "1.5rem" }}>
-              <span className="material-icons-outlined" style={{ fontSize: "1.5rem", color: "#ef4444" }}>person</span>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: "block", fontSize: "0.85rem", color: "#6b7280", marginBottom: "0.25rem", fontWeight: 500 }}>
+            <div className="profile-detail-item">
+              <span className="material-icons-outlined profile-detail-icon">
+                person
+              </span>
+              <div className="profile-detail-content">
+                <label className="profile-detail-label">
                   {t("profile.fields.full_name")}
                 </label>
-                <p style={{ margin: 0, fontSize: "1rem", color: "#1f2937" }}>{user.fullName}</p>
+                <p className="profile-detail-value">{user?.fullName || editData.fullName}</p>
               </div>
             </div>
 
             {/* EMAIL */}
-            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", marginBottom: "1.5rem" }}>
-              <span className="material-icons-outlined" style={{ fontSize: "1.5rem", color: "#ef4444" }}>email</span>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: "block", fontSize: "0.85rem", color: "#6b7280", marginBottom: "0.25rem", fontWeight: 500 }}>
+            <div className="profile-detail-item">
+              <span className="material-icons-outlined profile-detail-icon">
+                email
+              </span>
+              <div className="profile-detail-content">
+                <label className="profile-detail-label">
                   {t("profile.fields.email")}
                 </label>
-                <p style={{ margin: 0, fontSize: "1rem", color: "#1f2937", wordBreak: "break-word" }}>{user.email}</p>
+                <p className="profile-detail-value profile-email">{user?.email || editData.email}</p>
               </div>
             </div>
 
             {/* CREATED DATE */}
-            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-              <span className="material-icons-outlined" style={{ fontSize: "1.5rem", color: "#ef4444" }}>calendar_today</span>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: "block", fontSize: "0.85rem", color: "#6b7280", marginBottom: "0.25rem", fontWeight: 500 }}>
+            <div className="profile-detail-item">
+              <span className="material-icons-outlined profile-detail-icon">
+                calendar_today
+              </span>
+              <div className="profile-detail-content">
+                <label className="profile-detail-label">
                   {t("profile.fields.created_at")}
                 </label>
-                <p style={{ margin: 0, fontSize: "1rem", color: "#1f2937" }}>
-                  {new Date(user.createdAt).toLocaleDateString("ja-JP", {
+                <p className="profile-detail-value">
+                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("ja-JP", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
-                  })}
+                  }) : "N/A"}
                 </p>
               </div>
             </div>
@@ -537,38 +540,22 @@ const ProfilePage = () => {
         ) : (
           <>
             {/* EDIT FULL NAME */}
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", color: "#6b7280", marginBottom: "0.5rem", fontWeight: 500 }}>
+            <div className="profile-edit-field">
+              <label className="profile-edit-label">
                 {t("profile.fields.full_name")}
               </label>
               <input
                 type="text"
                 value={editData.fullName}
                 onChange={(e) => setEditData({ ...editData, fullName: e.target.value })}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "0.5rem",
-                  fontSize: "1rem",
-                  fontFamily: "inherit",
-                  boxSizing: "border-box",
-                }}
+                className="profile-edit-input"
                 placeholder={t("profile.placeholders.full_name")}
               />
             </div>
 
             {/* EDIT EMAIL */}
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.85rem",
-                  color: "#6b7280",
-                  marginBottom: "0.5rem",
-                  fontWeight: 500,
-                }}
-              >
+            <div className="profile-edit-field">
+              <label className="profile-edit-label">
                 {t("profile.fields.email")}
               </label>
               <input
@@ -577,15 +564,7 @@ const ProfilePage = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, email: e.target.value })
                 }
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "0.5rem",
-                  fontSize: "1rem",
-                  fontFamily: "inherit",
-                  boxSizing: "border-box",
-                }}
+                className="profile-edit-input"
                 placeholder={t("profile.placeholders.email")}
               />
             </div>
@@ -598,29 +577,7 @@ const ProfilePage = () => {
         <>
           <button
             onClick={fetchUserProfile}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              backgroundColor: "white",
-              color: "#ef4444",
-              border: "2px solid #ef4444",
-              borderRadius: "0.75rem",
-              fontSize: "1rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              marginBottom: "1rem",
-              transition: "all 0.2s",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = "#fef2f2";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "white";
-            }}
+            className="profile-refresh-button"
           >
             <span className="material-icons-outlined">refresh</span>
             {t("profile.buttons.refresh")}
@@ -628,33 +585,7 @@ const ProfilePage = () => {
 
           <button
             onClick={handleLogout}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              backgroundColor: "#ef4444",
-              color: "white",
-              border: "none",
-              borderRadius: "0.75rem",
-              fontSize: "1rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              transition: "all 0.2s",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = "#dc2626";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow =
-                "0 4px 8px rgba(239, 68, 68, 0.3)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "#ef4444";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
+            className="profile-logout-button"
           >
             <span className="material-icons-outlined">logout</span>
             {t("profile.buttons.logout")}
@@ -665,29 +596,7 @@ const ProfilePage = () => {
           <button
             onClick={handleSaveProfile}
             disabled={isSaving}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              backgroundColor: isSaving ? "#9ca3af" : "#10b981",
-              color: "white",
-              border: "none",
-              borderRadius: "0.75rem",
-              fontSize: "1rem",
-              fontWeight: 600,
-              cursor: isSaving ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              marginBottom: "1rem",
-              transition: "all 0.2s",
-            }}
-            onMouseOver={(e) => {
-              if (!isSaving) e.currentTarget.style.backgroundColor = "#059669";
-            }}
-            onMouseOut={(e) => {
-              if (!isSaving) e.currentTarget.style.backgroundColor = "#10b981";
-            }}
+            className={`profile-save-button ${isSaving ? 'profile-saving' : ''}`}
           >
             <span className="material-icons-outlined">
               {isSaving ? "hourglass_empty" : "save"}
@@ -698,28 +607,7 @@ const ProfilePage = () => {
           <button
             onClick={handleCancelEdit}
             disabled={isSaving}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              backgroundColor: "white",
-              color: "#6b7280",
-              border: "2px solid #e5e7eb",
-              borderRadius: "0.75rem",
-              fontSize: "1rem",
-              fontWeight: 600,
-              cursor: isSaving ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              transition: "all 0.2s",
-            }}
-            onMouseOver={(e) => {
-              if (!isSaving) e.currentTarget.style.backgroundColor = "#f9fafb";
-            }}
-            onMouseOut={(e) => {
-              if (!isSaving) e.currentTarget.style.backgroundColor = "white";
-            }}
+            className={`profile-cancel-button ${isSaving ? 'profile-disabled' : ''}`}
           >
             <span className="material-icons-outlined">close</span>
             {t("profile.buttons.cancel")}
@@ -729,5 +617,5 @@ const ProfilePage = () => {
     </div>
   );
 };
-export default ProfilePage;
 
+export default ProfilePage;
