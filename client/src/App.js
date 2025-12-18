@@ -17,6 +17,9 @@ import Layout from "./components/home/Layout/Layout"; // Persistent TopBar wrapp
 import LanguageProvider from "./context/LanguageContext";
 import LanguageSelector from "./components/language/LanguageSelector";
 
+// Add LocationProvider import
+import { LocationProvider } from "./context/LocationContext";
+
 function App() {
   const [user, setUser] = useState(() =>
     JSON.parse(localStorage.getItem("user"))
@@ -38,26 +41,29 @@ function App() {
 
   return (
     <LanguageProvider>
-      {/* Language selector always visible */}
-      <LanguageSelector />
+      {/* Wrap everything with LocationProvider */}
+      <LocationProvider>
+        {/* Language selector always visible */}
+        <LanguageSelector />
 
-      <div className="App">
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        <div className="App">
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Authenticated routes with TopBar */}
-          <Route element={<Layout user={user} />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/restaurants/:id" element={<RestaurantDetail />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/search" element={<SearchPage />} />
-          </Route>
-        </Routes>
-      </div>
+            {/* Authenticated routes with TopBar */}
+            <Route element={<Layout user={user} />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/restaurants/:id" element={<RestaurantDetail />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/search" element={<SearchPage />} />
+            </Route>
+          </Routes>
+        </div>
+      </LocationProvider>
     </LanguageProvider>
   );
 }
