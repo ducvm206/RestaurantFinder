@@ -478,9 +478,9 @@ export const filterOptions = {
     { value: "> 6", label: "> 6 km" }
   ],
   priceRanges: [
-    { value: "$", label: "$" },
-    { value: "$$", label: "$$" },
-    { value: "$$$", label: "$$$" }
+    { value: "cheap", label: "$" },
+    { value: "moderate", label: "$$" },
+    { value: "expensive", label: "$$$" }
   ],
   styles: [
     { value: "フォーマル", label: "フォーマル" },

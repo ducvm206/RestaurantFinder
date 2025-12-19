@@ -113,6 +113,14 @@ const SearchPage = () => {
         }
       }
 
+      // ⭐ Lọc priceRange (Client-side)
+      if (activeFilters.priceRange) {
+        data = data.filter((r) => {
+          const price = r.price_range || r.priceRange;
+          return price === activeFilters.priceRange;
+        });
+      }
+
       setSearchResults({ restaurants: data, dishes: [] });
     } catch (err) {
       console.error(err);
@@ -202,7 +210,15 @@ const SearchPage = () => {
 
                         <div className="restaurant-meta">
                           <span>⭐ {restaurant.average_rating}</span>
-                          <span>{restaurant.price_range}</span>
+                          <span>
+                            {(restaurant.price_range || restaurant.priceRange) === "cheap"
+                              ? "$"
+                              : (restaurant.price_range || restaurant.priceRange) === "moderate"
+                                ? "$$"
+                                : (restaurant.price_range || restaurant.priceRange) === "expensive"
+                                  ? "$$$"
+                                  : (restaurant.price_range || restaurant.priceRange)}
+                          </span>
                         </div>
 
                         {/* ⭐ Distance */}
@@ -265,7 +281,15 @@ const SearchPage = () => {
 
                       <div className="restaurant-meta">
                         <span>⭐ {restaurant.average_rating}</span>
-                        <span>{restaurant.price_range}</span>
+                        <span>
+                          {(restaurant.price_range || restaurant.priceRange) === "cheap"
+                            ? "$"
+                            : (restaurant.price_range || restaurant.priceRange) === "moderate"
+                              ? "$$"
+                              : (restaurant.price_range || restaurant.priceRange) === "expensive"
+                                ? "$$$"
+                                : (restaurant.price_range || restaurant.priceRange)}
+                        </span>
                       </div>
 
                       {/* ⭐ Distance */}
