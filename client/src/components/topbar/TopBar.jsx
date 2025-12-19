@@ -3,6 +3,7 @@ import Avatar from "./Avatar";
 import LanguageDropdown from "./LanguageDropdown";
 import { useContext, useState } from "react";
 import { LanguageContext } from "../../context/LanguageContext";
+import { useUser } from "../../context/UserContext"; // Add this
 
 // Import translations
 import en from "../../translations/en.json";

@@ -176,17 +176,41 @@ const ProfilePage = () => {
       
       let avatarUrl = editData.avatar;
       
-      if (avatarUrl && avatarUrl.includes("localhost:5000")) {
-        avatarUrl = avatarUrl.replace("http://localhost:5000", "");
-      }
-
+      // Debug logging
+      console.log("Avatar upload debug:", {
+        selectedFile: selectedFile,
+        previewImage: previewImage,
+        editDataAvatar: editData.avatar
+      });
+      
+      // If there's a selected file, validate it first
       if (selectedFile) {
+        // Validate file exists and is valid
+        if (!selectedFile || !selectedFile.type || selectedFile.size === 0) {
+          throw new Error(t("profile.errors.file_not_found"));
+        }
+        
+        // Re-validate file type and size
+        if (!selectedFile.type.startsWith("image/")) {
+          throw new Error(t("profile.errors.invalid_image"));
+        }
+
+        if (selectedFile.size > 5 * 1024 * 1024) {
+          throw new Error(t("profile.errors.file_too_large"));
+        }
+        
         const formData = new FormData();
         formData.append("avatar", selectedFile);
+        
+        console.log("Uploading file:", selectedFile.name, selectedFile.size); // Debug log
 
         const uploadResponse = await fetch(
           "http://localhost:5000/api/profile/upload-avatar",
-          { method: "POST", credentials: "include", body: formData }
+          { 
+            method: "POST", 
+            credentials: "include", 
+            body: formData 
+          }
         );
 
         if (!uploadResponse.ok) {
@@ -198,6 +222,12 @@ const ProfilePage = () => {
         avatarUrl = uploadData.avatarUrl || uploadData.user?.avatar;
       }
 
+      // Remove localhost prefix if present (for backend storage)
+      if (avatarUrl && avatarUrl.includes("localhost:5000")) {
+        avatarUrl = avatarUrl.replace("http://localhost:5000", "");
+      }
+
+      // Update profile data
       const response = await fetch("http://localhost:5000/api/profile", {
         method: "PUT",
         credentials: "include",

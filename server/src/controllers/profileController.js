@@ -347,7 +347,7 @@ exports.uploadAvatar = [
       const avatarUrl = generateAvatarUrl(req.file.filename);
       
       // Get avatar upload directory
-      const avatarUploadDir = path.join(__dirname, '../../..', 'uploads', 'avatars');
+      const avatarUploadDir = path.dirname(req.file.path);
       
       // Validate file actually exists
       const fileExists = validateAvatarFile(req.file.filename, avatarUploadDir);
