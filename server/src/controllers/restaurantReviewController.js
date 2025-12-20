@@ -249,6 +249,8 @@ exports.deleteReview = async (req, res) => {
   const reviewId = parseInt(req.params.reviewId);
   const { user_id } = req.body;
 
+  
+
   if (!user_id) {
     return res.status(401).json({
       success: false,
@@ -273,14 +275,16 @@ exports.deleteReview = async (req, res) => {
       });
     }
 
-    // Check ownership
-    if (review.user_id !== user_id) {
-      await transaction.rollback();
-      return res.status(403).json({
-        success: false,
-        message: "このレビューを削除する権限がありません",
-      });
-    }
+    
+
+   // Check ownership (ensure both are numbers)
+if (parseInt(review.user_id) !== parseInt(user_id)) {
+  await transaction.rollback();
+  return res.status(403).json({
+    success: false,
+    message: "このレビューを削除する権限がありません",
+  });
+}
 
     const restaurantId = review.restaurant_id;
 
@@ -331,11 +335,21 @@ exports.deleteReview = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// UPDATE REVIEW - SIMPLIFIED FIXED VERSION
+// UPDATE REVIEW - WITH IMAGE MANAGEMENT
 // ═══════════════════════════════════════════════════════════════
 exports.updateReview = async (req, res) => {
   const reviewId = parseInt(req.params.reviewId);
-  const { user_id, rating, comment, title, service_tags, style_tags, dish_tags } = req.body;
+  const {
+    user_id,
+    rating,
+    comment,
+    title,
+    visit_date,
+    service_tags,
+    style_tags,
+    dish_tags,
+    deleteImageIds, // Array of image IDs to delete
+  } = req.body;
 
   if (!user_id) {
     return res.status(401).json({
@@ -355,11 +369,20 @@ exports.updateReview = async (req, res) => {
     }
   }
 
-  if (comment && (comment.length < 10 || comment.length > 500)) {
-    return res.status(400).json({
-      success: false,
-      message: "コメントは10文字以上500文字以内で入力してください",
-    });
+  // Validate comment if provided
+  if (comment !== undefined) {
+    if (comment.length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: "コメントは10文字以上入力してください",
+      });
+    }
+    if (comment.length > 500) {
+      return res.status(400).json({
+        success: false,
+        message: "コメントは500文字以内にしてください",
+      });
+    }
   }
 
   const transaction = await sequelize.transaction();
@@ -368,6 +391,12 @@ exports.updateReview = async (req, res) => {
     // Find review
     const review = await RestaurantReview.findOne({
       where: { review_id: reviewId },
+      include: [
+        {
+          model: RestaurantReviewImage,
+          as: "images",
+        },
+      ],
       transaction,
     });
 
@@ -379,18 +408,78 @@ exports.updateReview = async (req, res) => {
       });
     }
 
-    // Check ownership
-    if (review.user_id !== user_id) {
-      await transaction.rollback();
-      return res.status(403).json({
-        success: false,
-        message: "このレビューを編集する権限がありません",
-      });
-    }
+    // Check ownership (ensure both are numbers)
+if (parseInt(review.user_id) !== parseInt(user_id)) {
+  await transaction.rollback();
+  return res.status(403).json({
+    success: false,
+    message: "このレビューを編集する権限がありません",
+  });
+}
 
     const restaurantId = review.restaurant_id;
 
-    // Parse tags
+    // ═══════════════════════════════════════════════════════════
+    // HANDLE IMAGE DELETION
+    // ═══════════════════════════════════════════════════════════
+    let parsedDeleteIds = [];
+    if (deleteImageIds) {
+      try {
+        parsedDeleteIds = Array.isArray(deleteImageIds)
+          ? deleteImageIds
+          : JSON.parse(deleteImageIds);
+      } catch {
+        parsedDeleteIds = [];
+      }
+    }
+
+    if (parsedDeleteIds.length > 0) {
+      await RestaurantReviewImage.destroy({
+        where: {
+          image_id: parsedDeleteIds,
+          review_id: reviewId, // Security: only delete images from this review
+        },
+        transaction,
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // HANDLE NEW IMAGE UPLOADS
+    // ═══════════════════════════════════════════════════════════
+    if (req.files && req.files.length > 0) {
+      // Get current image count after deletion
+      const currentImageCount = await RestaurantReviewImage.count({
+        where: { review_id: reviewId },
+        transaction,
+      });
+
+      // Check if adding new images would exceed max (3)
+      if (currentImageCount + req.files.length > 3) {
+        await transaction.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "画像は最大3枚までアップロード可能です",
+        });
+      }
+
+      // Upload new images
+      const imagePromises = req.files.map((file, index) => {
+        return RestaurantReviewImage.create(
+          {
+            review_id: reviewId,
+            image_url: `/uploads/reviews/${file.filename}`,
+            image_order: currentImageCount + index, // Continue numbering
+          },
+          { transaction }
+        );
+      });
+
+      await Promise.all(imagePromises);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // UPDATE REVIEW DATA
+    // ═══════════════════════════════════════════════════════════
     const parseTags = (tags) => {
       if (!tags) return undefined;
       if (Array.isArray(tags)) return tags;
@@ -401,19 +490,24 @@ exports.updateReview = async (req, res) => {
       }
     };
 
-    // Update review
     const updateData = {};
     if (rating !== undefined) updateData.rating = parseFloat(rating);
     if (comment !== undefined) updateData.comment = comment.trim();
     if (title !== undefined) updateData.title = title || null;
-    if (service_tags !== undefined) updateData.service_tags = parseTags(service_tags);
-    if (style_tags !== undefined) updateData.style_tags = parseTags(style_tags);
+    if (visit_date !== undefined) updateData.visit_date = visit_date || null;
+    if (service_tags !== undefined)
+      updateData.service_tags = parseTags(service_tags);
+    if (style_tags !== undefined)
+      updateData.style_tags = parseTags(style_tags);
     if (dish_tags !== undefined) updateData.dish_tags = parseTags(dish_tags);
 
     await review.update(updateData, { transaction });
 
-    // 🔴 SIMPLIFIED FIX: Direct subquery without CTE
-    const [result] = await sequelize.query(`
+    // ═══════════════════════════════════════════════════════════
+    // UPDATE RESTAURANT STATS
+    // ═══════════════════════════════════════════════════════════
+    const [result] = await sequelize.query(
+      `
       UPDATE restaurants 
       SET 
         total_reviews = (
@@ -428,15 +522,19 @@ exports.updateReview = async (req, res) => {
         ), 0.00)
       WHERE restaurant_id = :restaurantId
       RETURNING restaurant_id, average_rating, total_reviews
-    `, {
-      replacements: { restaurantId },
-      type: sequelize.QueryTypes.UPDATE,
-      transaction,
-    });
+    `,
+      {
+        replacements: { restaurantId },
+        type: sequelize.QueryTypes.UPDATE,
+        transaction,
+      }
+    );
 
     await transaction.commit();
 
-    // Fetch updated review with associations
+    // ═══════════════════════════════════════════════════════════
+    // FETCH UPDATED REVIEW WITH ASSOCIATIONS
+    // ═══════════════════════════════════════════════════════════
     const updatedReview = await RestaurantReview.findOne({
       where: { review_id: reviewId },
       include: [
@@ -449,6 +547,7 @@ exports.updateReview = async (req, res) => {
           model: RestaurantReviewImage,
           as: "images",
           attributes: ["image_id", "image_url", "image_order"],
+          order: [["image_order", "ASC"]],
         },
       ],
     });
@@ -469,55 +568,6 @@ exports.updateReview = async (req, res) => {
       success: false,
       message: "レビューの更新に失敗しました",
       error: err.message,
-    });
-  }
-};
-
-// ═══════════════════════════════════════════════════════════════
-// FIX ALL RESTAURANT RATINGS (ONE-TIME FIX)
-// ═══════════════════════════════════════════════════════════════
-exports.fixAllRatings = async (req, res) => {
-  const transaction = await sequelize.transaction();
-  
-  try {
-    const [result] = await sequelize.query(`
-      UPDATE restaurants 
-      SET 
-        total_reviews = (
-          SELECT COUNT(*) 
-          FROM restaurant_reviews 
-          WHERE restaurant_id = restaurants.restaurant_id
-        ),
-        average_rating = COALESCE((
-          SELECT ROUND(AVG(rating::numeric), 2)
-          FROM restaurant_reviews 
-          WHERE restaurant_id = restaurants.restaurant_id
-        ), 0.00)
-      WHERE EXISTS (
-        SELECT 1 FROM restaurant_reviews 
-        WHERE restaurant_id = restaurants.restaurant_id
-      )
-      RETURNING restaurant_id, average_rating, total_reviews;
-    `, {
-      type: sequelize.QueryTypes.UPDATE,
-      transaction,
-    });
-
-    await transaction.commit();
-    
-    res.json({
-      success: true,
-      message: `Fixed ${result.length} restaurants`,
-      data: result
-    });
-    
-  } catch (err) {
-    await transaction.rollback();
-    console.error("Error fixing ratings:", err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fix ratings",
-      error: err.message
     });
   }
 };

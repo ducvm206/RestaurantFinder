@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import ReviewCard from "../review/ReviewCard";
 import "./ReviewList.css";
 
-const ReviewList = ({ reviews: initialReviews, restaurantId, onReviewsChange }) => {
+  const ReviewList = ({ reviews: initialReviews, restaurantId, restaurantName, onReviewsChange }) => {
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState({
     totalReviews: 0,
@@ -16,17 +16,23 @@ const ReviewList = ({ reviews: initialReviews, restaurantId, onReviewsChange }) 
 
   // Get current user
   const getCurrentUserId = () => {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (!userStr) return null;
-      const user = JSON.parse(userStr);
-      return user.user_id;
-    } catch {
-      return null;
-    }
-  };
+  try {
+    const userStr = localStorage.getItem("user");
+    
+    
+    if (!userStr) return null;
+    const user = JSON.parse(userStr);
+    
+    
+    
+    return user.user_id;
+  } catch {
+    return null;
+  }
+};
 
-  const currentUserId = getCurrentUserId();
+const currentUserId = getCurrentUserId();
+
 
   // ═══════════════════════════════════════════════════════════════
   // FETCH REVIEWS FROM API
@@ -163,7 +169,9 @@ const ReviewList = ({ reviews: initialReviews, restaurantId, onReviewsChange }) 
               key={review.review_id}
               review={review}
               currentUserId={currentUserId}
+              restaurantName={restaurantName}  
               onDelete={handleDeleteReview}
+              onUpdate={fetchReviews}  
             />
           ))}
         </div>
