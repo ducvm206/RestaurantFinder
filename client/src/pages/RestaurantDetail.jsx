@@ -157,11 +157,31 @@ const handleReviewSuccess = () => {
     }
   };
 
+  //update scroll 
   const scrollTo = (ref) => {
-    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const TOPBAR_HEIGHT = 56;
+  const TABS_HEIGHT = 56;
+  const OFFSET = TOPBAR_HEIGHT + TABS_HEIGHT + 8; // small gap
+
+  const y =
+    ref.current.getBoundingClientRect().top +
+    window.pageYOffset -
+    OFFSET;
+
+  window.scrollTo({
+    top: y,
+    behavior: "smooth",
+  });
   };
 
-  if (loading) return <p>Loading...</p>;
+    if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>{"読み込み中"}</p>
+      </div>
+    );
+  }
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!restaurant) return <p>Restaurant not found</p>;
 
@@ -191,11 +211,14 @@ const handleReviewSuccess = () => {
       <RestaurantInfo restaurant={restaurant} />
 
       {/* Navigation Tabs */}
-      <div className="restaurant-tabs">
-        <button onClick={() => scrollTo(menuRef)}>Menu</button>
-        <button onClick={() => scrollTo(reviewsRef)}>Reviews</button>
-        <button onClick={() => scrollTo(imagesRef)}>Images</button>
-      </div>
+      <div className="tabs-wrapper">
+            <div className="restaurant-tabs">
+          <button onClick={() => scrollTo(menuRef)}>Menu</button>
+          <button onClick={() => scrollTo(reviewsRef)}>Reviews</button>
+          <button onClick={() => scrollTo(imagesRef)}>Images</button>
+        </div>
+        </div>
+
 
       {/* MENU */}
       <section ref={menuRef} className="restaurant-section">

@@ -360,3 +360,108 @@
     font-size: 20px;
   }
 }
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW ACTIONS (EDIT & DELETE BUTTONS)
+   ═══════════════════════════════════════════════════════════════ */
+
+.review-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.review-edit-btn {
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.review-edit-btn:hover:not(:disabled) {
+  background: #1976d2;
+  transform: translateY(-1px);
+}
+
+.review-edit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.review-delete-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.review-delete-btn:hover:not(:disabled) {
+  background: #d32f2f;
+  transform: translateY(-1px);
+}
+
+.review-delete-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW FOOTER (DATE & EDITED LABEL)
+   ═══════════════════════════════════════════════════════════════ */
+
+.review-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.review-date {
+  font-size: 13px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.edited-label {
+  color: #2196f3;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE - MOBILE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .review-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .review-edit-btn,
+  .review-delete-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .edited-label {
+    font-size: 11px;
+  }
+}

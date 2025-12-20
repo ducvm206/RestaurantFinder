@@ -8,6 +8,7 @@ import { useLocationContext } from "../../context/LocationContext";
 export default function RestaurantInfo({ restaurant, nameRef }) {
   const { userCoords } = useLocationContext();
   const [distanceKm, setDistanceKm] = useState(null);
+  const [formattedHours, setFormattedHours] = useState("");
 
   useEffect(() => {
     if (!restaurant || !userCoords) return;
@@ -40,13 +41,13 @@ export default function RestaurantInfo({ restaurant, nameRef }) {
         </p>
 
         {distanceKm && (
-          <p>
+          <p className="info-item">
             <MdLocationOn className="icon" /> {distanceKm} km
           </p>
         )}
 
         {restaurant.phone && (
-          <p>
+          <p className="info-item">
             <FiPhone className="icon" /> {restaurant.phone}
           </p>
         )}

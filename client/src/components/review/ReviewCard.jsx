@@ -1,15 +1,22 @@
 // ═══════════════════════════════════════════════════════════════
-// REVIEW CARD COMPONENT - SINGLE REVIEW WITH IMAGES
+// REVIEW CARD COMPONENT - WITH EDIT FUNCTIONALITY
 // ═══════════════════════════════════════════════════════════════
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import EditReviewModal from "./EditReviewModal";
 import "./ReviewCard.css";
 
-const ReviewCard = ({ review, currentUserId, onDelete }) => {
+const ReviewCard = ({ review, currentUserId, restaurantName, onDelete, onUpdate }) => {
+  console.log("🔍 ReviewCard props:", {
+    reviewUserId: review.user_id,
+    currentUserId: currentUserId,
+    match: currentUserId === review.user_id
+  }); // ← DEBUG
   const [showFullComment, setShowFullComment] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const MAX_LENGTH = 150;
   const hasImages = review.images && review.images.length > 0;
@@ -20,8 +27,12 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
     ? review.comment
     : review.comment?.slice(0, MAX_LENGTH) + "...";
 
-  // Check if current user can delete
-  const canDelete = currentUserId && review.user_id === currentUserId;
+  // Check if current user can edit/delete
+  const canModify = currentUserId && parseInt(review.user_id) === parseInt(currentUserId);
+
+  // Check if review has been edited
+  const isEdited = review.updated_at && review.created_at && 
+    new Date(review.updated_at).getTime() !== new Date(review.created_at).getTime();
 
   // ═══════════════════════════════════════════════════════════════
   // FORMAT DATE
@@ -79,6 +90,16 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // HANDLE EDIT SUCCESS
+  // ═══════════════════════════════════════════════════════════════
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    if (onUpdate) {
+      onUpdate();
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
   // GALLERY FUNCTIONS
   // ═══════════════════════════════════════════════════════════════
   const openGallery = (index) => {
@@ -105,7 +126,7 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
   return (
     <>
       <div className="review-card">
-        {/* ═══ USER INFO ═══ */}
+        {/* ═══ USER INFO & ACTIONS ═══ */}
         <div className="review-header">
           <div className="review-user">
             <div className="review-avatar">
@@ -131,15 +152,24 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
             </div>
           </div>
 
-          {/* ═══ DELETE BUTTON ═══ */}
-          {canDelete && (
-            <button
-              className="review-delete-btn"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "削除中..." : "削除"}
-            </button>
+          {/* ═══ EDIT & DELETE BUTTONS ═══ */}
+          {canModify && (
+            <div className="review-actions">
+              <button
+                className="review-edit-btn"
+                onClick={() => setShowEditModal(true)}
+                disabled={deleting}
+              >
+                編集
+              </button>
+              <button
+                className="review-delete-btn"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "削除中..." : "削除"}
+              </button>
+            </div>
           )}
         </div>
 
@@ -202,9 +232,28 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
           </div>
         )}
 
-        {/* ═══ DATE ═══ */}
-        <div className="review-date">{formatDate(review.created_at)}</div>
+        {/* ═══ DATE & EDITED LABEL ═══ */}
+        <div className="review-footer">
+          <div className="review-date">
+            {formatDate(review.created_at)}
+            {isEdited && (
+              <span className="edited-label"> • 編集済み</span>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════
+          EDIT MODAL
+          ═══════════════════════════════════════════════════════════ */}
+      {showEditModal && (
+        <EditReviewModal
+          review={review}
+          restaurantName={restaurantName}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
 
       {/* ═══════════════════════════════════════════════════════════
           GALLERY MODAL

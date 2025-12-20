@@ -4,6 +4,7 @@ const { getAllRestaurants, getRestaurantById, searchRestaurants, getRestaurantsB
 
 const router = express.Router();
 
+router.get("/search/q", searchRestaurants);
 // GET all restaurants
 router.get("/", getAllRestaurants);          // /api/restaurants
 router.get("/by-dish", getRestaurantsByDish);

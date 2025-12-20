@@ -53,7 +53,7 @@
 
 .tabs-wrapper {
   position: sticky;
-  top: 65px;        /* BELOW TopBar */
+  top: 70px;        /* BELOW TopBar */
   z-index: 1000;
   background: #fff;
 }
@@ -61,7 +61,7 @@
 
 /* Tabs container */
 .restaurant-tabs {
-   height: 60px;
+   height: 70px;
   z-index: 1000;
   display: flex;
   gap: 30px;
@@ -263,6 +263,25 @@
 .write-review-btn:active {
   transform: translateY(0);
 }
+
+
+.top-bar {
+  position: fixed;       /* 🔑 KEY FIX */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 75px;          /* important */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 0 16px;
+  background: #fff;
+  z-index: 3000;         /* above tabs */
+  border-bottom: 1px solid #eee;
+}
+
+
 
 /* Mobile responsive */
 @media (max-width: 768px) {
