@@ -1,11 +1,12 @@
 /* Container */
 .restaurant-detail-container {
-  padding: 25px 20px;
+  padding: 80px 10px;
   max-width: 950px;
   margin: auto;
   font-family: 'Lato', sans-serif;
   color: #333;
 }
+
 
 /* Header */
 .restaurant-header {
@@ -50,10 +51,17 @@
   transform: scale(1.02);
 }
 
+.tabs-wrapper {
+  position: sticky;
+  top: 65px;        /* BELOW TopBar */
+  z-index: 1000;
+  background: #fff;
+}
+
+
 /* Tabs container */
 .restaurant-tabs {
-  position: sticky;
-  top: 0;
+   height: 60px;
   z-index: 1000;
   display: flex;
   gap: 30px;
@@ -108,7 +116,7 @@
 .restaurant-info {
   text-align: left;
   margin-bottom: 35px;
-  padding: 22px 24px;
+  padding: 22px 24px; 
   border-radius: 12px;
   background-color: #fff;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);

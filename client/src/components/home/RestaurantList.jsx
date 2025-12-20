@@ -1,7 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaStar, FaMapMarkerAlt, FaMoneyBillWave, FaStore } from "react-icons/fa";
 import { getDistanceFromLatLonInKm } from "../../utils/distance";
 import { useLocationContext } from "../../context/LocationContext";
+
+/* ===== Helpers ===== */
+const shortText = (text, max = 100) => {
+  if (!text) return "";
+  return text.length > max ? text.slice(0, max) + "..." : text;
+};
+
+const priceLabel = (price) => {
+  switch (price) {
+    case "cheap":
+      return "$";
+    case "moderate":
+      return "$$";
+    case "expensive":
+      return "$$$";
+    default:
+      return "";
+  }
+};
 
 export default function RestaurantList({ restaurants = [] }) {
   const navigate = useNavigate();
@@ -61,67 +81,69 @@ export default function RestaurantList({ restaurants = [] }) {
         <div
           key={restaurant.restaurant_id || restaurant.id}
           className="rest-item"
-          onClick={() => handleClick(restaurant.restaurant_id || restaurant.id)}
-          style={{
-            cursor: 'pointer',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
+          onClick={() =>
+            handleClick(restaurant.restaurant_id || restaurant.id)
+          }
         >
+          {/* Image */}
           {restaurant.image_url ? (
             <img
               src={restaurant.image_url}
               alt={restaurant.name || "Restaurant"}
               className="rest-img"
-              onError={(e) => {
-                e.target.src = "/default-restaurant.jpg";
-              }}
+              onError={(e) => (e.target.src = "/default-restaurant.jpg")}
             />
           ) : (
             <div className="rest-img placeholder" />
           )}
 
+          {/* Info */}
           <div className="rest-info">
-            <h4 style={{ margin: '8px 0 4px 0', fontSize: '16px', color: '#222' }}>
-              {restaurant.name || "Unnamed Restaurant"}
-            </h4>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '6px' }}>
-              {restaurant.address_ja || restaurant.address || restaurant.city}
-            </p>
-
-            <p style={{ color: '#e67e22', fontWeight: '600', marginBottom: '4px' }}>
-              ⭐ {getRatingDisplay(restaurant)}
-              <span style={{ color: '#777', fontWeight: 'normal', fontSize: '13px', marginLeft: '4px' }}>
-                ({restaurant.total_reviews || 0})
-              </span>
-            </p>
-
-            {/* ⭐ UPDATED: Centered distance display with 📍 icon */}
-            {restaurant.distance != null && (
-              <div style={{
-                marginTop: '6px',
-                display: 'flex',
-                justifyContent: 'center',  /* Centers horizontally */
-                alignItems: 'center',      /* Centers vertically */
-                gap: '4px'
-              }}>
-                <span style={{ fontSize: '12px' }}>📍</span>
-                <span style={{
-                  fontSize: '13px',
-                  color: '#333',
-                  fontWeight: '500'
-                }}>
-                  {restaurant.distance.toFixed(1)} km
+            {/* Name + Open */}
+            <div className="rest-header">
+              <h4 className="rest-name">{restaurant.name || "Unnamed Restaurant"}</h4>
+              {restaurant.isOpen != null && (
+                <span
+                  className={`rest-status ${restaurant.isOpen ? "open" : "closed"}`}
+                >
+                  <FaStore /> {restaurant.isOpen ? "Open" : "Closed"}
                 </span>
-              </div>
+              )}
+            </div>
+
+            {/* Description */}
+            {restaurant.description && (
+              <p className="rest-desc">{shortText(restaurant.description, 80)}</p>
             )}
+
+            {/* Address */}
+            <p className="rest-address">
+              <FaMapMarkerAlt />
+              <span>{restaurant.address_ja || restaurant.address || restaurant.city}</span>
+            </p>
+
+
+
+            {/* Meta */}
+            <div className="rest-meta">
+              {restaurant.average_rating != null && (
+                <span className="meta-item">
+                  <FaStar /> {restaurant.average_rating}
+                </span>
+              )}
+
+              {restaurant.price_range && (
+                <span className="meta-item">
+                  <FaMoneyBillWave /> {priceLabel(restaurant.price_range)}
+                </span>
+              )}
+
+              {restaurant.distance != null && (
+                <span className="meta-item">
+                  <FaMapMarkerAlt /> {restaurant.distance.toFixed(2)} km
+                </span>
+              )}
+            </div>
           </div>
         </div>
       ))}

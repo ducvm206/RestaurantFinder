@@ -274,8 +274,9 @@
 /* The horizontal list */
 .cat-list {
   display: flex;
-  gap: 24px;
-  transition: transform 0.35s ease;
+  gap: 20px;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 /* Category item */
