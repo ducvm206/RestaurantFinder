@@ -142,60 +142,57 @@
   },
 
   "filterModal": {
-    "title": "絞り込み検索",
-    "services_title": "サービス内容",
+    "title": "フィルター",
+    "services_title": "サービス・料理",
     "distance_title": "距離",
     "price_title": "価格帯",
     "styles_title": "スタイル",
     "rating_title": "評価",
-    "reset_button": "リセット",
-    "apply_button": "絞り込む",
+    "location_title": "地域",
+    "district_placeholder": "区/郡",
+    "city_placeholder": "市",
     "rating_text": "{stars}つ星以上",
+    "reset_button": "リセット",
+    "apply_button": "適用",
     "options": {
       "services": {
         "wifi": "Wi-Fi",
         "parking": "駐車場",
-        "kid_friendly": "子供連れ歓迎",
-        "delivery": "デリバリー",
+        "outdoor": "屋外席",
+        "delivery": "配達",
         "takeout": "テイクアウト",
-        "reservation": "予約可能",
-        "outdoor_seating": "テラス席",
-        "wheelchair_accessible": "車椅子対応"
+        "reservation": "予約可",
+        "kid_friendly": "子供向け",
+        "pet_friendly": "ペット可",
+        "accessible": "バリアフリー"
       },
       "cuisines": {
         "japanese": "和食",
-        "vietnamese": "ベトナム料理",
-        "chinese": "中華料理",
+        "chinese": "中華",
+        "italian": "イタリアン",
+        "french": "フレンチ",
         "korean": "韓国料理",
-        "western": "洋食",
         "thai": "タイ料理",
-        "italian": "イタリア料理",
-        "french": "フランス料理",
+        "vietnamese": "ベトナム料理",
         "indian": "インド料理",
+        "western": "洋食",
         "fusion": "フュージョン"
       },
       "distances": {
-        "500m": "500m",
-        "1km": "1km",
-        "2km": "2km",
-        "5km": "5km",
-        "10km": "10km"
-      },
-      "priceRanges": {
-        "budget": "リーズナブル",
-        "medium": "普通",
-        "expensive": "高級",
-        "luxury": "最高級"
+        "1km": "1km以内",
+        "3km": "3km以内",
+        "5km": "5km以内",
+        "10km": "10km以内"
       },
       "styles": {
         "casual": "カジュアル",
-        "formal": "フォーマル",
-        "traditional": "伝統的",
-        "modern": "モダン",
+        "fine_dining": "高級",
         "romantic": "ロマンチック",
         "family": "ファミリー",
         "business": "ビジネス",
-        "cozy": "アットホーム"
+        "traditional": "伝統的",
+        "modern": "モダン",
+        "cozy": "居心地の良い"
       }
     }
   },
@@ -294,5 +291,13 @@
     "confirmDelete": "このレビューを削除してもよろしいですか？",
     "deleteSuccess": "レビューが削除されました",
     "deleteFailed": "削除に失敗しました"
+  },
+  "reviewList": {
+    "loading": "読み込み中...",
+    "loadFailed": "レビューの読み込みに失敗しました",
+    "retry": "再試行",
+    "reviewsCount": "件のレビュー",
+    "noReviews": "まだレビューがありません",
+    "noReviewsSubtext": "最初のレビューを書いてみませんか？"
   }
 }

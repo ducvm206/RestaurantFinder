@@ -1,9 +1,21 @@
 // ═══════════════════════════════════════════════════════════════
 // REVIEW LIST COMPONENT - UPDATED WITH NEW REVIEW SYSTEM
 // ═══════════════════════════════════════════════════════════════
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { LanguageContext } from "../../context/LanguageContext";
 import ReviewCard from "../review/ReviewCard";
 import "./ReviewList.css";
+
+// Import trực tiếp các file translation
+import translationsJa from "../../translations/ja.json";
+import translationsEn from "../../translations/en.json";
+import translationsVi from "../../translations/vi.json";
+
+const translations = {
+  ja: translationsJa,
+  en: translationsEn,
+  vi: translationsVi,
+};
 
 const ReviewList = ({
   reviews: initialReviews,
@@ -11,6 +23,36 @@ const ReviewList = ({
   restaurantName,
   onReviewsChange,
 }) => {
+  const { lang } = useContext(LanguageContext);
+
+  // Tạo function t trực tiếp từ translations
+  const t = (key) => {
+    try {
+      const parts = key.split(".");
+      let currentLang = lang || "ja";
+      let obj = translations[currentLang];
+
+      if (!obj) {
+        obj = translations.ja;
+      }
+
+      for (const part of parts) {
+        if (!obj || !obj[part]) {
+          console.warn(
+            `Translation key not found: ${key} for language: ${currentLang}`
+          );
+          return key;
+        }
+        obj = obj[part];
+      }
+
+      return obj;
+    } catch (error) {
+      console.error("Translation error:", error);
+      return key;
+    }
+  };
+
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState({
     totalReviews: 0,
@@ -50,7 +92,7 @@ const ReviewList = ({
       );
 
       if (!response.ok) {
-        throw new Error("レビューの読み込みに失敗しました");
+        throw new Error(t("reviewList.loadFailed"));
       }
 
       const data = await response.json();
@@ -125,7 +167,7 @@ const ReviewList = ({
     return (
       <div className="review-list-loading">
         <div className="spinner"></div>
-        <p>読み込み中...</p>
+        <p>{t("reviewList.loading")}</p>
       </div>
     );
   }
@@ -137,7 +179,7 @@ const ReviewList = ({
     return (
       <div className="review-list-error">
         <p>{error}</p>
-        <button onClick={fetchReviews}>再試行</button>
+        <button onClick={fetchReviews}>{t("reviewList.retry")}</button>
       </div>
     );
   }
@@ -150,7 +192,7 @@ const ReviewList = ({
           <div className="stats-summary">
             <span className="average-rating">⭐ {stats.averageRating}</span>
             <span className="total-reviews">
-              ({stats.totalReviews}件のレビュー)
+              ({stats.totalReviews} {t("reviewList.reviewsCount")})
             </span>
           </div>
         </div>
@@ -160,9 +202,9 @@ const ReviewList = ({
       {reviews.length === 0 ? (
         <div className="no-reviews">
           <p className="no-reviews-icon">📝</p>
-          <p className="no-reviews-text">まだレビューがありません</p>
+          <p className="no-reviews-text">{t("reviewList.noReviews")}</p>
           <p className="no-reviews-subtext">
-            最初のレビューを書いてみませんか？
+            {t("reviewList.noReviewsSubtext")}
           </p>
         </div>
       ) : (
