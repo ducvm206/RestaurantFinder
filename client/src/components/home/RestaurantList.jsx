@@ -29,6 +29,9 @@ export default function RestaurantList({ restaurants = [] }) {
   const [restWithDistance, setRestWithDistance] = useState([]);
 
   useEffect(() => {
+    console.log("Restaurants:", restaurants);
+    console.log("User Coords:", userCoords);
+
     const updated = restaurants.map((r) => {
       let distance = null;
 

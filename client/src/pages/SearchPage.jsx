@@ -13,12 +13,11 @@ const SearchPage = () => {
   const location = useLocation();
 
   const t = useTranslation();
+  const { userCoords } = useLocationContext(); // ⭐ Lấy từ context
 
   const { userCoords } = useLocationContext();
   const [keyword, setKeyword] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-  
-  // State filters giữ giá trị mặc định (rỗng)
   const [filters, setFilters] = useState({
     services: [],
     cuisines: [],
@@ -26,8 +25,10 @@ const SearchPage = () => {
     priceRange: "",
     styles: [],
     minRating: 0,
+    district: "",
+    city: "",
   });
-  
+
   const [recentKeywords, setRecentKeywords] = useState(mockRecentKeywords);
   const [searchResults, setSearchResults] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
@@ -35,22 +36,15 @@ const SearchPage = () => {
 // add => loading
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("recentKeywords");
-    if (saved) {
-      setRecentKeywords(JSON.parse(saved));
-    }
-  }, []);
-
-  // Fetch restaurants từ API
+  // Load restaurant fallback
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/restaurants');
+        const res = await fetch("http://localhost:5000/api/restaurants");
         const data = await res.json();
-        setRestaurants(data);
+        setRestaurants(data || []);
       } catch (err) {
-        console.error('Error fetching restaurants:', err);
+        console.error("Error fetching restaurants:", err);
       }
     };
     fetchRestaurants();
@@ -75,7 +69,7 @@ const SearchPage = () => {
 
   const saveRecentKeyword = (kw) => {
     if (!kw.trim()) return;
-    const updated = [kw, ...recentKeywords.filter(k => k !== kw)].slice(0, 10);
+    const updated = [kw, ...recentKeywords.filter((k) => k !== kw)].slice(0, 10);
     setRecentKeywords(updated);
     localStorage.setItem("recentKeywords", JSON.stringify(updated));
   };
@@ -175,25 +169,11 @@ const SearchPage = () => {
   };
 
   const handleApplyFilter = (newFilters) => {
-    // 1. Gọi search NGAY LẬP TỨC với bộ lọc mới
-    handleSearch(keyword, newFilters);
-
-    // 2. Reset state filters về rỗng để lần mở sau modal sẽ sạch sẽ
-    setFilters({
-      services: [],
-      cuisines: [],
-      distance: '',
-      priceRange: '',
-      styles: [],
-      minRating: 0
-    });
-
-    // 3. Đóng modal
+    setFilters(newFilters);
     setShowFilter(false);
+    setTimeout(() => handleSearch(keyword, newFilters), 0);
   };
 
-
-  // Handle recent keyword click
   const handleKeywordClick = (kw) => {
     setKeyword(kw);
     handleSearch(kw);

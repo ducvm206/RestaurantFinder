@@ -32,12 +32,14 @@ const FilterModal = ({ filters, onApply, onClose }) => {
   }, []);
 
   const [localFilters, setLocalFilters] = useState({
-    services: [...filters.services],
-    cuisines: [...filters.cuisines],
-    distance: filters.distance,
-    priceRange: filters.priceRange,
-    styles: [...filters.styles],
-    minRating: filters.minRating,
+    services: Array.isArray(filters.services) ? [...filters.services] : [],
+    cuisines: Array.isArray(filters.cuisines) ? [...filters.cuisines] : [],
+    distance: filters.distance || "",
+    priceRange: filters.priceRange || "",
+    styles: Array.isArray(filters.styles) ? [...filters.styles] : [],
+    minRating: filters.minRating || 0,
+    district: filters.district || "",
+    city: filters.city || "",
   });
 
   // Toggle multi-select filter (services, cuisines, styles)
@@ -68,11 +70,11 @@ const FilterModal = ({ filters, onApply, onClose }) => {
   };
 
   // Apply filters
-  
+
   const handleApply = () => {
-  onApply(localFilters);   // gửi filter đã chọn ra SearchPage để lọc              
-  onClose();               // đóng modal
-};
+    onApply(localFilters);   // gửi filter đã chọn ra SearchPage để lọc              
+    onClose();               // đóng modal
+  };
 
   // Reset all filters
   const handleReset = () => {
@@ -83,6 +85,8 @@ const FilterModal = ({ filters, onApply, onClose }) => {
       priceRange: "",
       styles: [],
       minRating: 0,
+      district: "",
+      city: "",
     };
     setLocalFilters(resetFilters);
   };
@@ -132,11 +136,10 @@ const FilterModal = ({ filters, onApply, onClose }) => {
               {filterOptions.services.map((service) => (
                 <button
                   key={service.value}
-                  className={`filter-chip ${
-                    localFilters.services.includes(service.value)
-                      ? "active"
-                      : ""
-                  }`}
+                  className={`filter-chip ${localFilters.services.includes(service.value)
+                    ? "active"
+                    : ""
+                    }`}
                   onClick={() => toggleArrayFilter("services", service.value)}
                 >
                   {getTranslatedLabel("services", service.value)}
@@ -145,11 +148,10 @@ const FilterModal = ({ filters, onApply, onClose }) => {
               {filterOptions.cuisines.map((cuisine) => (
                 <button
                   key={cuisine.value}
-                  className={`filter-chip ${
-                    localFilters.cuisines.includes(cuisine.value)
-                      ? "active"
-                      : ""
-                  }`}
+                  className={`filter-chip ${localFilters.cuisines.includes(cuisine.value)
+                    ? "active"
+                    : ""
+                    }`}
                   onClick={() => toggleArrayFilter("cuisines", cuisine.value)}
                 >
                   {getTranslatedLabel("cuisines", cuisine.value)}
@@ -163,13 +165,12 @@ const FilterModal = ({ filters, onApply, onClose }) => {
             <h3 className="filter-section-title">
               {t("filterModal.distance_title")}
             </h3>
-            <div className="filter-buttons">
+            <div className="filter-chips">
               {filterOptions.distances.map((distance) => (
                 <button
                   key={distance.value}
-                  className={`filter-button ${
-                    localFilters.distance === distance.value ? "active" : ""
-                  }`}
+                  className={`filter-chip ${localFilters.distance === distance.value ? "active" : ""
+                    }`}
                   onClick={() => setSingleFilter("distance", distance.value)}
                 >
                   {getTranslatedLabel("distances", distance.value)}
@@ -183,16 +184,15 @@ const FilterModal = ({ filters, onApply, onClose }) => {
             <h3 className="filter-section-title">
               {t("filterModal.price_title")}
             </h3>
-            <div className="filter-buttons">
+            <div className="filter-chips">
               {filterOptions.priceRanges.map((price) => (
                 <button
                   key={price.value}
-                  className={`filter-button price-button ${
-                    localFilters.priceRange === price.value ? "active" : ""
-                  }`}
+                  className={`filter-chip ${localFilters.priceRange === price.value ? "active" : ""
+                    }`}
                   onClick={() => setSingleFilter("priceRange", price.value)}
                 >
-                  {getTranslatedLabel("priceRanges", price.value)}
+                  {price.label}
                 </button>
               ))}
             </div>
@@ -207,9 +207,8 @@ const FilterModal = ({ filters, onApply, onClose }) => {
               {filterOptions.styles.map((style) => (
                 <button
                   key={style.value}
-                  className={`filter-chip ${
-                    localFilters.styles.includes(style.value) ? "active" : ""
-                  }`}
+                  className={`filter-chip ${localFilters.styles.includes(style.value) ? "active" : ""
+                    }`}
                   onClick={() => toggleArrayFilter("styles", style.value)}
                 >
                   {getTranslatedLabel("styles", style.value)}
@@ -227,9 +226,8 @@ const FilterModal = ({ filters, onApply, onClose }) => {
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
-                  className={`star-button ${
-                    localFilters.minRating >= star ? "active" : ""
-                  }`}
+                  className={`star-button ${localFilters.minRating >= star ? "active" : ""
+                    }`}
                   onClick={() => setRating(star)}
                 >
                   ★
@@ -243,6 +241,31 @@ const FilterModal = ({ filters, onApply, onClose }) => {
                 })}
               </p>
             )}
+          </div>
+
+          {/* Location filters */}
+          <div className="filter-section">
+            <h3 className="filter-section-title">Khu vực</h3>
+            <div className="filter-chips" style={{ flexDirection: "column", gap: "8px" }}>
+              <input
+                type="text"
+                className="filter-input"
+                placeholder="Quận/Huyện"
+                value={localFilters.district}
+                onChange={(e) =>
+                  setLocalFilters((prev) => ({ ...prev, district: e.target.value }))
+                }
+              />
+              <input
+                type="text"
+                className="filter-input"
+                placeholder="Thành phố"
+                value={localFilters.city}
+                onChange={(e) =>
+                  setLocalFilters((prev) => ({ ...prev, city: e.target.value }))
+                }
+              />
+            </div>
           </div>
         </div>
 
