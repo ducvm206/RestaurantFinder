@@ -37,3 +37,65 @@
   border-radius: 6px;
   margin-bottom: 8px;
 }
+
+.rest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rest-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rest-status.open {
+  color: #2ecc71;
+}
+
+.rest-status.closed {
+  color: #e74c3c;
+}
+
+.rest-desc {
+  font-size: 13px;
+  color: #666;
+  margin: 4px 0;
+}
+
+.rest-address {
+  display: flex;
+  align-items: flex-start; /* icon stays at top */
+  gap: 5px;
+  font-size: 10px;
+  color: #666;
+}
+
+.rest-address svg {
+  flex-shrink: 0; /* icon won't shrink */
+  margin-top: 2px; /* optional: vertical alignment tweak */
+}
+
+.rest-address span {
+  display: block;
+  word-wrap: break-word; /* allow wrapping */
+}
+
+
+
+
+.rest-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.rest-meta span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}

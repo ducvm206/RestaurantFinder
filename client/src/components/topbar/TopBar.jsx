@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Avatar from "./Avatar";
 import LanguageDropdown from "./LanguageDropdown";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useUser } from "../../context/UserContext"; // Add this
 
@@ -17,13 +17,24 @@ export default function TopBar({ user }) {
   const { lang, changeLanguage } = useContext(LanguageContext);
 
   const [isLangOpen, setIsLangOpen] = useState(false);
+
   const toggleDropdown = () => setIsLangOpen((prev) => !prev);
+
   const selectLang = (l) => {
     changeLanguage(l);
     setIsLangOpen(false);
   };
 
-  const t = (key) => key.split(".").reduce((o, k) => o?.[k], translations[lang]) || key;
+  // ✅ CLOSE DROPDOWN ON SCROLL
+  useEffect(() => {
+    const close = () => setIsLangOpen(false);
+    window.addEventListener("scroll", close);
+    return () => window.removeEventListener("scroll", close);
+  }, []);
+
+  const t =
+    (key) =>
+      key.split(".").reduce((o, k) => o?.[k], translations[lang]) || key;
 
   return (
     <div className="top-bar">
@@ -33,9 +44,11 @@ export default function TopBar({ user }) {
         toggleDropdown={toggleDropdown}
         selectLang={selectLang}
       />
+
       <button className="favorites-btn" onClick={() => navigate("/favorites")}>
         {t("home.favorites")}
       </button>
+
       <Avatar user={user} />
     </div>
   );

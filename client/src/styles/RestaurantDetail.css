@@ -1,11 +1,12 @@
 /* Container */
 .restaurant-detail-container {
-  padding: 25px 20px;
+  padding: 80px 10px;
   max-width: 950px;
   margin: auto;
   font-family: 'Lato', sans-serif;
   color: #333;
 }
+
 
 /* Header */
 .restaurant-header {
@@ -50,10 +51,17 @@
   transform: scale(1.02);
 }
 
+.tabs-wrapper {
+  position: sticky;
+  top: 70px;        /* BELOW TopBar */
+  z-index: 1000;
+  background: #fff;
+}
+
+
 /* Tabs container */
 .restaurant-tabs {
-  position: sticky;
-  top: 0;
+   height: 70px;
   z-index: 1000;
   display: flex;
   gap: 30px;
@@ -108,7 +116,7 @@
 .restaurant-info {
   text-align: left;
   margin-bottom: 35px;
-  padding: 22px 24px;
+  padding: 22px 24px; 
   border-radius: 12px;
   background-color: #fff;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -255,6 +263,25 @@
 .write-review-btn:active {
   transform: translateY(0);
 }
+
+
+.top-bar {
+  position: fixed;       /* 🔑 KEY FIX */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 75px;          /* important */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 0 16px;
+  background: #fff;
+  z-index: 3000;         /* above tabs */
+  border-bottom: 1px solid #eee;
+}
+
+
 
 /* Mobile responsive */
 @media (max-width: 768px) {

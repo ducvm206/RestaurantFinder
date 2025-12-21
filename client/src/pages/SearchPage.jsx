@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import FilterModal from "../components/search/FilterModal";
 import { mockRecentKeywords } from "../data/mockData";
 import useTranslation from "../hooks/useTranslation";
@@ -9,9 +10,12 @@ import "./SearchPage.css";
 
 const SearchPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const t = useTranslation();
   const { userCoords } = useLocationContext(); // ⭐ Lấy từ context
 
+  const { userCoords } = useLocationContext();
   const [keyword, setKeyword] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState({
@@ -29,6 +33,8 @@ const SearchPage = () => {
   const [searchResults, setSearchResults] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [error, setError] = useState("");
+// add => loading
+  const [loading, setLoading] = useState(false);
 
   // Load restaurant fallback
   useEffect(() => {
@@ -50,14 +56,24 @@ const SearchPage = () => {
     if (saved) setRecentKeywords(JSON.parse(saved));
   }, []);
 
+// add: when click category => display list of restaurant
+    useEffect(() => {
+  if (location.state?.category && location.state?.fromCategory) {
+    searchByDishOnly(location.state.category);
+  }
+}, [location.state]);
+
+
+
+////////////////////////////////////
+
   const saveRecentKeyword = (kw) => {
     if (!kw.trim()) return;
     const updated = [kw, ...recentKeywords.filter((k) => k !== kw)].slice(0, 10);
     setRecentKeywords(updated);
     localStorage.setItem("recentKeywords", JSON.stringify(updated));
   };
-
-  // ⭐ Hàm thêm distance vào dữ liệu
+// ⭐ Hàm thêm distance vào dữ liệu
   const appendDistance = (items) => {
     if (!userCoords) return items;
 
@@ -72,6 +88,35 @@ const SearchPage = () => {
       return { ...r, distance: dist };
     });
   };
+ 
+// search by dish in category
+  const searchByDishOnly = async (dishName) => {
+  setLoading(true);
+  setError("");
+
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/restaurants/by-dish?name=${encodeURIComponent(dishName)}`
+    );
+
+    if (!res.ok) throw new Error("Dish search failed");
+
+    let data = await res.json();
+    data = appendDistance(data);
+
+    setSearchResults({
+      restaurants: data,
+      dishes: [],
+    });
+  } catch (err) {
+    console.error(err);
+    setError("Không tìm thấy nhà hàng cho món này");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const handleSearch = async (searchKeyword = keyword, passedFilters = null) => {
     setError("");
@@ -113,19 +158,14 @@ const SearchPage = () => {
         }
       }
 
-      // ⭐ Lọc priceRange (Client-side)
-      if (activeFilters.priceRange) {
-        data = data.filter((r) => {
-          const price = r.price_range || r.priceRange;
-          return price === activeFilters.priceRange;
-        });
-      }
-
       setSearchResults({ restaurants: data, dishes: [] });
     } catch (err) {
-      console.error(err);
-      setError("Không thể tìm kiếm nhà hàng");
-    }
+  console.error(err);
+  setError("Không thể tìm kiếm nhà hàng");
+} finally {
+  setLoading(false);
+}
+
   };
 
   const handleApplyFilter = (newFilters) => {
@@ -146,7 +186,17 @@ const SearchPage = () => {
       .sort((a, b) => b.average_rating - a.average_rating)
       .slice(0, 3)
   );
+  // Add loading when click category to find restaurant
+    if (loading) {
+      return (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>読み込み中</p>
+        </div>
+      );
+    }
 
+  
   return (
     <div className="search-page">
       <div className="search-header">
@@ -210,15 +260,7 @@ const SearchPage = () => {
 
                         <div className="restaurant-meta">
                           <span>⭐ {restaurant.average_rating}</span>
-                          <span>
-                            {(restaurant.price_range || restaurant.priceRange) === "cheap"
-                              ? "$"
-                              : (restaurant.price_range || restaurant.priceRange) === "moderate"
-                                ? "$$"
-                                : (restaurant.price_range || restaurant.priceRange) === "expensive"
-                                  ? "$$$"
-                                  : (restaurant.price_range || restaurant.priceRange)}
-                          </span>
+                          <span>{restaurant.price_range}</span>
                         </div>
 
                         {/* ⭐ Distance */}
@@ -281,15 +323,7 @@ const SearchPage = () => {
 
                       <div className="restaurant-meta">
                         <span>⭐ {restaurant.average_rating}</span>
-                        <span>
-                          {(restaurant.price_range || restaurant.priceRange) === "cheap"
-                            ? "$"
-                            : (restaurant.price_range || restaurant.priceRange) === "moderate"
-                              ? "$$"
-                              : (restaurant.price_range || restaurant.priceRange) === "expensive"
-                                ? "$$$"
-                                : (restaurant.price_range || restaurant.priceRange)}
-                        </span>
+                        <span>{restaurant.price_range}</span>
                       </div>
 
                       {/* ⭐ Distance */}
