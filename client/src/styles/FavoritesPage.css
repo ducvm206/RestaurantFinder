@@ -1,0 +1,81 @@
+.favorites-page {
+  padding: 16px;
+}
+
+.favorites-title {
+  margin-bottom: 12px;
+}
+
+.favorites-error {
+  color: red;
+}
+
+.favorites-empty {
+  color: #666;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.favorite-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+}
+
+.favorite-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background: #f5f5f5;
+}
+
+.favorite-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.favorite-info {
+  padding: 12px;
+}
+
+.favorite-heart {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.heart-icon {
+  font-size: 22px;
+}
+
+.heart-icon.filled {
+  color: #ff4d4f;
+}
+
+.heart-icon.outline {
+  color: #ccc;
+  position: absolute;
+  opacity: 0;
+}

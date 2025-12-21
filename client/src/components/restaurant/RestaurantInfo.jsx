@@ -168,43 +168,38 @@ export default function RestaurantInfo({ restaurant }) {
   if (!restaurant) return <div>Loading...</div>;
 
   return (
-    <div className="restaurant-info">
-      {/* Name */}
-      <h2>{restaurant.name}</h2>
-      <p>{restaurant.description || "A high-quality Japanese restaurant."}</p>
+    <div className="restaurant-info-wrapper">
+      <div className="restaurant-info">
+        <h2>{restaurant.name}</h2>
+        <p>{restaurant.description || "A high-quality Japanese restaurant."}</p>
 
-      {/* Info List - All items in same consistent format */}
-      <div className="info-list">
-        {/* Rating */}
-        <p className="info-item">
-          <AiFillStar className="icon" /> {restaurant.average_rating || 0} / 5
-        </p>
-
-        {/* Address */}
-        <p className="info-item">
-          <FiMapPin className="icon" /> {restaurant.address_ja}
-        </p>
-
-        {/* Distance */}
-        {distanceKm && (
+        <div className="info-list">
           <p className="info-item">
-            <MdLocationOn className="icon" /> {distanceKm} km
+            <AiFillStar className="icon" /> {restaurant.average_rating || 0} / 5
           </p>
-        )}
 
-        {/* Phone */}
-        {restaurant.phone && (
           <p className="info-item">
-            <FiPhone className="icon" /> {restaurant.phone}
+            <FiMapPin className="icon" /> {restaurant.address_ja}
           </p>
-        )}
 
-        {/* Opening Hours */}
-        {formattedHours && (
-          <p className="info-item">
-            <FiClock className="icon clock-icon" /> {formattedHours}
-          </p>
-        )}
+          {distanceKm && (
+            <p className="info-item">
+              <MdLocationOn className="icon" /> {distanceKm} km
+            </p>
+          )}
+
+          {restaurant.phone && (
+            <p className="info-item">
+              <FiPhone className="icon" /> {restaurant.phone}
+            </p>
+          )}
+
+          {formattedHours && (
+            <p className="info-item">
+              <FiClock className="icon clock-icon" /> {formattedHours}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
