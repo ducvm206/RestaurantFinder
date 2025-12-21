@@ -1,57 +1,118 @@
 // ═══════════════════════════════════════════════════════════════
 // EDIT REVIEW MODAL COMPONENT
 // ═══════════════════════════════════════════════════════════════
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
+import { LanguageContext } from "../../context/LanguageContext";
 import "./EditReviewModal.css";
+
+// Import trực tiếp các file translation
+import translationsJa from "../../translations/ja.json";
+import translationsEn from "../../translations/en.json";
+import translationsVi from "../../translations/vi.json";
+
+const translations = {
+  ja: translationsJa,
+  en: translationsEn,
+  vi: translationsVi,
+};
 
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS - TAGS
 // ═══════════════════════════════════════════════════════════════
-const SERVICE_TAGS = [
-  "エアコン",
-  "屋外スペース",
-  "屋内",
-  "パーティールーム",
-  "禁煙",
-  "子供向け",
-];
+const SERVICE_TAGS = {
+  ja: [
+    "エアコン",
+    "屋外スペース",
+    "屋内",
+    "パーティールーム",
+    "禁煙",
+    "子供向け",
+  ],
+  en: [
+    "AC",
+    "Outdoor Space",
+    "Indoor",
+    "Party Room",
+    "Non-smoking",
+    "Kid-friendly",
+  ],
+  vi: [
+    "Điều hòa",
+    "Khu ngoài trời",
+    "Trong nhà",
+    "Phòng tiệc",
+    "Không hút thuốc",
+    "Thân thiện với trẻ em",
+  ],
+};
 
-const STYLE_TAGS = [
-  "美しい",
-  "エキゾチック",
-  "シンプル",
-  "高級ダイニング",
-  "和風",
-  "席心地が良い",
-];
+const STYLE_TAGS = {
+  ja: [
+    "美しい",
+    "エキゾチック",
+    "シンプル",
+    "高級ダイニング",
+    "和風",
+    "席心地が良い",
+  ],
+  en: [
+    "Beautiful",
+    "Exotic",
+    "Simple",
+    "Fine Dining",
+    "Japanese Style",
+    "Comfortable",
+  ],
+  vi: [
+    "Đẹp",
+    "Lạ mắt",
+    "Đơn giản",
+    "Sang trọng",
+    "Phong cách Nhật",
+    "Thoải mái",
+  ],
+};
 
-const DISH_TAGS = [
-  "新鮮",
-  "ヴィーガン対応",
-  "濃厚な",
-  "最も自然美しい",
-  "美味しい",
-];
+const DISH_TAGS = {
+  ja: ["新鮮", "ヴィーガン対応", "濃厚な", "最も自然美しい", "美味しい"],
+  en: ["Fresh", "Vegan-friendly", "Rich", "Natural", "Delicious"],
+  vi: ["Tươi", "Thuần chay", "Đậm đà", "Tự nhiên", "Ngon"],
+};
 
 const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
+  const { lang } = useContext(LanguageContext);
+
+  // Tạo function t trực tiếp từ translations
+  const t = (key) => {
+    const parts = key.split(".");
+    let obj = translations[lang] || translations.ja;
+
+    for (const part of parts) {
+      if (!obj || !obj[part]) return key;
+      obj = obj[part];
+    }
+
+    return obj;
+  };
+
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [title, setTitle] = useState("");
-  
+
   // Existing images (from server)
   const [existingImages, setExistingImages] = useState([]);
   const [deleteImageIds, setDeleteImageIds] = useState([]);
-  
+
   // New images (to upload)
   const [newImages, setNewImages] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
-  
+
   const [serviceTags, setServiceTags] = useState([]);
   const [styleTags, setStyleTags] = useState([]);
   const [dishTags, setDishTags] = useState([]);
-  
+
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -81,9 +142,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
     const totalImages = remainingExisting + newImages.length + files.length;
 
     if (totalImages > 3) {
-      setErrors({ 
-        ...errors, 
-        images: "画像は合計3枚までです" 
+      setErrors({
+        ...errors,
+        images: t("editReview.errors.maxImages"),
       });
       return;
     }
@@ -96,15 +157,15 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
       if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/)) {
         setErrors({
           ...errors,
-          images: "jpg, png, gif, webp のみアップロード可能です",
+          images: t("editReview.errors.invalidFormat"),
         });
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setErrors({ 
-          ...errors, 
-          images: "ファイルサイズは5MB以下にしてください" 
+        setErrors({
+          ...errors,
+          images: t("editReview.errors.maxSize"),
         });
         return;
       }
@@ -172,15 +233,15 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
     const newErrors = {};
 
     if (rating === 0) {
-      newErrors.rating = "評価を選択してください";
+      newErrors.rating = t("editReview.errors.ratingRequired");
     }
 
     if (!comment.trim()) {
-      newErrors.comment = "コメントを入力してください";
+      newErrors.comment = t("editReview.errors.commentRequired");
     } else if (comment.trim().length < 10) {
-      newErrors.comment = "コメントは10文字以上入力してください";
+      newErrors.comment = t("editReview.errors.commentMinLength");
     } else if (comment.trim().length > 500) {
-      newErrors.comment = "コメントは500文字以内にしてください";
+      newErrors.comment = t("editReview.errors.commentMaxLength");
     }
 
     setErrors(newErrors);
@@ -201,7 +262,7 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
       // Get user from localStorage
       const userStr = localStorage.getItem("user");
       if (!userStr) {
-        toast.error("ログインが必要です");
+        toast.error(t("editReview.messages.loginRequired"));
         return;
       }
       const user = JSON.parse(userStr);
@@ -215,7 +276,7 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
       formData.append("service_tags", JSON.stringify(serviceTags));
       formData.append("style_tags", JSON.stringify(styleTags));
       formData.append("dish_tags", JSON.stringify(dishTags));
-      
+
       // Add image IDs to delete
       if (deleteImageIds.length > 0) {
         formData.append("deleteImageIds", JSON.stringify(deleteImageIds));
@@ -238,11 +299,11 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "レビューの更新に失敗しました");
+        throw new Error(data.message || t("editReview.messages.updateFailed"));
       }
 
       // Success
-      toast.success("レビューが更新されました！");
+      toast.success(t("editReview.messages.updateSuccess"));
 
       // Clean up
       newImagePreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -252,7 +313,7 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
       onClose();
     } catch (error) {
       console.error("Error updating review:", error);
-      toast.error(error.message || "レビューの更新に失敗しました");
+      toast.error(error.message || t("editReview.messages.updateFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -260,16 +321,13 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
   return (
     <div className="edit-review-modal-overlay" onClick={onClose}>
-      <div
-        className="edit-review-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="edit-review-modal" onClick={(e) => e.stopPropagation()}>
         {/* ═══ HEADER ═══ */}
         <div className="edit-review-modal-header">
           <button className="back-btn" onClick={onClose}>
             ←
           </button>
-          <h2>レビューを編集</h2>
+          <h2>{t("editReview.title")}</h2>
           <div className="header-spacer"></div>
         </div>
 
@@ -282,7 +340,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
           {/* ═══ EXISTING IMAGES ═══ */}
           {existingImages.length > 0 && (
             <div className="form-section">
-              <label className="section-label">既存の写真</label>
+              <label className="section-label">
+                {t("editReview.existingPhotos")}
+              </label>
               <div className="existing-images">
                 {existingImages.map((image) => (
                   <div
@@ -301,7 +361,11 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
                       type="button"
                       className="toggle-delete-btn"
                       onClick={() => markImageForDeletion(image.image_id)}
-                      title={deleteImageIds.includes(image.image_id) ? "元に戻す" : "削除"}
+                      title={
+                        deleteImageIds.includes(image.image_id)
+                          ? t("editReview.restore")
+                          : t("editReview.delete")
+                      }
                     >
                       {deleteImageIds.includes(image.image_id) ? "↺" : "✕"}
                     </button>
@@ -329,7 +393,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
               />
               <div className="photo-placeholder">
                 <span className="camera-icon">📷</span>
-                <span className="upload-text">新しい写真を追加</span>
+                <span className="upload-text">
+                  {t("editReview.addNewPhotos")}
+                </span>
               </div>
             </label>
 
@@ -338,7 +404,10 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
               <div className="image-previews">
                 {newImagePreviews.map((preview, index) => (
                   <div key={index} className="preview-item">
-                    <img src={preview} alt={`新規 ${index + 1}`} />
+                    <img
+                      src={preview}
+                      alt={`${t("editReview.newPhoto")} ${index + 1}`}
+                    />
                     <button
                       type="button"
                       className="remove-image-btn"
@@ -358,9 +427,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ SERVICE TAGS ═══ */}
           <div className="form-section">
-            <label className="section-label">サービス</label>
+            <label className="section-label">{t("editReview.service")}</label>
             <div className="tags-container">
-              {SERVICE_TAGS.map((tag) => (
+              {(SERVICE_TAGS[lang] || SERVICE_TAGS.ja).map((tag) => (
                 <button
                   key={tag}
                   type="button"
@@ -377,9 +446,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ STYLE TAGS ═══ */}
           <div className="form-section">
-            <label className="section-label">スタイル</label>
+            <label className="section-label">{t("editReview.style")}</label>
             <div className="tags-container">
-              {STYLE_TAGS.map((tag) => (
+              {(STYLE_TAGS[lang] || STYLE_TAGS.ja).map((tag) => (
                 <button
                   key={tag}
                   type="button"
@@ -396,9 +465,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ DISH TAGS ═══ */}
           <div className="form-section">
-            <label className="section-label">料理</label>
+            <label className="section-label">{t("editReview.dish")}</label>
             <div className="tags-container">
-              {DISH_TAGS.map((tag) => (
+              {(DISH_TAGS[lang] || DISH_TAGS.ja).map((tag) => (
                 <button
                   key={tag}
                   type="button"
@@ -415,7 +484,7 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ RATING ═══ */}
           <div className="form-section">
-            <label className="section-label">評価</label>
+            <label className="section-label">{t("editReview.rating")}</label>
             <div className="star-rating-input">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
@@ -438,13 +507,13 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ TITLE (OPTIONAL) ═══ 
           <div className="form-section">
-            <label className="section-label">タイトル（任意）</label>
+            <label className="section-label">{t("editReview.titleOptional")}</label>
             <input
               type="text"
               className="title-input"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="例：最高の体験でした"
+              placeholder={t("editReview.titlePlaceholder")}
               maxLength={100}
             />
           </div> 
@@ -452,10 +521,10 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ COMMENT ═══ */}
           <div className="form-section">
-            <label className="section-label">コメント</label>
+            <label className="section-label">{t("editReview.comment")}</label>
             <textarea
               className="review-textarea"
-              placeholder="レビューを入力..."
+              placeholder={t("editReview.commentPlaceholder")}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={6}
@@ -469,7 +538,9 @@ const EditReviewModal = ({ review, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ SUBMIT BUTTON ═══ */}
           <button type="submit" className="submit-btn" disabled={submitting}>
-            {submitting ? "更新中..." : "変更を保存"}
+            {submitting
+              ? t("editReview.updating")
+              : t("editReview.saveChanges")}
           </button>
         </form>
       </div>

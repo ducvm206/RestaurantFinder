@@ -53,7 +53,8 @@
     "greeting": "Hello, {name}! Keep up the good work this afternoon!",
     "search_placeholder": "Enter dish name...",
     "dish_not_found": "No restaurant found that serves this dish.",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "search_box_place_holder": "Enter dish name…"
   },
 
   "profile": {
@@ -198,15 +199,16 @@
       }
     }
   },
-  
+
   "storeDetail": {
     "loading": "Loading...",
-    "not_found": "Store not found",
+    "not_found": "Restaurant not found",
 
     "tabs": {
       "menu": "Menu",
       "reviews": "Reviews",
-      "images": "Images"
+      "images": "Images",
+      "review_button": "Write a review"
     },
 
     "sections": {
@@ -214,7 +216,82 @@
       "reviews": "Reviews",
       "images": "Images"
     }
+  },
+  "reviews": {
+    "retry": "Retry",
+    "count": "reviews"
+  },
+  "editReview": {
+    "title": "Edit Review",
+    "restaurantName": "Restaurant Name",
+    "existingPhotos": "Existing Photos",
+    "addNewPhotos": "Add New Photos",
+    "newPhoto": "New",
+    "service": "Service",
+    "style": "Style",
+    "dish": "Dish",
+    "rating": "Rating",
+    "titleOptional": "Title (Optional)",
+    "titlePlaceholder": "e.g., Best experience ever",
+    "comment": "Comment",
+    "commentPlaceholder": "Write your review...",
+    "saveChanges": "Save Changes",
+    "updating": "Updating...",
+    "restore": "Restore",
+    "delete": "Delete",
+    "errors": {
+      "maxImages": "Maximum 3 images allowed",
+      "invalidFormat": "Only jpg, png, gif, webp are allowed",
+      "maxSize": "File size must be under 5MB",
+      "ratingRequired": "Please select a rating",
+      "commentRequired": "Please enter a comment",
+      "commentMinLength": "Comment must be at least 10 characters",
+      "commentMaxLength": "Comment must be within 500 characters"
+    },
+    "messages": {
+      "loginRequired": "Login required",
+      "updateSuccess": "Review updated successfully!",
+      "updateFailed": "Failed to update review"
+    }
+  },
+  "reviewForm": {
+    "title": "Restaurant Review",
+    "addPhotos": "Add Photos",
+    "preview": "Preview",
+    "service": "Service",
+    "style": "Style",
+    "dish": "Dish",
+    "rating": "Rating",
+    "comment": "Comment",
+    "commentPlaceholder": "Write your review...",
+    "submit": "Submit Review",
+    "submitting": "Submitting...",
+    "errors": {
+      "maxImages": "Maximum 3 images allowed",
+      "invalidFormat": "Only jpg, png, gif, webp are allowed",
+      "maxSize": "File size must be under 5MB",
+      "ratingRequired": "Please select a rating",
+      "commentRequired": "Please enter a comment",
+      "commentMinLength": "Comment must be at least 10 characters",
+      "commentMaxLength": "Comment must be within 500 characters"
+    },
+    "messages": {
+      "loginRequired": "Login required",
+      "submitSuccess": "Review submitted successfully!",
+      "submitFailed": "Failed to submit review"
+    }
+  },
+  "reviewCard": {
+    "anonymousUser": "Anonymous User",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "edited": "Edited",
+    "reviewImage": "Review",
+    "confirmDelete": "Are you sure you want to delete this review?",
+    "deleteSuccess": "Review deleted successfully",
+    "deleteFailed": "Failed to delete review"
   }
 }
-
-

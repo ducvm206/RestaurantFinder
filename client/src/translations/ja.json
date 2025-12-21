@@ -53,7 +53,8 @@
     "greeting": "こんにちは、{name}さん！午後もがんばりましょう！",
     "search_placeholder": "料理名を入力...",
     "dish_not_found": "この料理を提供している店が見つかりません。",
-    "loading": "読み込み中..."
+    "loading": "読み込み中...",
+    "search_box_place_holder": "料理名を入力..."
   },
 
   "profile": {
@@ -201,12 +202,13 @@
 
   "storeDetail": {
     "loading": "読み込み中...",
-    "not_found": "店舗が見つかりません",
+    "not_found": "レストランが見つかりません",
 
     "tabs": {
       "menu": "メニュー",
       "reviews": "レビュー",
-      "images": "画像"
+      "images": "画像",
+      "review_button": "レビューを書く"
     },
 
     "sections": {
@@ -214,5 +216,83 @@
       "reviews": "レビュー",
       "images": "画像"
     }
+  },
+
+  "reviews": {
+    "retry": "再試行",
+    "count": "件のレビュ"
+  },
+  "editReview": {
+    "title": "レビューを編集",
+    "restaurantName": "レストラン名",
+    "existingPhotos": "既存の写真",
+    "addNewPhotos": "新しい写真を追加",
+    "newPhoto": "新規",
+    "service": "サービス",
+    "style": "スタイル",
+    "dish": "料理",
+    "rating": "評価",
+    "titleOptional": "タイトル（任意）",
+    "titlePlaceholder": "例：最高の体験でした",
+    "comment": "コメント",
+    "commentPlaceholder": "レビューを入力...",
+    "saveChanges": "変更を保存",
+    "updating": "更新中...",
+    "restore": "元に戻す",
+    "delete": "削除",
+    "errors": {
+      "maxImages": "画像は合計3枚までです",
+      "invalidFormat": "jpg, png, gif, webp のみアップロード可能です",
+      "maxSize": "ファイルサイズは5MB以下にしてください",
+      "ratingRequired": "評価を選択してください",
+      "commentRequired": "コメントを入力してください",
+      "commentMinLength": "コメントは10文字以上入力してください",
+      "commentMaxLength": "コメントは500文字以内にしてください"
+    },
+    "messages": {
+      "loginRequired": "ログインが必要です",
+      "updateSuccess": "レビューが更新されました！",
+      "updateFailed": "レビューの更新に失敗しました"
+    }
+  },
+  "reviewForm": {
+    "title": "レストランレビュー",
+    "addPhotos": "写真を追加",
+    "preview": "プレビュー",
+    "service": "サービス",
+    "style": "スタイル",
+    "dish": "料理",
+    "rating": "評価",
+    "comment": "コメント",
+    "commentPlaceholder": "レビューを入力...",
+    "submit": "レビューを投稿",
+    "submitting": "投稿中...",
+    "errors": {
+      "maxImages": "画像は3枚までアップロード可能です",
+      "invalidFormat": "jpg, png, gif, webp のみアップロード可能です",
+      "maxSize": "ファイルサイズは5MB以下にしてください",
+      "ratingRequired": "評価を選択してください",
+      "commentRequired": "コメントを入力してください",
+      "commentMinLength": "コメントは10文字以上入力してください",
+      "commentMaxLength": "コメントは500文字以内にしてください"
+    },
+    "messages": {
+      "loginRequired": "ログインが必要です",
+      "submitSuccess": "レビューが投稿されました！",
+      "submitFailed": "レビューの投稿に失敗しました"
+    }
+  },
+  "reviewCard": {
+    "anonymousUser": "匿名ユーザー",
+    "edit": "編集",
+    "delete": "削除",
+    "deleting": "削除中...",
+    "showMore": "さらに見る",
+    "showLess": "少なく表示",
+    "edited": "編集済み",
+    "reviewImage": "レビュー",
+    "confirmDelete": "このレビューを削除してもよろしいですか？",
+    "deleteSuccess": "レビューが削除されました",
+    "deleteFailed": "削除に失敗しました"
   }
 }

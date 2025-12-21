@@ -5,7 +5,12 @@ import React, { useState, useEffect } from "react";
 import ReviewCard from "../review/ReviewCard";
 import "./ReviewList.css";
 
-  const ReviewList = ({ reviews: initialReviews, restaurantId, restaurantName, onReviewsChange }) => {
+const ReviewList = ({
+  reviews: initialReviews,
+  restaurantId,
+  restaurantName,
+  onReviewsChange,
+}) => {
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState({
     totalReviews: 0,
@@ -16,23 +21,19 @@ import "./ReviewList.css";
 
   // Get current user
   const getCurrentUserId = () => {
-  try {
-    const userStr = localStorage.getItem("user");
-    
-    
-    if (!userStr) return null;
-    const user = JSON.parse(userStr);
-    
-    
-    
-    return user.user_id;
-  } catch {
-    return null;
-  }
-};
+    try {
+      const userStr = localStorage.getItem("user");
 
-const currentUserId = getCurrentUserId();
+      if (!userStr) return null;
+      const user = JSON.parse(userStr);
 
+      return user.user_id;
+    } catch {
+      return null;
+    }
+  };
+
+  const currentUserId = getCurrentUserId();
 
   // ═══════════════════════════════════════════════════════════════
   // FETCH REVIEWS FROM API
@@ -86,7 +87,7 @@ const currentUserId = getCurrentUserId();
   useEffect(() => {
     if (initialReviews && Array.isArray(initialReviews)) {
       setReviews(initialReviews);
-      
+
       // Calculate stats
       const totalReviews = initialReviews.length;
       const avgRating =
@@ -160,7 +161,9 @@ const currentUserId = getCurrentUserId();
         <div className="no-reviews">
           <p className="no-reviews-icon">📝</p>
           <p className="no-reviews-text">まだレビューがありません</p>
-          <p className="no-reviews-subtext">最初のレビューを書いてみませんか？</p>
+          <p className="no-reviews-subtext">
+            最初のレビューを書いてみませんか？
+          </p>
         </div>
       ) : (
         <div className="reviews-container">
@@ -169,9 +172,9 @@ const currentUserId = getCurrentUserId();
               key={review.review_id}
               review={review}
               currentUserId={currentUserId}
-              restaurantName={restaurantName}  
+              restaurantName={restaurantName}
               onDelete={handleDeleteReview}
-              onUpdate={fetchReviews}  
+              onUpdate={fetchReviews}
             />
           ))}
         </div>

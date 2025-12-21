@@ -53,7 +53,8 @@
     "greeting": "Xin chào, {name}! Chúc buổi chiều tốt lành!",
     "search_placeholder": "Nhập tên món ăn...",
     "dish_not_found": "Không tìm thấy nhà hàng phục vụ món này.",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "search_box_place_holder": "Nhập tên món ăn…"
   },
 
   "profile": {
@@ -204,7 +205,8 @@
     "tabs": {
       "menu": "Thực đơn",
       "reviews": "Đánh giá",
-      "images": "Hình ảnh"
+      "images": "Hình ảnh",
+      "review_button": "Viết đánh giá"
     },
 
     "sections": {
@@ -212,5 +214,84 @@
       "reviews": "Đánh giá",
       "images": "Hình ảnh"
     }
+  },
+
+  "reviews": {
+    "retry": "Thử lại",
+    "count": "đánh giá"
+  },
+
+  "editReview": {
+    "title": "Chỉnh sửa đánh giá",
+    "restaurantName": "Tên nhà hàng",
+    "existingPhotos": "Ảnh hiện có",
+    "addNewPhotos": "Thêm ảnh mới",
+    "newPhoto": "Mới",
+    "service": "Dịch vụ",
+    "style": "Phong cách",
+    "dish": "Món ăn",
+    "rating": "Đánh giá",
+    "titleOptional": "Tiêu đề (Tùy chọn)",
+    "titlePlaceholder": "VD: Trải nghiệm tuyệt vời",
+    "comment": "Bình luận",
+    "commentPlaceholder": "Viết đánh giá của bạn...",
+    "saveChanges": "Lưu thay đổi",
+    "updating": "Đang cập nhật...",
+    "restore": "Khôi phục",
+    "delete": "Xóa",
+    "errors": {
+      "maxImages": "Tối đa 3 ảnh",
+      "invalidFormat": "Chỉ chấp nhận jpg, png, gif, webp",
+      "maxSize": "Kích thước file phải dưới 5MB",
+      "ratingRequired": "Vui lòng chọn đánh giá",
+      "commentRequired": "Vui lòng nhập bình luận",
+      "commentMinLength": "Bình luận phải có ít nhất 10 ký tự",
+      "commentMaxLength": "Bình luận phải dưới 500 ký tự"
+    },
+    "messages": {
+      "loginRequired": "Cần đăng nhập",
+      "updateSuccess": "Đã cập nhật đánh giá!",
+      "updateFailed": "Không thể cập nhật đánh giá"
+    }
+  },
+  "reviewForm": {
+    "title": "Đánh giá nhà hàng",
+    "addPhotos": "Thêm ảnh",
+    "preview": "Xem trước",
+    "service": "Dịch vụ",
+    "style": "Phong cách",
+    "dish": "Món ăn",
+    "rating": "Đánh giá",
+    "comment": "Bình luận",
+    "commentPlaceholder": "Viết đánh giá của bạn...",
+    "submit": "Gửi đánh giá",
+    "submitting": "Đang gửi...",
+    "errors": {
+      "maxImages": "Tối đa 3 ảnh",
+      "invalidFormat": "Chỉ chấp nhận jpg, png, gif, webp",
+      "maxSize": "Kích thước file phải dưới 5MB",
+      "ratingRequired": "Vui lòng chọn đánh giá",
+      "commentRequired": "Vui lòng nhập bình luận",
+      "commentMinLength": "Bình luận phải có ít nhất 10 ký tự",
+      "commentMaxLength": "Bình luận phải dưới 500 ký tự"
+    },
+    "messages": {
+      "loginRequired": "Cần đăng nhập",
+      "submitSuccess": "Đã gửi đánh giá!",
+      "submitFailed": "Không thể gửi đánh giá"
+    }
+  },
+  "reviewCard": {
+    "anonymousUser": "Người dùng ẩn danh",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "deleting": "Đang xóa...",
+    "showMore": "Xem thêm",
+    "showLess": "Ẩn bớt",
+    "edited": "Đã chỉnh sửa",
+    "reviewImage": "Đánh giá",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa đánh giá này?",
+    "deleteSuccess": "Đã xóa đánh giá",
+    "deleteFailed": "Không thể xóa đánh giá"
   }
 }

@@ -12,8 +12,10 @@ import ReviewForm from "../components/review/ReviewForm"; // ← THÊM
 import { ToastContainer } from "react-toastify"; // ← THÊM
 import "react-toastify/dist/ReactToastify.css"; // ← THÊM
 import RestaurantImages from "../components/restaurant/RestaurantImages";
+import useTranslation from "../hooks/useTranslation";
 
 export default function RestaurantDetail() {
+  const t = useTranslation();
   const { id } = useParams(); // <-- this is the restaurant ID
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
@@ -36,7 +38,9 @@ export default function RestaurantDetail() {
     const fetchRestaurant = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:5000/api/restaurants/${id}`);
+        const res = await axios.get(
+          `http://localhost:5000/api/restaurants/${id}`
+        );
         setRestaurant(res.data);
         setError("");
       } catch (err) {
@@ -51,39 +55,43 @@ export default function RestaurantDetail() {
 
   // Fetch reviews separately
   useEffect(() => {
-  if (!id) return;
+    if (!id) return;
 
-  const fetchReviews = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/restaurant-reviews/restaurant/${id}`);
-      setReviews(res.data);
-    } catch (err) {
-      console.error("Cannot fetch reviews:", err);
-    }
-  };
-
-  fetchReviews();
-}, [id]); // <-- use "id" here, not restaurantId
-
-// ═══════════════════════════════════════════════════════════════
-// HANDLE REVIEW FORM SUCCESS
-// ═══════════════════════════════════════════════════════════════
-const handleReviewSuccess = () => {
-  // Refresh reviews by re-fetching
-  const fetchReviews = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/restaurant-reviews/restaurant/${id}`);
-      if (res.data.success) {
-        setReviews(res.data.data.reviews);
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/restaurant-reviews/restaurant/${id}`
+        );
+        setReviews(res.data);
+      } catch (err) {
+        console.error("Cannot fetch reviews:", err);
       }
-    } catch (err) {
-      console.error("Cannot fetch reviews:", err);
-    }
+    };
+
+    fetchReviews();
+  }, [id]); // <-- use "id" here, not restaurantId
+
+  // ═══════════════════════════════════════════════════════════════
+  // HANDLE REVIEW FORM SUCCESS
+  // ═══════════════════════════════════════════════════════════════
+  const handleReviewSuccess = () => {
+    // Refresh reviews by re-fetching
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/restaurant-reviews/restaurant/${id}`
+        );
+        if (res.data.success) {
+          setReviews(res.data.data.reviews);
+        }
+      } catch (err) {
+        console.error("Cannot fetch reviews:", err);
+      }
+    };
+
+    fetchReviews();
+    setRefreshKey((prev) => prev + 1); // Force re-render
   };
-  
-  fetchReviews();
-  setRefreshKey(prev => prev + 1); // Force re-render
-};
 
   // Load favorites for current user
   useEffect(() => {
@@ -109,8 +117,7 @@ const handleReviewSuccess = () => {
 
   const restaurantId = restaurant?.restaurant_id || parseInt(id, 10);
   const isFavorite =
-    restaurantId &&
-    favorites.some((f) => f.restaurant_id === restaurantId);
+    restaurantId && favorites.some((f) => f.restaurant_id === restaurantId);
 
   const toggleFavorite = async () => {
     if (!restaurantId) return;
@@ -157,33 +164,31 @@ const handleReviewSuccess = () => {
     }
   };
 
-  //update scroll 
+  //update scroll
   const scrollTo = (ref) => {
     const TOPBAR_HEIGHT = 56;
-  const TABS_HEIGHT = 56;
-  const OFFSET = TOPBAR_HEIGHT + TABS_HEIGHT + 8; // small gap
+    const TABS_HEIGHT = 56;
+    const OFFSET = TOPBAR_HEIGHT + TABS_HEIGHT + 8; // small gap
 
-  const y =
-    ref.current.getBoundingClientRect().top +
-    window.pageYOffset -
-    OFFSET;
+    const y =
+      ref.current.getBoundingClientRect().top + window.pageYOffset - OFFSET;
 
-  window.scrollTo({
-    top: y,
-    behavior: "smooth",
-  });
+    window.scrollTo({
+      top: y,
+      behavior: "smooth",
+    });
   };
 
-    if (loading) {
+  if (loading) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>{"読み込み中"}</p>
+        <p>{t("storeDetail.loading")}</p>
       </div>
     );
   }
   if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!restaurant) return <p>Restaurant not found</p>;
+  if (!restaurant) return <p>{t("storeDetail.not_found")}</p>;
 
   return (
     <div className="restaurant-detail-container">
@@ -212,45 +217,50 @@ const handleReviewSuccess = () => {
 
       {/* Navigation Tabs */}
       <div className="tabs-wrapper">
-            <div className="restaurant-tabs">
-          <button onClick={() => scrollTo(menuRef)}>Menu</button>
-          <button onClick={() => scrollTo(reviewsRef)}>Reviews</button>
-          <button onClick={() => scrollTo(imagesRef)}>Images</button>
+        <div className="restaurant-tabs">
+          <button onClick={() => scrollTo(menuRef)}>
+            {t("storeDetail.tabs.menu")}
+          </button>
+          <button onClick={() => scrollTo(reviewsRef)}>
+            {t("storeDetail.tabs.reviews")}
+          </button>
+          <button onClick={() => scrollTo(imagesRef)}>
+            {t("storeDetail.tabs.images")}
+          </button>
         </div>
-        </div>
-
+      </div>
 
       {/* MENU */}
       <section ref={menuRef} className="restaurant-section">
-        <h2 className="section-title">Menu</h2>
+        <h2 className="section-title">{t("storeDetail.tabs.menu")}</h2>
         <MenuList menu={restaurant.menuItems || []} />
       </section>
 
       {/* IMAGES */}
       <section ref={imagesRef} className="restaurant-section">
-        <h2 className="section-title">Images</h2>
+        <h2 className="section-title">{t("storeDetail.tabs.images")}</h2>
         <RestaurantImages images={restaurant.images || []} />
       </section>
 
       {/* REVIEWS */}
       <section ref={reviewsRef} className="restaurant-section">
-  <div className="reviews-header">
-    <h2 className="section-title">お客様の声</h2>
-    <button 
-      className="write-review-btn"
-      onClick={() => setShowReviewForm(true)}
-    >
-      レビューを書く
-    </button>
-  </div>
-  <ReviewList 
-    reviews={reviews} 
-    restaurantId={id}
-    key={refreshKey}
-    onReviewsChange={(newReviews) => setReviews(newReviews)}
-  />
-</section>
-{/* ═══ REVIEW FORM MODAL ═══ */}
+        <div className="reviews-header">
+          <h2 className="section-title">{t("storeDetail.tabs.reviews")}</h2>
+          <button
+            className="write-review-btn"
+            onClick={() => setShowReviewForm(true)}
+          >
+            {t("storeDetail.tabs.review_button")}
+          </button>
+        </div>
+        <ReviewList
+          reviews={reviews}
+          restaurantId={id}
+          key={refreshKey}
+          onReviewsChange={(newReviews) => setReviews(newReviews)}
+        />
+      </section>
+      {/* ═══ REVIEW FORM MODAL ═══ */}
       {showReviewForm && (
         <ReviewForm
           restaurantId={id}
@@ -273,7 +283,6 @@ const handleReviewSuccess = () => {
         pauseOnHover
         theme="light"
       />
-  
     </div>
   );
 }
