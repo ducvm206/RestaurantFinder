@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════
+/// ═══════════════════════════════════════════════════════════════
 // RESTAURANT REVIEW ROUTES
 // ═══════════════════════════════════════════════════════════════
 const express = require("express");
@@ -7,6 +7,7 @@ const {
   getRestaurantReviews,
   createReview,
   deleteReview,
+  updateReview, 
 } = require("../controllers/restaurantReviewController");
 const { uploadMultiple, handleUploadError } = require("../middleware/upload");
 
@@ -31,5 +32,14 @@ router.post(
 
 // DELETE review
 router.delete("/:reviewId", deleteReview);
+// ═══════════════════════════════════════════════════════════════
+// UPDATE review (with image handling)
+// ═══════════════════════════════════════════════════════════════
+router.put(
+  "/:reviewId",
+  uploadMultiple,
+  handleUploadError,
+  updateReview
+);
 
 module.exports = router;

@@ -9,8 +9,6 @@ import { foodlist } from "../data/HomeData";
 import SearchBox from "../components/home/SearchBox";
 import CategoriesSlider from "../components/home/CategoriesSlider";
 import RestaurantList from "../components/home/RestaurantList";
-// ❌ FindLocation không cần nữa
-// import FindLocation from "../components/home/FindLocation";
 
 export default function Home() {
   const t = useTranslation();
@@ -101,11 +99,6 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      {/* ❌ BỎ FindLocation – giờ dùng LocationContext */}
-      {/* <p className="location">
-        📍 <FindLocation onCoords={setUserCoords} />
-      </p> */}
-
       <h2 className="greeting">
         {t("home.greeting").replace("{name}", user.fullName)}
       </h2>
@@ -127,7 +120,6 @@ export default function Home() {
         itemWidth={itemWidth}
       />
 
-      {/* ⭐ Không truyền userCoords nữa */}
       <RestaurantList restaurants={restaurants} />
     </div>
   );
