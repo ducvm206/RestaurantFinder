@@ -14,8 +14,6 @@ const SearchPage = () => {
 
   const t = useTranslation();
   const { userCoords } = useLocationContext(); // ⭐ Lấy từ context
-
-  const { userCoords } = useLocationContext();
   const [keyword, setKeyword] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState({

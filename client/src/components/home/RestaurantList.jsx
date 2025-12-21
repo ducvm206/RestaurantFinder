@@ -1,27 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaStar, FaMapMarkerAlt, FaMoneyBillWave, FaStore } from "react-icons/fa";
 import { getDistanceFromLatLonInKm } from "../../utils/distance";
 import { useLocationContext } from "../../context/LocationContext";
-
-/* ===== Helpers ===== */
-const shortText = (text, max = 100) => {
-  if (!text) return "";
-  return text.length > max ? text.slice(0, max) + "..." : text;
-};
-
-const priceLabel = (price) => {
-  switch (price) {
-    case "cheap":
-      return "$";
-    case "moderate":
-      return "$$";
-    case "expensive":
-      return "$$$";
-    default:
-      return "";
-  }
-};
 
 export default function RestaurantList({ restaurants = [] }) {
   const navigate = useNavigate();
@@ -79,72 +59,35 @@ export default function RestaurantList({ restaurants = [] }) {
   }
 
   return (
-    <div className="rest-list">
+    <div className="restaurants-list">
       {restWithDistance.map((restaurant) => (
         <div
           key={restaurant.restaurant_id || restaurant.id}
-          className="rest-item"
+          className="restaurant-card"
           onClick={() =>
             handleClick(restaurant.restaurant_id || restaurant.id)
           }
         >
-          {/* Image */}
-          {restaurant.image_url ? (
-            <img
-              src={restaurant.image_url}
-              alt={restaurant.name || "Restaurant"}
-              className="rest-img"
-              onError={(e) => (e.target.src = "/default-restaurant.jpg")}
-            />
-          ) : (
-            <div className="rest-img placeholder" />
-          )}
+          <img
+            src={restaurant.image_url || "/default-restaurant.jpg"}
+            alt={restaurant.name || "Restaurant"}
+            className="restaurant-image"
+            onError={(e) => (e.target.src = "/default-restaurant.jpg")}
+          />
 
-          {/* Info */}
-          <div className="rest-info">
-            {/* Name + Open */}
-            <div className="rest-header">
-              <h4 className="rest-name">{restaurant.name || "Unnamed Restaurant"}</h4>
-              {restaurant.isOpen != null && (
-                <span
-                  className={`rest-status ${restaurant.isOpen ? "open" : "closed"}`}
-                >
-                  <FaStore /> {restaurant.isOpen ? "Open" : "Closed"}
-                </span>
-              )}
-            </div>
-
-            {/* Description */}
-            {restaurant.description && (
-              <p className="rest-desc">{shortText(restaurant.description, 80)}</p>
-            )}
-
-            {/* Address */}
-            <p className="rest-address">
-              <FaMapMarkerAlt />
-              <span>{restaurant.address_ja || restaurant.address || restaurant.city}</span>
+          <div className="restaurant-info">
+            <h3 className="restaurant-name">{restaurant.name || "Unnamed Restaurant"}</h3>
+            <p className="restaurant-address">
+              {restaurant.address_ja || restaurant.address || restaurant.city || "Đang cập nhật"}
             </p>
 
-
-
-            {/* Meta */}
-            <div className="rest-meta">
-              {restaurant.average_rating != null && (
-                <span className="meta-item">
-                  <FaStar /> {restaurant.average_rating}
-                </span>
-              )}
-
+            <div className="restaurant-meta">
+              <span className="rating">⭐ {getRatingDisplay(restaurant)}</span>
               {restaurant.price_range && (
-                <span className="meta-item">
-                  <FaMoneyBillWave /> {priceLabel(restaurant.price_range)}
-                </span>
+                <span className="price">{restaurant.price_range}</span>
               )}
-
               {restaurant.distance != null && (
-                <span className="meta-item">
-                  <FaMapMarkerAlt /> {restaurant.distance.toFixed(2)} km
-                </span>
+                <span className="distance">{restaurant.distance.toFixed(2)} km</span>
               )}
             </div>
           </div>
