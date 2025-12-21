@@ -42,15 +42,13 @@ export default function RestaurantInfo({ restaurant, nameRef }) {
 
         {distanceKm && (
           <p className="info-item">
-            <MdLocationOn className="icon" /> {distanceKm} km
+            <AiFillStar className="icon" /> {restaurant.average_rating || 0} / 5
           </p>
-        )}
 
         {restaurant.phone && (
           <p className="info-item">
-            <FiPhone className="icon" /> {restaurant.phone}
+            <FiMapPin className="icon" /> {restaurant.address_ja}
           </p>
-        )}
 
         {restaurant.opening_hours && (
           <div className="opening-hours">
