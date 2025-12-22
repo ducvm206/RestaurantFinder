@@ -1,6 +1,6 @@
 import "../styles/RestaurantDetail.css";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react"; // ← THÊM useContext
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import axios from "axios";
 
@@ -8,21 +8,23 @@ import RestaurantInfo from "../components/restaurant/RestaurantInfo";
 import RestaurantCarousel from "../components/restaurant/RestaurantCarousel";
 import MenuList from "../components/restaurant/MenuList";
 import ReviewList from "../components/restaurant/ReviewList";
-import ReviewForm from "../components/review/ReviewForm"; // ← THÊM
-import { ToastContainer } from "react-toastify"; // ← THÊM
-import "react-toastify/dist/ReactToastify.css"; // ← THÊM
+import ReviewForm from "../components/review/ReviewForm";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import RestaurantImages from "../components/restaurant/RestaurantImages";
 import useTranslation from "../hooks/useTranslation";
+import { LanguageContext } from "../context/LanguageContext"; // ← THÊM
 
 export default function RestaurantDetail() {
   const t = useTranslation();
-  const { id } = useParams(); // <-- this is the restaurant ID
+  const { lang } = useContext(LanguageContext); // ← THÊM: Lấy lang từ context
+  const { id } = useParams();
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
-  const [reviews, setReviews] = useState([]); // separate state for reviews
+  const [reviews, setReviews] = useState([]);
 
-  const [showReviewForm, setShowReviewForm] = useState(false); // ← THÊM
-  const [refreshKey, setRefreshKey] = useState(0); // ← THÊM
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,25 +35,34 @@ export default function RestaurantDetail() {
   const reviewsRef = useRef(null);
   const imagesRef = useRef(null);
 
-  // Fetch restaurant from backend API
+  // ═══════════════════════════════════════════════════════════════
+  // Fetch restaurant from backend API với lang parameter
+  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
     const fetchRestaurant = async () => {
       setLoading(true);
       try {
+        console.log("🌐 Fetching restaurant with lang:", lang); // Debug
+
         const res = await axios.get(
-          `http://localhost:5000/api/restaurants/${id}`
+          `http://localhost:5000/api/restaurants/${id}?lang=${lang}`
         );
+
+        console.log("📦 Restaurant data received:", res.data); // Debug
+
         setRestaurant(res.data);
         setError("");
       } catch (err) {
+        console.error("❌ Error fetching restaurant:", err);
         setError(err.response?.data?.error || "Restaurant not found");
         setRestaurant(null);
       } finally {
         setLoading(false);
       }
     };
+
     fetchRestaurant();
-  }, [id]);
+  }, [id, lang]); // ← SỬA: Thêm lang vào dependency array
 
   // Fetch reviews separately
   useEffect(() => {
@@ -69,13 +80,12 @@ export default function RestaurantDetail() {
     };
 
     fetchReviews();
-  }, [id]); // <-- use "id" here, not restaurantId
+  }, [id]);
 
   // ═══════════════════════════════════════════════════════════════
   // HANDLE REVIEW FORM SUCCESS
   // ═══════════════════════════════════════════════════════════════
   const handleReviewSuccess = () => {
-    // Refresh reviews by re-fetching
     const fetchReviews = async () => {
       try {
         const res = await axios.get(
@@ -90,7 +100,7 @@ export default function RestaurantDetail() {
     };
 
     fetchReviews();
-    setRefreshKey((prev) => prev + 1); // Force re-render
+    setRefreshKey((prev) => prev + 1);
   };
 
   // Load favorites for current user
@@ -101,7 +111,7 @@ export default function RestaurantDetail() {
           method: "GET",
           credentials: "include",
         });
-        if (res.status === 401) return; // not logged in
+        if (res.status === 401) return;
         const data = await res.json();
         setFavorites(data || []);
       } catch (err) {
@@ -164,11 +174,10 @@ export default function RestaurantDetail() {
     }
   };
 
-  //update scroll
   const scrollTo = (ref) => {
     const TOPBAR_HEIGHT = 56;
     const TABS_HEIGHT = 56;
-    const OFFSET = TOPBAR_HEIGHT + TABS_HEIGHT + 8; // small gap
+    const OFFSET = TOPBAR_HEIGHT + TABS_HEIGHT + 8;
 
     const y =
       ref.current.getBoundingClientRect().top + window.pageYOffset - OFFSET;
@@ -260,6 +269,7 @@ export default function RestaurantDetail() {
           onReviewsChange={(newReviews) => setReviews(newReviews)}
         />
       </section>
+
       {/* ═══ REVIEW FORM MODAL ═══ */}
       {showReviewForm && (
         <ReviewForm

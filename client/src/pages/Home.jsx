@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Home.css";
-
+import { LanguageContext } from "../context/LanguageContext";
 import useTranslation from "../hooks/useTranslation";
 import { foodlist } from "../data/HomeData";
 
@@ -13,6 +13,7 @@ import RestaurantList from "../components/home/RestaurantList";
 export default function Home() {
   const t = useTranslation();
   const navigate = useNavigate();
+  const { lang } = useContext(LanguageContext); // ← THÊM: Lấy lang từ context
 
   // User login
   const [user, setUser] = useState(null);
@@ -53,20 +54,24 @@ export default function Home() {
 
     fetchUser();
   }, [navigate]);
-
-  /* Fetch restaurants */
   useEffect(() => {
     async function loadRestaurants() {
       try {
-        const res = await axios.get("http://localhost:5000/api/restaurants");
+        console.log("🌐 Loading restaurants with lang:", lang); // Debug
+
+        const res = await axios.get(
+          `http://localhost:5000/api/restaurants?lang=${lang}` // ← SỬA: Thêm lang parameter
+        );
+
+        console.log("📦 Restaurants loaded:", res.data.length); // Debug
+
         setRestaurants(res.data);
       } catch (err) {
         console.error("Restaurant fetch failed", err);
       }
     }
     loadRestaurants();
-  }, []);
-
+  }, [lang]);
   /* Slider responsive */
   useEffect(() => {
     const resize = () => {
