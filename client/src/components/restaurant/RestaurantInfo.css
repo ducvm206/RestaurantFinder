@@ -1,37 +1,43 @@
 /* RestaurantInfo.css */
 .restaurant-info-wrapper {
-  padding: 12px;
+  /* Padding removed - using inline styles instead */
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
 }
 
 .restaurant-info {
-  padding: 16px 20px;
+  padding: 40px 24px;
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 16px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .restaurant-info h2 {
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   font-size: 1.8rem;
+  font-weight: 600;
 }
 
-.restaurant-info > p {
+.restaurant-description {
   color: #666;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   line-height: 1.5;
+  font-size: 1rem;
 }
 
 .info-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .info-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   color: #555;
   font-size: 0.95rem;
   line-height: 1.4;
@@ -39,63 +45,83 @@
 }
 
 .info-item .icon {
-  margin-right: 10px;
+  margin-right: 12px;
   font-size: 1.1rem;
-  color: #777;
   min-width: 20px;
   text-align: center;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* Specific icon colors */
+.info-item .star-icon {
+  color: #ffb400 !important; /* Gold for stars */
 }
 
 .info-item .clock-icon {
+  color: #ff5c5c !important; /* Red for clock */
+}
+
+/* Default icon color for other icons */
+.info-item svg.icon:not(.star-icon):not(.clock-icon) {
   color: #ff5c5c !important;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .restaurant-info-wrapper {
-    padding: 8px;
-  }
-  
+/* Alternatively, target specific react-icons by their element names */
+.info-item svg[data-icon="ai-fill-star"] {
+  color: #ffb400 !important;
+}
+
+.info-item svg[data-icon="fi-clock"] {
+  color: #ff5c5c !important;
+}
+
+.info-item svg[data-icon="fi-map-pin"],
+.info-item svg[data-icon="fi-phone"],
+.info-item svg[data-icon="md-location-on"] {
+  color: #777 !important;
+}
+
+.opening-hours-item {
+  align-items: flex-start;
+}
+
+.opening-hours-text {
+  flex: 1;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: #444;
+  padding-right: 8px;
+}
+
+/* For complex opening hours with multiple entries */
+.opening-hours-text:has(div) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Responsive design - only affect .restaurant-info, not the wrapper */
+@media (max-width: 1024px) {
   .restaurant-info {
-    padding: 12px 15px;
-    margin: 8px;
+    padding: 18px 20px;
   }
-  
-  .restaurant-info h2 {
-    font-size: 1.5rem;
-    margin-bottom: 4px;
-  }
-  
-  .restaurant-info > p {
-    margin-bottom: 12px;
-  }
-  
-  .info-list {
-    gap: 6px;
-  }
-  
-  .info-item {
-    font-size: 0.9rem;
-    padding: 1px 0;
+}
+
+@media (max-width: 768px) {
+  .restaurant-info {
+    padding: 16px 18px;
   }
 }
 
 @media (max-width: 480px) {
-  .restaurant-info-wrapper {
-    padding: 6px;
-  }
-  
   .restaurant-info {
-    padding: 10px 12px;
-    margin: 6px;
+    padding: 14px 16px;
   }
-  
-  .info-item {
-    flex-wrap: wrap;
-  }
-  
-  .info-item .icon {
-    margin-right: 8px;
-    font-size: 1rem;
+}
+
+@media (max-width: 360px) {
+  .restaurant-info {
+    padding: 12px 14px;
   }
 }

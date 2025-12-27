@@ -1,6 +1,6 @@
 import "../styles/RestaurantDetail.css";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useRef, useContext } from "react"; // ← THÊM useContext
+import { useEffect, useState, useRef, useContext } from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import axios from "axios";
 
@@ -13,11 +13,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import RestaurantImages from "../components/restaurant/RestaurantImages";
 import useTranslation from "../hooks/useTranslation";
-import { LanguageContext } from "../context/LanguageContext"; // ← THÊM
+import { LanguageContext } from "../context/LanguageContext";
 
 export default function RestaurantDetail() {
   const t = useTranslation();
-  const { lang } = useContext(LanguageContext); // ← THÊM: Lấy lang từ context
+  const { lang } = useContext(LanguageContext);
   const { id } = useParams();
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
@@ -35,20 +35,17 @@ export default function RestaurantDetail() {
   const reviewsRef = useRef(null);
   const imagesRef = useRef(null);
 
-  // ═══════════════════════════════════════════════════════════════
-  // Fetch restaurant from backend API với lang parameter
-  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
     const fetchRestaurant = async () => {
       setLoading(true);
       try {
-        console.log("🌐 Fetching restaurant with lang:", lang); // Debug
+        console.log("🌐 Fetching restaurant with lang:", lang);
 
         const res = await axios.get(
           `http://localhost:5000/api/restaurants/${id}?lang=${lang}`
         );
 
-        console.log("📦 Restaurant data received:", res.data); // Debug
+        console.log("📦 Restaurant data received:", res.data);
 
         setRestaurant(res.data);
         setError("");
@@ -62,7 +59,7 @@ export default function RestaurantDetail() {
     };
 
     fetchRestaurant();
-  }, [id, lang]); // ← SỬA: Thêm lang vào dependency array
+  }, [id, lang]);
 
   // Fetch reviews separately
   useEffect(() => {
@@ -82,9 +79,6 @@ export default function RestaurantDetail() {
     fetchReviews();
   }, [id]);
 
-  // ═══════════════════════════════════════════════════════════════
-  // HANDLE REVIEW FORM SUCCESS
-  // ═══════════════════════════════════════════════════════════════
   const handleReviewSuccess = () => {
     const fetchReviews = async () => {
       try {
@@ -221,8 +215,10 @@ export default function RestaurantDetail() {
         />
       )}
 
-      {/* Restaurant Info */}
-      <RestaurantInfo restaurant={restaurant} />
+      {/* Restaurant Info - Wrapped in same container */}
+      <div className="content-container">
+        <RestaurantInfo restaurant={restaurant} />
+      </div>
 
       {/* Navigation Tabs */}
       <div className="tabs-wrapper">
@@ -241,33 +237,39 @@ export default function RestaurantDetail() {
 
       {/* MENU */}
       <section ref={menuRef} className="restaurant-section">
-        <h2 className="section-title">{t("storeDetail.tabs.menu")}</h2>
-        <MenuList menu={restaurant.menuItems || []} />
+        <div className="content-container">
+          <h2 className="section-title">{t("storeDetail.tabs.menu")}</h2>
+          <MenuList menu={restaurant.menuItems || []} />
+        </div>
       </section>
 
       {/* IMAGES */}
       <section ref={imagesRef} className="restaurant-section">
-        <h2 className="section-title">{t("storeDetail.tabs.images")}</h2>
-        <RestaurantImages images={restaurant.images || []} />
+        <div className="content-container">
+          <h2 className="section-title">{t("storeDetail.tabs.images")}</h2>
+          <RestaurantImages images={restaurant.images || []} />
+        </div>
       </section>
 
       {/* REVIEWS */}
       <section ref={reviewsRef} className="restaurant-section">
-        <div className="reviews-header">
-          <h2 className="section-title">{t("storeDetail.tabs.reviews")}</h2>
-          <button
-            className="write-review-btn"
-            onClick={() => setShowReviewForm(true)}
-          >
-            {t("storeDetail.tabs.review_button")}
-          </button>
+        <div className="content-container">
+          <div className="reviews-header">
+            <h2 className="section-title">{t("storeDetail.tabs.reviews")}</h2>
+            <button
+              className="write-review-btn"
+              onClick={() => setShowReviewForm(true)}
+            >
+              {t("storeDetail.tabs.review_button")}
+            </button>
+          </div>
+          <ReviewList
+            reviews={reviews}
+            restaurantId={id}
+            key={refreshKey}
+            onReviewsChange={(newReviews) => setReviews(newReviews)}
+          />
         </div>
-        <ReviewList
-          reviews={reviews}
-          restaurantId={id}
-          key={refreshKey}
-          onReviewsChange={(newReviews) => setReviews(newReviews)}
-        />
       </section>
 
       {/* ═══ REVIEW FORM MODAL ═══ */}
