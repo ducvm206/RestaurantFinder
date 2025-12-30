@@ -1,0 +1,189 @@
+/* ═══════════════════════════════════════════════════════════════
+   EDIT REVIEW MODAL - STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══ OVERLAY ═══ */
+.edit-review-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* ═══ MODAL CONTAINER ═══ */
+.edit-review-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+/* ═══ HEADER ═══ */
+.edit-review-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+.edit-review-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ═══ FORM ═══ */
+.edit-review-form {
+  padding: 20px;
+}
+
+/* ═══ EXISTING IMAGES SECTION ═══ */
+.existing-images {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.existing-image-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+  transition: all 0.2s;
+}
+
+.existing-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ═══ MARKED FOR DELETION ═══ */
+.existing-image-item.marked-delete {
+  opacity: 0.4;
+  border-color: #f44336;
+}
+
+.existing-image-item.marked-delete::after {
+  content: "削除予定";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ═══ TOGGLE DELETE BUTTON ═══ */
+.toggle-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+}
+
+.toggle-delete-btn:hover {
+  background: rgba(244, 67, 54, 1);
+  transform: scale(1.1);
+}
+
+/* When marked for deletion - green "undo" button */
+.marked-delete .toggle-delete-btn {
+  background: rgba(76, 175, 80, 0.9);
+}
+
+.marked-delete .toggle-delete-btn:hover {
+  background: rgba(76, 175, 80, 1);
+}
+
+/* ═══ TITLE INPUT ═══ */
+.title-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.title-input:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+.title-input::placeholder {
+  color: #999;
+}
+
+/* ═══ SUBMIT BUTTON (EDIT VERSION) ═══ */
+.edit-review-form .submit-btn {
+  background: #2196f3;
+}
+
+.edit-review-form .submit-btn:hover:not(:disabled) {
+  background: #1976d2;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE - MOBILE
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .edit-review-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .edit-review-form {
+    padding: 16px;
+  }
+
+  .existing-image-item {
+    width: 80px;
+    height: 80px;
+  }
+
+  .existing-image-item.marked-delete::after {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}

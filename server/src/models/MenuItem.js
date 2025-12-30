@@ -6,7 +6,7 @@ const MenuItem = sequelize.define(
   "MenuItem",
   {
     item_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       autoIncrement: true,
       primaryKey: true,
     },

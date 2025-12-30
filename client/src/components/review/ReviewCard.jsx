@@ -1,27 +1,92 @@
 // ═══════════════════════════════════════════════════════════════
-// REVIEW CARD COMPONENT - SINGLE REVIEW WITH IMAGES
+// REVIEW CARD COMPONENT - WITH EDIT FUNCTIONALITY
 // ═══════════════════════════════════════════════════════════════
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { toast } from "react-toastify";
+import { LanguageContext } from "../../context/LanguageContext";
+import EditReviewModal from "./EditReviewModal";
 import "./ReviewCard.css";
 
-const ReviewCard = ({ review, currentUserId, onDelete }) => {
+// Import trực tiếp các file translation
+import translationsJa from "../../translations/ja.json";
+import translationsEn from "../../translations/en.json";
+import translationsVi from "../../translations/vi.json";
+
+const translations = {
+  ja: translationsJa,
+  en: translationsEn,
+  vi: translationsVi,
+};
+
+const ReviewCard = ({
+  review,
+  currentUserId,
+  restaurantName,
+  onDelete,
+  onUpdate,
+}) => {
+  const { lang } = useContext(LanguageContext);
+
+  // Tạo function t trực tiếp từ translations
+  const t = (key) => {
+    try {
+      const parts = key.split(".");
+      let currentLang = lang || "ja";
+      let obj = translations[currentLang];
+
+      if (!obj) {
+        obj = translations.ja;
+      }
+
+      for (const part of parts) {
+        if (!obj || !obj[part]) {
+          console.warn(
+            `Translation key not found: ${key} for language: ${currentLang}`
+          );
+          return key;
+        }
+        obj = obj[part];
+      }
+
+      return obj;
+    } catch (error) {
+      console.error("Translation error:", error);
+      return key;
+    }
+  };
+
+  console.log("🔍 ReviewCard props:", {
+    reviewUserId: review.user_id,
+    currentUserId: currentUserId,
+    match: currentUserId === review.user_id,
+  });
+
   const [showFullComment, setShowFullComment] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const MAX_LENGTH = 150;
   const hasImages = review.images && review.images.length > 0;
 
   // Check if comment should be truncated
   const shouldTruncate = review.comment && review.comment.length > MAX_LENGTH;
-  const displayComment = showFullComment || !shouldTruncate
-    ? review.comment
-    : review.comment?.slice(0, MAX_LENGTH) + "...";
+  const displayComment =
+    showFullComment || !shouldTruncate
+      ? review.comment
+      : review.comment?.slice(0, MAX_LENGTH) + "...";
 
-  // Check if current user can delete
-  const canDelete = currentUserId && review.user_id === currentUserId;
+  // Check if current user can edit/delete
+  const canModify =
+    currentUserId && parseInt(review.user_id) === parseInt(currentUserId);
+
+  // Check if review has been edited
+  const isEdited =
+    review.updated_at &&
+    review.created_at &&
+    new Date(review.updated_at).getTime() !==
+      new Date(review.created_at).getTime();
 
   // ═══════════════════════════════════════════════════════════════
   // FORMAT DATE
@@ -32,14 +97,37 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    return `${year}年${month}月${day}日`;
+
+    // Format theo ngôn ngữ
+    if (lang === "en") {
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      return `${monthNames[month - 1]} ${day}, ${year}`;
+    } else if (lang === "vi") {
+      return `${day}/${month}/${year}`;
+    } else {
+      // Japanese (default)
+      return `${year}年${month}月${day}日`;
+    }
   };
 
   // ═══════════════════════════════════════════════════════════════
   // HANDLE DELETE
   // ═══════════════════════════════════════════════════════════════
   const handleDelete = async () => {
-    if (!window.confirm("このレビューを削除してもよろしいですか？")) {
+    if (!window.confirm(t("reviewCard.confirmDelete"))) {
       return;
     }
 
@@ -63,18 +151,28 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "削除に失敗しました");
+        throw new Error(data.message || t("reviewCard.deleteFailed"));
       }
 
-      toast.success("レビューが削除されました");
-      
+      toast.success(t("reviewCard.deleteSuccess"));
+
       if (onDelete) {
         onDelete(review.review_id);
       }
     } catch (error) {
       console.error("Error deleting review:", error);
-      toast.error(error.message || "削除に失敗しました");
+      toast.error(error.message || t("reviewCard.deleteFailed"));
       setDeleting(false);
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // HANDLE EDIT SUCCESS
+  // ═══════════════════════════════════════════════════════════════
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    if (onUpdate) {
+      onUpdate();
     }
   };
 
@@ -105,7 +203,7 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
   return (
     <>
       <div className="review-card">
-        {/* ═══ USER INFO ═══ */}
+        {/* ═══ USER INFO & ACTIONS ═══ */}
         <div className="review-header">
           <div className="review-user">
             <div className="review-avatar">
@@ -122,7 +220,7 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
             </div>
             <div className="review-user-info">
               <div className="review-user-name">
-                {review.user?.fullName || "匿名ユーザー"}
+                {review.user?.fullName || t("reviewCard.anonymousUser")}
               </div>
               <div className="review-rating">
                 {"⭐".repeat(Math.round(review.rating))}
@@ -131,22 +229,29 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
             </div>
           </div>
 
-          {/* ═══ DELETE BUTTON ═══ */}
-          {canDelete && (
-            <button
-              className="review-delete-btn"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "削除中..." : "削除"}
-            </button>
+          {/* ═══ EDIT & DELETE BUTTONS ═══ */}
+          {canModify && (
+            <div className="review-actions">
+              <button
+                className="review-edit-btn"
+                onClick={() => setShowEditModal(true)}
+                disabled={deleting}
+              >
+                {t("reviewCard.edit")}
+              </button>
+              <button
+                className="review-delete-btn"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? t("reviewCard.deleting") : t("reviewCard.delete")}
+              </button>
+            </div>
           )}
         </div>
 
         {/* ═══ TITLE ═══ */}
-        {review.title && (
-          <div className="review-title">{review.title}</div>
-        )}
+        {review.title && <div className="review-title">{review.title}</div>}
 
         {/* ═══ COMMENT ═══ */}
         <div className="review-comment">
@@ -156,7 +261,9 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
               className="review-expand-btn"
               onClick={() => setShowFullComment(!showFullComment)}
             >
-              {showFullComment ? "少なく表示" : "さらに見る"}
+              {showFullComment
+                ? t("reviewCard.showLess")
+                : t("reviewCard.showMore")}
             </button>
           )}
         </div>
@@ -195,16 +302,35 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
               >
                 <img
                   src={`http://localhost:5000${image.image_url}`}
-                  alt={`Review ${index + 1}`}
+                  alt={`${t("reviewCard.reviewImage")} ${index + 1}`}
                 />
               </div>
             ))}
           </div>
         )}
 
-        {/* ═══ DATE ═══ */}
-        <div className="review-date">{formatDate(review.created_at)}</div>
+        {/* ═══ DATE & EDITED LABEL ═══ */}
+        <div className="review-footer">
+          <div className="review-date">
+            {formatDate(review.created_at)}
+            {isEdited && (
+              <span className="edited-label"> • {t("reviewCard.edited")}</span>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════
+          EDIT MODAL
+          ═══════════════════════════════════════════════════════════ */}
+      {showEditModal && (
+        <EditReviewModal
+          review={review}
+          restaurantName={restaurantName}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
 
       {/* ═══════════════════════════════════════════════════════════
           GALLERY MODAL
@@ -241,7 +367,7 @@ const ReviewCard = ({ review, currentUserId, onDelete }) => {
           <div className="gallery-content" onClick={(e) => e.stopPropagation()}>
             <img
               src={`http://localhost:5000${review.images[currentImageIndex].image_url}`}
-              alt={`Review ${currentImageIndex + 1}`}
+              alt={`${t("reviewCard.reviewImage")} ${currentImageIndex + 1}`}
             />
             <div className="gallery-counter">
               {currentImageIndex + 1} / {review.images.length}

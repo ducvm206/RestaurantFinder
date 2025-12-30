@@ -1,3 +1,4 @@
+// client/src/hooks/useTranslation.js
 import { useContext, useEffect, useState } from "react";
 import { LanguageContext } from "../context/LanguageContext";
 
@@ -7,7 +8,7 @@ export default function useTranslation() {
 
   useEffect(() => {
     import(`../translations/${lang}.json`)
-      .then((module) => setDictionary(module.default)) // << FIX QUAN TRỌNG
+      .then((module) => setDictionary(module.default))
       .catch((err) => console.error("Cannot load language file", err));
   }, [lang]);
 
@@ -16,7 +17,7 @@ export default function useTranslation() {
     let obj = dictionary;
 
     for (const part of parts) {
-      if (!obj[part]) return key; // fallback show key
+      if (!obj[part]) return key;
       obj = obj[part];
     }
 

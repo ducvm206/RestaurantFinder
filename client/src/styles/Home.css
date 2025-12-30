@@ -274,8 +274,9 @@
 /* The horizontal list */
 .cat-list {
   display: flex;
-  gap: 24px;
-  transition: transform 0.35s ease;
+  gap: 20px;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 /* Category item */
@@ -404,5 +405,135 @@
 .rest-info p:nth-child(3) {
   color: #333;
   font-weight: 500;
+}
+
+/* ==== Unified restaurant card (match SearchPage) ==== */
+.restaurants-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.restaurant-card {
+  display: flex;
+  background-color: white;
+  border-radius: 18px;
+  padding: 16px;
+  cursor: pointer;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.restaurant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  border-color: #ff4757;
+}
+
+.restaurant-image {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 14px;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+  display: block;
+}
+
+.restaurant-info {
+  flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 0;
+  min-width: 0;
+}
+
+.restaurant-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #333;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.restaurant-address {
+  font-size: 14px;
+  color: #888;
+  margin: 0 0 auto 0;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.restaurant-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.rating {
+  color: #ff4757;
+  font-weight: 600;
+  background-color: #fff5f5;
+  padding: 6px 12px;
+  border-radius: 14px;
+  margin-bottom: 6px; /* add breathing room under stars */
+}
+
+.distance {
+  color: #666;
+  background-color: #f8f9fa;
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-weight: 500;
+}
+
+.price {
+  color: #4caf50;
+  font-weight: 700;
+  background-color: #f1f8f4;
+  padding: 6px 12px;
+  border-radius: 14px;
+}
+
+@media (max-width: 1200px) {
+  .restaurants-list {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .restaurants-list {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .restaurant-card {
+    padding: 12px;
+  }
+
+  .restaurant-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .restaurant-info {
+    margin-left: 14px;
+  }
+
+  .restaurant-name {
+    font-size: 16px;
+  }
 }
 

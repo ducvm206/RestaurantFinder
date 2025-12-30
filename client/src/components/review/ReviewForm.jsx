@@ -1,40 +1,101 @@
 // ═══════════════════════════════════════════════════════════════
 // REVIEW FORM COMPONENT - MODAL
 // ═══════════════════════════════════════════════════════════════
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { toast } from "react-toastify";
+import { LanguageContext } from "../../context/LanguageContext";
 import "./ReviewForm.css";
+
+// Import trực tiếp các file translation
+import translationsJa from "../../translations/ja.json";
+import translationsEn from "../../translations/en.json";
+import translationsVi from "../../translations/vi.json";
+
+const translations = {
+  ja: translationsJa,
+  en: translationsEn,
+  vi: translationsVi,
+};
 
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS - TAGS
 // ═══════════════════════════════════════════════════════════════
-const SERVICE_TAGS = [
-  "エアコン",
-  "屋外スペース",
-  "屋内",
-  "パーティールーム",
-  "禁煙",
-  "子供向け",
-];
+const SERVICE_TAGS = {
+  ja: [
+    "エアコン",
+    "屋外スペース",
+    "屋内",
+    "パーティールーム",
+    "禁煙",
+    "子供向け",
+  ],
+  en: [
+    "AC",
+    "Outdoor Space",
+    "Indoor",
+    "Party Room",
+    "Non-smoking",
+    "Kid-friendly",
+  ],
+  vi: [
+    "Điều hòa",
+    "Khu ngoài trời",
+    "Trong nhà",
+    "Phòng tiệc",
+    "Không hút thuốc",
+    "Thân thiện với trẻ em",
+  ],
+};
 
-const STYLE_TAGS = [
-  "美しい",
-  "エキゾチック",
-  "シンプル",
-  "高級ダイニング",
-  "和風",
-  "席心地が良い",
-];
+const STYLE_TAGS = {
+  ja: [
+    "美しい",
+    "エキゾチック",
+    "シンプル",
+    "高級ダイニング",
+    "和風",
+    "席心地が良い",
+  ],
+  en: [
+    "Beautiful",
+    "Exotic",
+    "Simple",
+    "Fine Dining",
+    "Japanese Style",
+    "Comfortable",
+  ],
+  vi: [
+    "Đẹp",
+    "Lạ mắt",
+    "Đơn giản",
+    "Sang trọng",
+    "Phong cách Nhật",
+    "Thoải mái",
+  ],
+};
 
-const DISH_TAGS = [
-  "新鮮",
-  "ヴィーガン対応",
-  "濃厚な",
-  "最も自然美しい",
-  "美味しい",
-];
+const DISH_TAGS = {
+  ja: ["新鮮", "ヴィーガン対応", "濃厚な", "最も自然美しい", "美味しい"],
+  en: ["Fresh", "Vegan-friendly", "Rich", "Natural", "Delicious"],
+  vi: ["Tươi", "Thuần chay", "Đậm đà", "Tự nhiên", "Ngon"],
+};
 
 const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
+  const { lang } = useContext(LanguageContext);
+
+  // Tạo function t trực tiếp từ translations
+  const t = (key) => {
+    const parts = key.split(".");
+    let obj = translations[lang] || translations.ja;
+
+    for (const part of parts) {
+      if (!obj || !obj[part]) return key;
+      obj = obj[part];
+    }
+
+    return obj;
+  };
+
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -54,7 +115,7 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
 
     // Validate file count
     if (images.length + files.length > 3) {
-      setErrors({ ...errors, images: "画像は3枚までアップロード可能です" });
+      setErrors({ ...errors, images: t("reviewForm.errors.maxImages") });
       return;
     }
 
@@ -67,14 +128,14 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
       if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/)) {
         setErrors({
           ...errors,
-          images: "jpg, png, gif, webp のみアップロード可能です",
+          images: t("reviewForm.errors.invalidFormat"),
         });
         return;
       }
 
       // Check file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors({ ...errors, images: "ファイルサイズは5MB以下にしてください" });
+        setErrors({ ...errors, images: t("reviewForm.errors.maxSize") });
         return;
       }
 
@@ -128,15 +189,15 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
     const newErrors = {};
 
     if (rating === 0) {
-      newErrors.rating = "評価を選択してください";
+      newErrors.rating = t("reviewForm.errors.ratingRequired");
     }
 
     if (!comment.trim()) {
-      newErrors.comment = "コメントを入力してください";
+      newErrors.comment = t("reviewForm.errors.commentRequired");
     } else if (comment.trim().length < 10) {
-      newErrors.comment = "コメントは10文字以上入力してください";
+      newErrors.comment = t("reviewForm.errors.commentMinLength");
     } else if (comment.trim().length > 500) {
-      newErrors.comment = "コメントは500文字以内にしてください";
+      newErrors.comment = t("reviewForm.errors.commentMaxLength");
     }
 
     setErrors(newErrors);
@@ -157,7 +218,7 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
       // Get user from localStorage
       const userStr = localStorage.getItem("user");
       if (!userStr) {
-        toast.error("ログインが必要です");
+        toast.error(t("reviewForm.messages.loginRequired"));
         return;
       }
       const user = JSON.parse(userStr);
@@ -188,11 +249,21 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "レビューの投稿に失敗しました");
+        // Xử lý lỗi đã review rồi
+        if (
+          response.status === 400 &&
+          data.message &&
+          (data.message.includes("既に") ||
+            data.message.includes("already") ||
+            data.message.includes("đã"))
+        ) {
+          throw new Error(t("reviewForm.messages.alreadyReviewed"));
+        }
+        throw new Error(data.message || t("reviewForm.messages.submitFailed"));
       }
 
       // Success
-      toast.success("レビューが投稿されました！");
+      toast.success(t("reviewForm.messages.submitSuccess"));
 
       // Clean up
       imagePreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -202,12 +273,11 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
       onClose();
     } catch (error) {
       console.error("Error submitting review:", error);
-      toast.error(error.message || "レビューの投稿に失敗しました");
+      toast.error(error.message || t("reviewForm.messages.submitFailed"));
     } finally {
       setSubmitting(false);
     }
   };
-
   return (
     <div className="review-form-overlay" onClick={onClose}>
       <div className="review-form-modal" onClick={(e) => e.stopPropagation()}>
@@ -216,7 +286,7 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
           <button className="back-btn" onClick={onClose}>
             ←
           </button>
-          <h2>レストランレビュー</h2>
+          <h2>{t("reviewForm.title")}</h2>
           <div className="header-spacer"></div>
         </div>
 
@@ -239,7 +309,7 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
               />
               <div className="photo-placeholder">
                 <span className="camera-icon">📷</span>
-                <span className="upload-text">写真を追加</span>
+                <span className="upload-text">{t("reviewForm.addPhotos")}</span>
               </div>
             </label>
 
@@ -248,7 +318,10 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
               <div className="image-previews">
                 {imagePreviews.map((preview, index) => (
                   <div key={index} className="preview-item">
-                    <img src={preview} alt={`プレビュー ${index + 1}`} />
+                    <img
+                      src={preview}
+                      alt={`${t("reviewForm.preview")} ${index + 1}`}
+                    />
                     <button
                       type="button"
                       className="remove-image-btn"
@@ -268,9 +341,9 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ SERVICE TAGS ═══ */}
           <div className="form-section">
-            <label className="section-label">サービス</label>
+            <label className="section-label">{t("reviewForm.service")}</label>
             <div className="tags-container">
-              {SERVICE_TAGS.map((tag) => (
+              {(SERVICE_TAGS[lang] || SERVICE_TAGS.ja).map((tag) => (
                 <button
                   key={tag}
                   type="button"
@@ -287,9 +360,9 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ STYLE TAGS ═══ */}
           <div className="form-section">
-            <label className="section-label">スタイル</label>
+            <label className="section-label">{t("reviewForm.style")}</label>
             <div className="tags-container">
-              {STYLE_TAGS.map((tag) => (
+              {(STYLE_TAGS[lang] || STYLE_TAGS.ja).map((tag) => (
                 <button
                   key={tag}
                   type="button"
@@ -306,13 +379,15 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ DISH TAGS ═══ */}
           <div className="form-section">
-            <label className="section-label">料理</label>
+            <label className="section-label">{t("reviewForm.dish")}</label>
             <div className="tags-container">
-              {DISH_TAGS.map((tag) => (
+              {(DISH_TAGS[lang] || DISH_TAGS.ja).map((tag) => (
                 <button
                   key={tag}
                   type="button"
-                  className={`tag-btn ${dishTags.includes(tag) ? "active" : ""}`}
+                  className={`tag-btn ${
+                    dishTags.includes(tag) ? "active" : ""
+                  }`}
                   onClick={() => toggleTag(tag, "dish")}
                 >
                   {tag}
@@ -323,7 +398,7 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ RATING ═══ */}
           <div className="form-section">
-            <label className="section-label">評価</label>
+            <label className="section-label">{t("reviewForm.rating")}</label>
             <div className="star-rating-input">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
@@ -346,10 +421,10 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
 
           {/* ═══ COMMENT ═══ */}
           <div className="form-section">
-            <label className="section-label">コメント</label>
+            <label className="section-label">{t("reviewForm.comment")}</label>
             <textarea
               className="review-textarea"
-              placeholder="レビューを入力..."
+              placeholder={t("reviewForm.commentPlaceholder")}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={6}
@@ -362,12 +437,8 @@ const ReviewForm = ({ restaurantId, restaurantName, onClose, onSuccess }) => {
           </div>
 
           {/* ═══ SUBMIT BUTTON ═══ */}
-          <button
-            type="submit"
-            className="submit-btn"
-            disabled={submitting}
-          >
-            {submitting ? "投稿中..." : "レビューを投稿"}
+          <button type="submit" className="submit-btn" disabled={submitting}>
+            {submitting ? t("reviewForm.submitting") : t("reviewForm.submit")}
           </button>
         </form>
       </div>

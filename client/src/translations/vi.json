@@ -53,7 +53,8 @@
     "greeting": "Xin chào, {name}! Chúc buổi chiều tốt lành!",
     "search_placeholder": "Nhập tên món ăn...",
     "dish_not_found": "Không tìm thấy nhà hàng phục vụ món này.",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "search_box_place_holder": "Nhập tên món ăn…"
   },
 
   "profile": {
@@ -139,59 +140,56 @@
   },
 
   "filterModal": {
-    "title": "Bộ lọc tìm kiếm",
-    "services_title": "Dịch vụ",
+    "title": "Bộ lọc",
+    "services_title": "Dịch vụ & Ẩm thực",
     "distance_title": "Khoảng cách",
     "price_title": "Mức giá",
     "styles_title": "Phong cách",
     "rating_title": "Đánh giá",
+    "location_title": "Khu vực",
+    "district_placeholder": "Quận/Huyện",
+    "city_placeholder": "Thành phố",
+    "rating_text": "Từ {stars} sao trở lên",
     "reset_button": "Đặt lại",
     "apply_button": "Áp dụng",
-    "rating_text": "Từ {stars} sao trở lên",
     "options": {
       "services": {
         "wifi": "Wi-Fi",
-        "parking": "Bãi đỗ xe",
-        "kid_friendly": "Thân thiện với trẻ em",
+        "parking": "Bãi đậu xe",
+        "outdoor": "Chỗ ngồi ngoài trời",
         "delivery": "Giao hàng",
-        "takeout": "Mang về",
-        "reservation": "Đặt bàn",
-        "outdoor_seating": "Chỗ ngồi ngoài trời",
-        "wheelchair_accessible": "Xe lăn"
+        "takeout": "Mang đi",
+        "reservation": "Đặt trước",
+        "kid_friendly": "Thân thiện với trẻ em",
+        "pet_friendly": "Cho phép thú cưng",
+        "accessible": "Tiện nghi cho người khuyết tật"
       },
       "cuisines": {
         "japanese": "Nhật Bản",
-        "vietnamese": "Việt Nam",
-        "chinese": "Trung Quốc",
-        "korean": "Hàn Quốc",
-        "western": "Phương Tây",
-        "thai": "Thái Lan",
+        "chinese": "Trung Hoa",
         "italian": "Ý",
         "french": "Pháp",
+        "korean": "Hàn Quốc",
+        "thai": "Thái",
+        "vietnamese": "Việt Nam",
         "indian": "Ấn Độ",
-        "fusion": "Hỗn hợp"
+        "western": "Phương Tây",
+        "fusion": "Hòa quyện"
       },
       "distances": {
-        "500m": "500m",
-        "1km": "1km",
-        "2km": "2km",
-        "5km": "5km",
-        "10km": "10km"
-      },
-      "priceRanges": {
-        "budget": "Bình dân",
-        "medium": "Trung bình",
-        "expensive": "Cao cấp",
-        "luxury": "Sang trọng"
+        "1km": "Trong vòng 1km",
+        "3km": "Trong vòng 3km",
+        "5km": "Trong vòng 5km",
+        "10km": "Trong vòng 10km"
       },
       "styles": {
-        "casual": "Thoải mái",
-        "formal": "Trang trọng",
-        "traditional": "Truyền thống",
-        "modern": "Hiện đại",
+        "casual": "Bình dân",
+        "fine_dining": "Cao cấp",
         "romantic": "Lãng mạn",
         "family": "Gia đình",
         "business": "Công việc",
+        "traditional": "Truyền thống",
+        "modern": "Hiện đại",
         "cozy": "Ấm cúng"
       }
     }
@@ -204,7 +202,8 @@
     "tabs": {
       "menu": "Thực đơn",
       "reviews": "Đánh giá",
-      "images": "Hình ảnh"
+      "images": "Hình ảnh",
+      "review_button": "Viết đánh giá"
     },
 
     "sections": {
@@ -212,5 +211,92 @@
       "reviews": "Đánh giá",
       "images": "Hình ảnh"
     }
+  },
+
+  "reviews": {
+    "retry": "Thử lại",
+    "count": "đánh giá"
+  },
+
+  "editReview": {
+    "title": "Chỉnh sửa đánh giá",
+    "restaurantName": "Tên nhà hàng",
+    "existingPhotos": "Ảnh hiện có",
+    "addNewPhotos": "Thêm ảnh mới",
+    "newPhoto": "Mới",
+    "service": "Dịch vụ",
+    "style": "Phong cách",
+    "dish": "Món ăn",
+    "rating": "Đánh giá",
+    "titleOptional": "Tiêu đề (Tùy chọn)",
+    "titlePlaceholder": "VD: Trải nghiệm tuyệt vời",
+    "comment": "Bình luận",
+    "commentPlaceholder": "Viết đánh giá của bạn...",
+    "saveChanges": "Lưu thay đổi",
+    "updating": "Đang cập nhật...",
+    "restore": "Khôi phục",
+    "delete": "Xóa",
+    "errors": {
+      "maxImages": "Tối đa 3 ảnh",
+      "invalidFormat": "Chỉ chấp nhận jpg, png, gif, webp",
+      "maxSize": "Kích thước file phải dưới 5MB",
+      "ratingRequired": "Vui lòng chọn đánh giá",
+      "commentRequired": "Vui lòng nhập bình luận",
+      "commentMinLength": "Bình luận phải có ít nhất 10 ký tự",
+      "commentMaxLength": "Bình luận phải dưới 500 ký tự"
+    },
+    "messages": {
+      "loginRequired": "Cần đăng nhập",
+      "updateSuccess": "Đã cập nhật đánh giá!",
+      "updateFailed": "Không thể cập nhật đánh giá"
+    }
+  },
+  "reviewForm": {
+    "title": "Đánh giá nhà hàng",
+    "addPhotos": "Thêm ảnh",
+    "preview": "Xem trước",
+    "service": "Dịch vụ",
+    "style": "Phong cách",
+    "dish": "Món ăn",
+    "rating": "Đánh giá",
+    "comment": "Bình luận",
+    "commentPlaceholder": "Viết đánh giá của bạn...",
+    "submit": "Gửi đánh giá",
+    "submitting": "Đang gửi...",
+    "errors": {
+      "maxImages": "Tối đa 3 ảnh",
+      "invalidFormat": "Chỉ chấp nhận jpg, png, gif, webp",
+      "maxSize": "Kích thước file phải dưới 5MB",
+      "ratingRequired": "Vui lòng chọn đánh giá",
+      "commentRequired": "Vui lòng nhập bình luận",
+      "commentMinLength": "Bình luận phải có ít nhất 10 ký tự",
+      "commentMaxLength": "Bình luận phải dưới 500 ký tự"
+    },
+    "messages": {
+      "loginRequired": "Cần đăng nhập",
+      "submitSuccess": "Đã gửi đánh giá!",
+      "submitFailed": "Không thể gửi đánh giá"
+    }
+  },
+  "reviewCard": {
+    "anonymousUser": "Người dùng ẩn danh",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "deleting": "Đang xóa...",
+    "showMore": "Xem thêm",
+    "showLess": "Ẩn bớt",
+    "edited": "Đã chỉnh sửa",
+    "reviewImage": "Đánh giá",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa đánh giá này?",
+    "deleteSuccess": "Đã xóa đánh giá",
+    "deleteFailed": "Không thể xóa đánh giá"
+  },
+  "reviewList": {
+    "loading": "Đang tải...",
+    "loadFailed": "Không thể tải đánh giá",
+    "retry": "Thử lại",
+    "reviewsCount": "đánh giá",
+    "noReviews": "Chưa có đánh giá",
+    "noReviewsSubtext": "Hãy là người đầu tiên viết đánh giá!"
   }
 }

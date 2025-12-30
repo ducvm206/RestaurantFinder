@@ -1,0 +1,128 @@
+/* RestaurantInfo.css */
+.restaurant-info-wrapper {
+  /* Padding removed - using inline styles instead */
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
+}
+
+.restaurant-info {
+  padding: 40px 40px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  margin-right: 20px; /* Center it horizontally */
+}
+
+.restaurant-info h2 {
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.restaurant-description {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: 2px 0;
+}
+
+.info-item .icon {
+  margin-right: 12px;
+  font-size: 1.1rem;
+  min-width: 20px;
+  text-align: center;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* Specific icon colors */
+.info-item .star-icon {
+  color: #ffb400 !important; /* Gold for stars */
+}
+
+.info-item .clock-icon {
+  color: #ff5c5c !important; /* Red for clock */
+}
+
+/* Default icon color for other icons */
+.info-item svg.icon:not(.star-icon):not(.clock-icon) {
+  color: #ff5c5c !important;
+}
+
+/* Alternatively, target specific react-icons by their element names */
+.info-item svg[data-icon="ai-fill-star"] {
+  color: #ffb400 !important;
+}
+
+.info-item svg[data-icon="fi-clock"] {
+  color: #ff5c5c !important;
+}
+
+.info-item svg[data-icon="fi-map-pin"],
+.info-item svg[data-icon="fi-phone"],
+.info-item svg[data-icon="md-location-on"] {
+  color: #777 !important;
+}
+
+.opening-hours-item {
+  align-items: flex-start;
+}
+
+.opening-hours-text {
+  flex: 1;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: #444;
+  padding-right: 8px;
+}
+
+/* For complex opening hours with multiple entries */
+.opening-hours-text:has(div) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Responsive design - only affect .restaurant-info, not the wrapper */
+@media (max-width: 1024px) {
+  .restaurant-info {
+    padding: 18px 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .restaurant-info {
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .restaurant-info {
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .restaurant-info {
+    padding: 12px 14px;
+  }
+}

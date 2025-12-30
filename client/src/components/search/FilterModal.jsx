@@ -1,11 +1,59 @@
 // client/src/components/search/FilterModal.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { filterOptions } from "../../data/mockData";
-import useTranslation from "../../hooks/useTranslation";
+import { LanguageContext } from "../../context/LanguageContext";
 import "./FilterModal.css";
 
+// Import trực tiếp các file translation
+import translationsJa from "../../translations/ja.json";
+import translationsEn from "../../translations/en.json";
+import translationsVi from "../../translations/vi.json";
+
+const translations = {
+  ja: translationsJa,
+  en: translationsEn,
+  vi: translationsVi,
+};
+
 const FilterModal = ({ filters, onApply, onClose }) => {
-  const t = useTranslation();
+  const { lang } = useContext(LanguageContext);
+
+  // Tạo function t trực tiếp từ translations
+  const t = (key, params) => {
+    try {
+      const parts = key.split(".");
+      let currentLang = lang || "ja";
+      let obj = translations[currentLang];
+
+      if (!obj) {
+        obj = translations.ja;
+      }
+
+      for (const part of parts) {
+        if (!obj || !obj[part]) {
+          console.warn(
+            `Translation key not found: ${key} for language: ${currentLang}`
+          );
+          return key;
+        }
+        obj = obj[part];
+      }
+
+      // Xử lý params nếu có (ví dụ: {stars: 4})
+      if (params && typeof obj === "string") {
+        let result = obj;
+        Object.keys(params).forEach((paramKey) => {
+          result = result.replace(`{${paramKey}}`, params[paramKey]);
+        });
+        return result;
+      }
+
+      return obj;
+    } catch (error) {
+      console.error("Translation error:", error);
+      return key;
+    }
+  };
 
   // Debug translations khi component mount (chỉ trong development)
   useEffect(() => {
@@ -32,12 +80,14 @@ const FilterModal = ({ filters, onApply, onClose }) => {
   }, []);
 
   const [localFilters, setLocalFilters] = useState({
-    services: [...filters.services],
-    cuisines: [...filters.cuisines],
-    distance: filters.distance,
-    priceRange: filters.priceRange,
-    styles: [...filters.styles],
-    minRating: filters.minRating,
+    services: Array.isArray(filters.services) ? [...filters.services] : [],
+    cuisines: Array.isArray(filters.cuisines) ? [...filters.cuisines] : [],
+    distance: filters.distance || "",
+    priceRange: filters.priceRange || "",
+    styles: Array.isArray(filters.styles) ? [...filters.styles] : [],
+    minRating: filters.minRating || 0,
+    district: filters.district || "",
+    city: filters.city || "",
   });
 
   // Toggle multi-select filter (services, cuisines, styles)
@@ -68,11 +118,10 @@ const FilterModal = ({ filters, onApply, onClose }) => {
   };
 
   // Apply filters
-  
   const handleApply = () => {
-  onApply(localFilters);   // gửi filter đã chọn ra SearchPage để lọc              
-  onClose();               // đóng modal
-};
+    onApply(localFilters); // gửi filter đã chọn ra SearchPage để lọc
+    onClose(); // đóng modal
+  };
 
   // Reset all filters
   const handleReset = () => {
@@ -83,6 +132,8 @@ const FilterModal = ({ filters, onApply, onClose }) => {
       priceRange: "",
       styles: [],
       minRating: 0,
+      district: "",
+      city: "",
     };
     setLocalFilters(resetFilters);
   };
@@ -163,11 +214,11 @@ const FilterModal = ({ filters, onApply, onClose }) => {
             <h3 className="filter-section-title">
               {t("filterModal.distance_title")}
             </h3>
-            <div className="filter-buttons">
+            <div className="filter-chips">
               {filterOptions.distances.map((distance) => (
                 <button
                   key={distance.value}
-                  className={`filter-button ${
+                  className={`filter-chip ${
                     localFilters.distance === distance.value ? "active" : ""
                   }`}
                   onClick={() => setSingleFilter("distance", distance.value)}
@@ -183,16 +234,16 @@ const FilterModal = ({ filters, onApply, onClose }) => {
             <h3 className="filter-section-title">
               {t("filterModal.price_title")}
             </h3>
-            <div className="filter-buttons">
+            <div className="filter-chips">
               {filterOptions.priceRanges.map((price) => (
                 <button
                   key={price.value}
-                  className={`filter-button price-button ${
+                  className={`filter-chip ${
                     localFilters.priceRange === price.value ? "active" : ""
                   }`}
                   onClick={() => setSingleFilter("priceRange", price.value)}
                 >
-                  {getTranslatedLabel("priceRanges", price.value)}
+                  {price.label}
                 </button>
               ))}
             </div>
@@ -243,6 +294,39 @@ const FilterModal = ({ filters, onApply, onClose }) => {
                 })}
               </p>
             )}
+          </div>
+
+          {/* Location filters */}
+          <div className="filter-section">
+            <h3 className="filter-section-title">
+              {t("filterModal.location_title")}
+            </h3>
+            <div
+              className="filter-chips"
+              style={{ flexDirection: "column", gap: "8px" }}
+            >
+              <input
+                type="text"
+                className="filter-input"
+                placeholder={t("filterModal.district_placeholder")}
+                value={localFilters.district}
+                onChange={(e) =>
+                  setLocalFilters((prev) => ({
+                    ...prev,
+                    district: e.target.value,
+                  }))
+                }
+              />
+              <input
+                type="text"
+                className="filter-input"
+                placeholder={t("filterModal.city_placeholder")}
+                value={localFilters.city}
+                onChange={(e) =>
+                  setLocalFilters((prev) => ({ ...prev, city: e.target.value }))
+                }
+              />
+            </div>
           </div>
         </div>
 
